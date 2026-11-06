@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Commet インタラクティブモック</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+  <header class="demo-header">
+    <div class="demo-brand"><span>C</span><div><b>Commet</b><small>APIなし・ローカル判定デモ</small></div></div>
+    <div class="platform-switch" role="tablist" aria-label="SNSを切り替える">
+      <button type="button" data-platform-button="x" aria-selected="false">X</button>
+      <button type="button" data-platform-button="youtube" aria-selected="true">YouTube</button>
+    </div>
+    <button class="reset-button" type="button" data-reset>育成データをリセット</button>
+  </header>
+
+  <main class="demo-stage">
+    <section class="sample-bar" aria-label="サンプルコメント">
+      <b>試す文章</b>
+      <button type="button" data-sample="supportive">応援・共感</button>
+      <button type="button" data-sample="constructive">建設的批判</button>
+      <button type="button" data-sample="unconstructive">非建設的批判</button>
+      <button type="button" data-sample="abusive">誹謗中傷</button>
+      <button type="button" data-sample="neutral">中立</button>
+    </section>
+    <section class="sample-bar" aria-label="探索デモの操作">
+      <label><input type="checkbox" data-follow checked> 入力欄へ移動</label>
+      <label><input type="checkbox" data-explore checked> 自動探索</label>
+      <button type="button" data-example-coins>仮コイン20枚で試す</button>
+      <button type="button" data-leave>ページを離れる（1.0倍）</button>
+      <button type="button" data-position-reset>右下に戻す</button>
+    </section>
+
+    <section class="social-window">
+      <div class="browser-bar"><span class="browser-dots"><i></i><i></i><i></i></span><span data-address>youtube.com/watch?v=demo</span></div>
+
+      <div class="social-page x-page" data-social-page="x" hidden>
+        <aside class="x-sidebar">
+          <strong>𝕏</strong>
+          <nav><span>⌂　ホーム</span><span>⌕　話題を検索</span><span>♧　通知</span><span>✉　メッセージ</span><span>○　プロフィール</span></nav>
+        </aside>
+        <div class="x-main">
+          <h1>ホーム</h1>
+          <div class="x-composer" data-commet-compose>
+            <span class="user-avatar avatar-purple"></span>
+            <div>
+              <textarea data-comment-input="x" maxlength="500" placeholder="いまどうしてる？"></textarea>
+              <div class="composer-footer"><span>▧　GIF　☺</span><button type="button" data-platform-submit>ポストする</button></div>
+            </div>
+          </div>
+          <article class="fake-post"><span class="user-avatar avatar-green"></span><div><b>GDG Community</b><p>イベントで共有されたアイデアをまとめました。みなさんの意見も聞かせてください！</p><small>♡ 24　↻ 8　♧ 1.2K</small></div></article>
+          <article class="fake-post"><span class="user-avatar avatar-blue"></span><div><b>Tech Creator</b><p>Gemini APIを使ったChrome拡張機能の作り方を公開しました。</p><small>♡ 42　↻ 15　♧ 2.4K</small></div></article>
+        </div>
+        <aside class="x-trends"><div class="search-box">キーワード検索</div><section><h2>いまどうしてる？</h2><small>日本のトレンド</small><b>#DevFest</b><small>テクノロジー</small><b>Gemini API</b><small>プログラミング</small><b>Chrome拡張機能</b></section></aside>
+      </div>
+
+      <div class="social-page youtube-page" data-social-page="youtube">
+        <header class="youtube-header"><strong><span>▶</span>YouTube</strong><div>検索</div><b>⋮</b></header>
+        <div class="youtube-layout">
+          <div class="youtube-main">
+            <div class="video-placeholder"><span>▶</span><b>動画プレビュー</b></div>
+            <h1>Gemini APIでつくる、やさしいSNS体験</h1>
+            <p class="video-meta">12,340 回視聴・2026/11/06　　♡ 1,240　共有</p>
+            <h2>コメント 128件</h2>
+            <div class="youtube-composer" data-commet-compose>
+              <span class="user-avatar avatar-orange"></span>
+              <div>
+                <textarea data-comment-input="youtube" maxlength="500" placeholder="コメントを追加…"></textarea>
+                <div class="youtube-actions"><button type="button" class="cancel-comment">キャンセル</button><button type="button" data-platform-submit>コメント</button></div>
+              </div>
+            </div>
+            <article class="youtube-comment"><span class="user-avatar avatar-green"></span><div><b>@community_member</b><p>説明が分かりやすく、実装のイメージが湧きました！</p><small>♡ 18　　返信</small></div></article>
+          </div>
+          <aside class="recommendations"><article><i></i><div><b>Chrome拡張機能 入門</b><small>Dev Channel<br>3.4万 回視聴</small></div></article><article><i></i><div><b>Gemini API 活用例</b><small>AI Lab<br>2.1万 回視聴</small></div></article><article><i></i><div><b>UIデザインの基本</b><small>Design Studio<br>8,500 回視聴</small></div></article></aside>
+        </div>
+      </div>
+
+      <aside class="kokoropet-card" data-card data-open="true">
+        <button class="collapse-button" type="button" data-collapse aria-label="Commetを開閉">−</button>
+        <div class="pet-column">
+          <div class="pet character-a skin-base" data-pet data-mood="idle"><span class="pet-sprite"></span><span class="pet-hat" data-hat></span><span class="pet-badge" data-badge></span></div>
+          <span class="demo-coin" data-coin aria-hidden="true">●</span>
+          <span class="level-chip">LV.<b data-level>1</b></span>
+        </div>
+        <div class="card-main">
+          <div class="card-heading"><strong data-pet-name>ココロ</strong><span data-platform-label>YouTube・デモ</span></div>
+          <div class="app-tabs" role="tablist" aria-label="Commetの画面を切り替える">
+            <button type="button" data-app-tab="check" aria-selected="true">投稿チェック</button>
+            <button type="button" data-app-tab="status" aria-selected="false">育成状況</button>
+          </div>
+
+          <section data-app-panel="check">
+            <p class="pet-message" data-message>コメントを入力して、ことばを一緒に見直そう。</p>
+            <div class="analysis-result" data-result hidden>
+              <strong data-result-title></strong>
+              <p data-result-reason></p>
+              <div class="score-grid"><span>有害性 <b data-harm>0</b>/10</span><span>敬意 <b data-respect>0</b>/10</span><span>建設性 <b data-constructiveness>0</b>/10</span><span>共感 <b data-empathy-score>0</b>/10</span></div>
+              <p class="delta-preview" data-delta-preview></p>
+              <details data-improvement hidden>
+                <summary>改善案を見る</summary>
+                <p data-suggestion></p>
+                <button type="button" data-apply-suggestion>改善案を入力欄に反映</button>
+              </details>
+            </div>
+            <button class="check-button" type="button" data-check><span>✦</span><span data-check-label>このコメントをチェック</span></button>
+            <button class="commit-button" type="button" data-commit hidden>投稿して育成に反映</button>
+            <p class="demo-note">APIを使わず、簡易ルールで判定します。</p>
+          </section>
+
+          <section class="status-panel" data-app-panel="status" hidden>
+            <div class="level-row"><b>LEVEL <span data-status-level>1</span></b><span>XP <strong data-xp-text>0 / 30</strong></span></div>
+            <div class="xp-track"><i data-xp-bar></i></div>
+            <div class="status-row"><span>♡ 思いやり</span><div><i class="empathy-color" data-empathy-bar></i></div><b data-empathy>50</b></div>
+            <div class="status-row"><span>◇ 考える力</span><div><i class="critical-color" data-critical-bar></i></div><b data-critical>50</b></div>
+            <div class="status-row"><span>♢ しなやかさ</span><div><i class="resilience-color" data-resilience-bar></i></div><b data-resilience>50</b></div>
+            <div class="growth-meta"><span><b data-total-posts>0</b> 投稿</span><span><b data-streak>0</b> 日連続</span><span><b data-unlocks>3</b> アイテム</span></div>
+            <div class="character-picker"><b>初期キャラ</b><div data-character-picker></div></div>
+            <p class="status-help">レベル・XP・ステータスはこの「育成状況」タブで確認します。</p>
+          </section>
+        </div>
+        <p class="demo-wallet">探索コイン <b data-pending>仮 0</b> ・ <b data-confirmed>確定 0</b><small data-settlement aria-live="polite"></small></p>
+      </aside>
+    </section>
+  </main>
+
+  <script src="../lib/game.js"></script>
+  <script src="../lib/demo.js"></script>
+  <script src="../lib/pet-motion.js"></script>
+  <script src="demo.js"></script>
+</body>
+</html>

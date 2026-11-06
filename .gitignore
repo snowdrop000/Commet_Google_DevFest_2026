@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.commet/
+.env
+node_modules/
+.wxt/
+.output/
+.env.*
+!.env.example
+firebase-debug.log
+firestore-debug.log
+service-account*.json
+firebase-adminsdk*.json
+test-results/
+playwright-report/

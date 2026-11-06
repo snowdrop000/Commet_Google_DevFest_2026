@@ -1,0 +1,91 @@
+import { demoCandidate } from "../shared/demo";
+import { createApp } from "../server/app";
+import {
+  newAccount,
+  newSession,
+  type AccountState,
+  type ExplorationSession,
+  type GameRepository,
+  type Mutation,
+} from "../server/model/state";
+import { AnalysisService, type GeminiQuota } from "../server/service/analysis";
+import { GameService } from "../server/service/game";
+import type { AiRepository } from "../server/repository/gemini";
+
+export class MemoryRepository implements GameRepository {
+  readonly accounts = new Map<string, AccountState>();
+  readonly sessions = new Map<string, ExplorationSession>();
+  private writes = Promise.resolve();
+  async read(uid: string) {
+    return structuredClone(this.accounts.get(uid) ?? newAccount());
+  }
+  transact<T>(uid: string, sessionId: string | null, mutate: Mutation<T>): Promise<T> {
+    const task = this.writes.then(async () => {
+      const key = `${uid}/${sessionId}`;
+      const change = mutate(
+        await this.read(uid),
+        structuredClone(this.sessions.get(key) ?? newSession()),
+      );
+      if (change.account) this.accounts.set(uid, structuredClone(change.account));
+      if (change.session && sessionId) this.sessions.set(key, structuredClone(change.session));
+      return change.value;
+    });
+    this.writes = task.then(
+      () => {},
+      () => {},
+    );
+    return task;
+  }
+}
+
+export function testApi(
+  options: {
+    ai?: AiRepository;
+    quota?: GeminiQuota;
+    verify?: (token: string) => Promise<string>;
+  } = {},
+) {
+  let now = Date.parse("2026-11-06T01:00:00Z");
+  const repository = new MemoryRepository();
+  const game = new GameService(repository, () => now);
+  const analysis = new AnalysisService(
+    options.ai ?? null,
+    options.quota ?? {
+      async reserve() {
+        return true;
+      },
+    },
+    game,
+    !options.ai,
+  );
+  const app = createApp(
+    game,
+    analysis,
+    options.verify ??
+      (async (token) => {
+        if (!["alice", "bob"].includes(token)) throw new Error();
+        return token;
+      }),
+    options.ai ? "gemini" : "emulator-demo",
+  );
+  return {
+    app,
+    repository,
+    game,
+    advance: (ms: number) => {
+      now += ms;
+    },
+  };
+}
+
+export function fakeAi(): AiRepository {
+  return {
+    async comment(input) {
+      const text = (input as { draft: string }).draft;
+      return demoCandidate(text);
+    },
+    async video() {
+      return { summary: "動画内容の要約", topics: [], keyClaims: [], sensitiveTopics: [] };
+    },
+  };
+}

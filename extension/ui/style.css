@@ -1,0 +1,210 @@
+.commet {
+  color: #192026;
+  font:
+    14px/1.5 system-ui,
+    sans-serif;
+  box-sizing: border-box;
+}
+.commet *,
+.commet *::before,
+.commet *::after {
+  box-sizing: border-box;
+}
+.commet button,
+.commet input,
+.commet select,
+.commet textarea {
+  font: inherit;
+}
+.commet button {
+  border: 1px solid #192026;
+  border-radius: 7px;
+  background: #fff;
+  color: #192026;
+  padding: 0.35em 0.7em;
+  cursor: pointer;
+}
+.commet button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.commet button.primary {
+  background: #b7ef58;
+  font-weight: 700;
+}
+.commet button[aria-pressed="true"] {
+  background: #e7fac8;
+  font-weight: 700;
+}
+.commet label {
+  display: block;
+}
+.commet p {
+  margin: 0.4em 0;
+}
+.commet h1,
+.commet h2 {
+  margin: 0.3em 0;
+  line-height: 1.2;
+}
+.commet h1 {
+  font-size: 20px;
+}
+.commet h2 {
+  font-size: 16px;
+}
+.commet-card {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 2147483646;
+  width: 345px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 12px);
+  overflow: auto;
+  display: grid;
+  grid-template-columns: 91px minmax(0, 1fr);
+  gap: 8px;
+  background: #fffdf7;
+  border: 2px solid #192026;
+  border-radius: 17px;
+  padding: 12px;
+  box-shadow: 5px 5px 0 #19202633;
+}
+.commet-card[data-collapsed="true"] {
+  width: 100px;
+  display: block;
+  padding: 6px;
+}
+.commet-card[data-motion="walking_to_input"] {
+  transition:
+    left 0.6s linear,
+    top 0.6s linear;
+}
+.commet-card[data-motion="walking_to_input"] .commet-pet {
+  animation: commet-step 0.25s steps(2, end) infinite;
+}
+.commet-card[data-motion="peeking"] .commet-pet {
+  rotate: -9deg;
+}
+@keyframes commet-step {
+  50% {
+    transform: translateY(-4px) rotate(5deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .commet-card,
+  .commet-card * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+.commet-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+}
+.commet-drag {
+  cursor: grab;
+  touch-action: none;
+  position: relative;
+  align-self: start;
+  padding-top: 13px;
+}
+.commet-pet {
+  width: 91px;
+  height: 70px;
+  position: relative;
+  image-rendering: pixelated;
+}
+.commet-sprite {
+  position: absolute;
+  inset: 0;
+  background-size: 100% 400%;
+  background-repeat: no-repeat;
+}
+.commet-sprite[data-skin="skin_sunset"] {
+  filter: sepia(0.4) hue-rotate(315deg) saturate(1.25);
+}
+.commet-sprite[data-skin="skin_midnight"] {
+  filter: hue-rotate(35deg) brightness(0.72);
+}
+.commet-sprite[data-skin="skin_aurora"] {
+  filter: hue-rotate(70deg) saturate(1.2);
+}
+.commet-hat,
+.commet-badge,
+.commet-coin {
+  position: absolute;
+}
+.commet-hat {
+  left: 42%;
+  top: 2%;
+  color: #866022;
+}
+.commet-badge {
+  left: 70%;
+  bottom: 12%;
+  color: #6653e8;
+}
+.commet-coin {
+  color: #b17d14;
+  right: 0;
+  bottom: 2px;
+  opacity: 0;
+}
+.commet-wallet {
+  grid-column: 1 / -1;
+  border-top: 1px solid #e2ddcf;
+}
+.commet-result {
+  overflow-wrap: anywhere;
+  background: #eff3f2;
+  border-radius: 6px;
+  padding: 8px;
+}
+.commet-result[data-tone="abusive"] {
+  background: #fff0f0;
+}
+.commet-result summary {
+  cursor: pointer;
+}
+.commet-stats label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.commet-stats progress {
+  width: 42%;
+  accent-color: #6653e8;
+}
+.commet-shell {
+  max-width: 700px;
+  margin: 12px auto;
+  padding: 12px;
+  background: #fffdf7;
+}
+.commet-shell section {
+  margin: 12px 0;
+  padding: 8px;
+  border: 1px solid #e2ddcf;
+  border-radius: 7px;
+}
+.commet-shell textarea {
+  width: 100%;
+  min-height: 70px;
+}
+.commet-shell pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #eff3f2;
+  padding: 8px;
+}
+.commet-shell .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}

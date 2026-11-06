@@ -1,0 +1,10 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": ["node", "wxt/vite-builder-env"]
+  },
+  "include": ["server", "shared", "extension", "test", "*.config.ts", ".wxt/wxt.d.ts"]
+}

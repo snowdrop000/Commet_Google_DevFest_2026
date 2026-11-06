@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Commet 設定</title><link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header><span>C</span><div><h1>Commet 設定</h1><p>キャラクターの動きと判定を設定します。</p></div></header>
+    <form id="settings-form">
+      <section>
+        <div class="heading"><b>PYTHON API</b><span id="api-status">確認中</span></div>
+        <p class="help">Pythonサーバーを 127.0.0.1:8765 で起動します。Gemini APIキーとモデルはサーバーの環境変数で設定します。</p>
+      </section>
+      <section>
+        <div class="heading"><b>BEHAVIOR</b></div>
+        <label class="check"><input type="checkbox" id="analyze-on-post"><span></span><div><b>送信時に成長へ反映</b><small>Xのポスト、YouTubeのコメント・返信を判定します</small></div></label>
+        <label class="check"><input type="checkbox" id="use-context"><span></span><div><b>会話の文脈を使う</b><small>返信元・スレッド元・動画情報を判定材料にします</small></div></label>
+        <label class="check"><input type="checkbox" id="summarize-videos"><span></span><div><b>YouTube動画をGeminiで要約</b><small>公開動画を要約し、実行中のサーバーで最長7日間再利用します</small></div></label>
+        <label class="check"><input type="checkbox" id="demo-mode"><span></span><div><b>Gemini未設定時はデモ判定</b><small>簡易ルールで試せます</small></div></label>
+        <label class="check"><input type="checkbox" id="follow-composer"><span></span><div><b>コメント欄へ移動する</b><small>入力時に歩いて近づきます</small></div></label>
+        <label class="check"><input type="checkbox" id="explore"><span></span><div><b>探索する</b><small>閲覧中に探索して仮コインを拾います</small></div></label>
+        <button type="button" id="reset-position">キャラを右下へ戻す</button>
+      </section>
+      <div class="actions"><button type="submit">設定を保存</button><span id="saved"></span></div>
+    </form>
+    <aside><b>プライバシーについて</b><p>判定時に本文をローカルのPython APIへ送ります。Geminiを設定した場合、本文と有効化した文脈を判定に送信します。入力中の動きとコイン収集は本文を送信しません。</p></aside>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

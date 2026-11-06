@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Commet</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand"><span class="brand-mark">C</span><div><b>Commet</b><small>ことばで育つ、もうひとりの自分</small></div></div>
+      <div class="header-actions">
+        <a id="demo-link" class="demo-link" href="../demo/index.html" target="_blank" hidden>操作デモ</a>
+        <button id="settings" class="icon-button" aria-label="Commet設定">⚙</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="dot-grid"></div>
+      <span class="level">LEVEL <b data-level>1</b></span>
+      <div class="pet character-a skin-base" data-pet data-mood="idle">
+        <span class="pet-sprite"></span>
+        <span class="pet-hat" data-hat></span>
+        <span class="pet-badge" data-badge></span>
+      </div>
+      <div class="speech"><b data-name>ココロ</b><span data-speech>きょうは、どんなことばを届ける？</span></div>
+      <div class="xp"><span>XP</span><div><i data-xp-bar></i></div><b data-xp>0 / 30</b></div>
+    </section>
+
+    <section class="stats">
+      <div class="section-title"><span>STATUS</span><small><b data-posts>0</b> POSTS ・ <b data-streak>0</b> DAY STREAK</small></div>
+      <div class="stat"><span>♡</span><label>思いやり<small>70で光輪</small></label><div><i class="pink" data-empathy-bar></i></div><b data-empathy>50</b></div>
+      <div class="stat"><span>◇</span><label>考える力<small>70で知恵の本</small></label><div><i class="purple" data-critical-bar></i></div><b data-critical>50</b></div>
+      <div class="stat"><span>♢</span><label>しなやかさ<small>70でシールド</small></label><div><i class="blue" data-resilience-bar></i></div><b data-resilience>50</b></div>
+      <p class="status-note">3つすべて70でオーロラスキンを解放</p>
+      <p class="status-note">探索コイン <b data-pending>仮 0</b> ・ <b data-confirmed>確定 0</b></p>
+      <p class="status-note">非有害の投稿 1.5倍 ・ 閲覧終了 1.0倍 ・ 有害な投稿 0倍</p>
+    </section>
+
+    <section class="customize">
+      <button class="section-toggle" id="customize-toggle"><span>CHARACTER CREATE</span><b>＋</b></button>
+      <form id="profile-form" hidden>
+        <label class="name-field">なまえ<input id="pet-name" maxlength="12" placeholder="ココロ"></label>
+        <fieldset class="character-field"><legend>初期キャラ</legend><div class="character-choices">
+          <label title="バウンシーコア"><input type="radio" name="characterType" value="a"><span class="choice-a">A</span></label>
+          <label title="メルティドロップ"><input type="radio" name="characterType" value="b"><span class="choice-b">B</span></label>
+          <label title="ピクセルブロック"><input type="radio" name="characterType" value="c"><span class="choice-c">C</span></label>
+          <label title="ストレッチモチ"><input type="radio" name="characterType" value="d"><span class="choice-d">D</span></label>
+          <label title="ボイスバブル"><input type="radio" name="characterType" value="e"><span class="choice-e">E</span></label>
+        </div></fieldset>
+        <p class="character-description" data-character-description></p>
+        <label class="equip-field">スキン<select id="skin-select"></select></label>
+        <label class="equip-field">帽子<select id="hat-select"></select></label>
+        <label class="equip-field">装備<select id="badge-select"></select></label>
+        <button class="save" type="submit">このキャラに決める</button>
+      </form>
+    </section>
+
+    <section class="rewards">
+      <div class="section-title"><span>REWARDS</span><small><b data-unlock-count>3</b> ITEMS</small></div>
+      <div class="reward-new" data-new-rewards hidden></div>
+      <div class="reward-grid" data-rewards></div>
+    </section>
+
+    <section class="recent">
+      <div class="section-title"><span>RECENT GROWTH</span></div>
+      <div data-history class="history-empty">まだ記録がありません。SNSで投稿やコメントをして育てよう。</div>
+    </section>
+  </main>
+  <script src="../lib/game.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
