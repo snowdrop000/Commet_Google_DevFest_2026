@@ -1,16 +1,25 @@
 import type { Preferences } from "../core/messages";
+import { restingPet, type PetAnimation } from "../ui/pet-animation";
 type Position = NonNullable<Preferences["position"]>;
 
 export function createMotion(
   panel: HTMLElement,
   handle: HTMLElement,
   onPosition: (position: Position) => void,
+  onAnimation: (animation: PetAnimation) => void,
 ) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   let anchor: Position | null = null;
   let editor: HTMLElement | null = null;
   let drag: Position | null = null;
   let follow = true;
+  let animation = restingPet;
+
+  function animatePet(action: PetAnimation["action"], direction = animation.direction) {
+    if (animation.action === action && animation.direction === direction) return;
+    animation = { action, direction };
+    onAnimation(animation);
+  }
 
   function limits() {
     return {
@@ -25,11 +34,17 @@ export function createMotion(
   }
 
   function place(x: number, y: number, state: string) {
+    const currentX = state === "walking_to_input" ? panel.getBoundingClientRect().left : x;
     panel.style.left = `${x}px`;
     panel.style.top = `${y}px`;
     panel.style.right = "auto";
     panel.style.bottom = "auto";
     panel.dataset.motion = state;
+    if (state === "walking_to_input") {
+      animatePet("walk", x < currentX ? "left" : x > currentX ? "right" : animation.direction);
+    } else {
+      animatePet("idle");
+    }
   }
 
   function update() {
@@ -75,8 +90,10 @@ export function createMotion(
         event.target === panel &&
         ["left", "top"].includes(event.propertyName) &&
         panel.dataset.motion === "walking_to_input"
-      )
+      ) {
         panel.dataset.motion = "peeking";
+        animatePet("peek");
+      }
     },
     { signal },
   );
@@ -148,7 +165,8 @@ export function createMotion(
     },
     explore(pet: HTMLElement, coin: HTMLElement | null) {
       if (reduced.matches || editor || drag || panel.dataset.motion !== "idle") return;
-      pet.animate(
+      animatePet("walk", "right");
+      const trip = pet.animate(
         [
           { translate: "0" },
           { translate: "12px -3px" },
@@ -157,6 +175,11 @@ export function createMotion(
         ],
         { duration: 780, easing: "steps(5)" },
       );
+      void trip.finished
+        .then(() => {
+          if (panel.dataset.motion === "idle") animatePet("idle");
+        })
+        .catch(() => {});
       if (coin)
         coin.animate(
           [{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0, translate: "0 -12px" }],

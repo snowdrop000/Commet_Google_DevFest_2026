@@ -2,15 +2,19 @@ import { useEffect, useState, type FormEvent } from "react";
 import { browser } from "wxt/browser";
 import {
   appearance,
+  canEquip,
   CHARACTER_TYPES,
+  defaultEquipment,
   equipmentKeys,
-  ITEM_CATALOG,
+  visibleEquipment,
   type Appearance,
   type Profile,
 } from "../../shared/game";
 import { analyzeRequest } from "../../shared/model";
 import { defaults, send, type Preferences, type State } from "../core/messages";
 import { Pet, Stats } from "./Pet";
+import { CharacterLab } from "./CharacterLab";
+import { EquipmentSelect } from "./PetEquipment";
 
 export function Dashboard({ developer = false }: { developer?: boolean }) {
   const [state, setState] = useState<State | null>(null);
@@ -56,7 +60,9 @@ export function Dashboard({ developer = false }: { developer?: boolean }) {
           {state?.signedIn ? "ログアウト" : state?.emulator ? "開発用ログイン" : "Googleでログイン"}
         </button>
         {!developer && (
-          <button onClick={() => void browser.runtime.openOptionsPage()}>設定・APIテスト</button>
+          <button onClick={() => void browser.runtime.openOptionsPage()}>
+            設定・試着・APIテスト
+          </button>
         )}
       </div>
       <p role="status">
@@ -64,7 +70,6 @@ export function Dashboard({ developer = false }: { developer?: boolean }) {
       </p>
       {state?.profile && (
         <section>
-          <Pet profile={state.profile} />
           <Stats profile={state.profile} />
           <AppearanceForm
             key={
@@ -87,6 +92,7 @@ export function Dashboard({ developer = false }: { developer?: boolean }) {
       )}
       {developer && (
         <>
+          <CharacterLab />
           <section>
             <h2>表示・判定の設定</h2>
             {(
@@ -127,26 +133,47 @@ function AppearanceForm({
   pet: Profile;
   onSave: (value: Appearance) => Promise<void>;
 }) {
+  const [character, setCharacter] = useState(pet.characterType);
+  const [equipment, setEquipment] = useState(pet.equippedItems);
+
+  function chooseCharacter(value: string) {
+    const result = appearance.shape.characterType.safeParse(value);
+    if (!result.success) return;
+    setCharacter(result.data);
+    setEquipment((current) => {
+      const next = { ...current };
+      for (const slot of equipmentKeys) {
+        if (!canEquip(result.data, slot, current[slot])) next[slot] = defaultEquipment[slot];
+      }
+      return next;
+    });
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const parsed = appearance.safeParse({
       name: data.get("name"),
       characterType: data.get("characterType"),
-      equippedItems: Object.fromEntries(equipmentKeys.map((slot) => [slot, data.get(slot)])),
+      equippedItems: equipment,
     });
     if (parsed.success) void onSave(parsed.data);
   }
-  const labels = { skin: "スキン", hat: "帽子", badge: "アクセサリー" };
+  const preview = { ...pet, characterType: character, equippedItems: equipment };
   return (
     <form onSubmit={submit}>
       <h2>キャラクリ</h2>
+      <Pet profile={preview} />
       <label>
         なまえ <input name="name" defaultValue={pet.name} maxLength={12} required />
       </label>
       <label>
         初期キャラ{" "}
-        <select name="characterType" defaultValue={pet.characterType}>
+        <select
+          name="characterType"
+          value={character}
+          onChange={(event) => chooseCharacter(event.currentTarget.value)}
+        >
           {Object.entries(CHARACTER_TYPES).map(([id, value]) => (
             <option key={id} value={id}>
               {id.toUpperCase()} · {value.name}
@@ -154,19 +181,13 @@ function AppearanceForm({
           ))}
         </select>
       </label>
-      {equipmentKeys.map((slot) => (
-        <label key={slot}>
-          {labels[slot]}{" "}
-          <select name={slot} defaultValue={pet.equippedItems[slot]}>
-            {pet.unlockedItems
-              .filter((id) => ITEM_CATALOG[id]?.slot === slot)
-              .map((id) => (
-                <option key={id} value={id}>
-                  {ITEM_CATALOG[id].name}
-                </option>
-              ))}
-          </select>
-        </label>
+      {visibleEquipment(character).map((slot) => (
+        <EquipmentSelect
+          key={slot}
+          pet={preview}
+          slot={slot}
+          onChange={(id) => setEquipment((current) => ({ ...current, [slot]: id }))}
+        />
       ))}
       <button type="submit">キャラ設定を保存</button>
     </form>

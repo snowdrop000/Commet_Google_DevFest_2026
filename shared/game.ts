@@ -1,8 +1,11 @@
 import { z } from "zod";
 
-const characters = z.enum(["a", "b", "c", "d", "e"]);
+export const starCharacter = "f";
+const characters = z.enum(["a", "b", "c", "d", "e", starCharacter]);
 export const statKeys = ["empathy", "criticalThinking", "resilience"] as const;
-export const equipmentKeys = ["skin", "hat", "badge"] as const;
+const commonEquipmentKeys = ["skin", "hat", "badge"] as const;
+const starEquipmentKeys = ["eyes", "mouth", "head", "prop", "pattern"] as const;
+export const equipmentKeys = [...commonEquipmentKeys, ...starEquipmentKeys] as const;
 type Stat = (typeof statKeys)[number];
 type Equipment = (typeof equipmentKeys)[number];
 type Progress = "supportive" | "constructive" | "respectful" | "contextual" | "balanced";
@@ -16,6 +19,7 @@ type Item = {
   icon: string;
   hint: string;
   requirement?: Requirement;
+  character?: z.infer<typeof characters>;
 };
 
 export const CATEGORY_RULES = Object.freeze({
@@ -57,6 +61,7 @@ export const CHARACTER_TYPES = Object.freeze({
   c: Object.freeze({ name: "ピクセルブロック", description: "周囲のピクセルが反応するデジタル型" }),
   d: Object.freeze({ name: "ストレッチモチ", description: "長い腕で感情を伝えるモチ型" }),
   e: Object.freeze({ name: "ボイスバブル", description: "言葉の力が見える吹き出し型" }),
+  f: Object.freeze({ name: "ほしもち（試作）", description: "星を揺らして歩く、もちもちのキャラ" }),
 });
 
 export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
@@ -154,12 +159,135 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     hint: "3ステータスすべて70",
     requirement: { type: "allStats", value: 70 },
   },
+  skin_star_mint: {
+    slot: "skin",
+    name: "ミントもち",
+    icon: "●",
+    hint: "ほしもち用・試作",
+    character: starCharacter,
+  },
+  skin_star_night: {
+    slot: "skin",
+    name: "夜空もち",
+    icon: "●",
+    hint: "ほしもち用・試作",
+    character: starCharacter,
+  },
+  hat_star_beret: {
+    slot: "hat",
+    name: "すみれベレー",
+    icon: "●",
+    hint: "ほしもち用・試作",
+    character: starCharacter,
+  },
+  hat_star_pin: {
+    slot: "hat",
+    name: "そら色の星ピン",
+    icon: "★",
+    hint: "ほしもち用・試作",
+    character: starCharacter,
+  },
+  eyes_default: { slot: "eyes", name: "まるい目", icon: "●", hint: "ほしもち用" },
+  eyes_glimmer: {
+    slot: "eyes",
+    name: "うるうる目",
+    icon: "✧",
+    hint: "ほしもち用",
+    character: starCharacter,
+  },
+  mouth_default: { slot: "mouth", name: "ちいさなW口", icon: "ω", hint: "ほしもち用" },
+  mouth_smile: {
+    slot: "mouth",
+    name: "にっこり口",
+    icon: "◡",
+    hint: "ほしもち用",
+    character: starCharacter,
+  },
+  head_gold: { slot: "head", name: "金の星飾り", icon: "★", hint: "ほしもち用" },
+  head_moon: {
+    slot: "head",
+    name: "月の飾り",
+    icon: "☽",
+    hint: "ほしもち用",
+    character: starCharacter,
+  },
+  head_none: {
+    slot: "head",
+    name: "飾りなし",
+    icon: "−",
+    hint: "ほしもち用",
+    character: starCharacter,
+  },
+  prop_book: { slot: "prop", name: "星の本", icon: "▣", hint: "学習中に表示" },
+  prop_none: {
+    slot: "prop",
+    name: "手持ちなし",
+    icon: "−",
+    hint: "ほしもち用",
+    character: starCharacter,
+  },
+  pattern_none: { slot: "pattern", name: "柄なし", icon: "−", hint: "ほしもち用" },
+  pattern_stars: {
+    slot: "pattern",
+    name: "星柄",
+    icon: "✦",
+    hint: "ほしもち用",
+    character: starCharacter,
+  },
 });
+
+export const defaultEquipment = {
+  skin: "skin_base",
+  hat: "hat_none",
+  badge: "badge_none",
+  eyes: "eyes_default",
+  mouth: "mouth_default",
+  head: "head_gold",
+  prop: "prop_book",
+  pattern: "pattern_none",
+} as const;
+const starterItems = [
+  ...Object.values(defaultEquipment),
+  "skin_star_mint",
+  "skin_star_night",
+  "hat_star_beret",
+  "hat_star_pin",
+  "eyes_glimmer",
+  "mouth_smile",
+  "head_moon",
+  "head_none",
+  "prop_none",
+  "pattern_stars",
+];
+
+export function withStarterItems(pet: Profile): Profile {
+  return { ...pet, unlockedItems: [...new Set([...pet.unlockedItems, ...starterItems])] };
+}
+
+export function visibleEquipment(character: Appearance["characterType"]) {
+  return character === starCharacter ? equipmentKeys : commonEquipmentKeys;
+}
+
+export function canEquip(character: Appearance["characterType"], slot: Equipment, id: string) {
+  const item = ITEM_CATALOG[id];
+  if (item?.slot !== slot) return false;
+  if (item.character) return item.character === character;
+  return character !== starCharacter || slot === "badge" || id === defaultEquipment[slot];
+}
 
 const integer = z.number().int().nonnegative();
 const stat = integer.max(100);
 const itemId = z.string().max(48);
-const equippedItems = z.strictObject({ skin: itemId, hat: itemId, badge: itemId });
+const equippedItems = z.strictObject({
+  skin: itemId,
+  hat: itemId,
+  badge: itemId,
+  eyes: itemId.default(defaultEquipment.eyes),
+  mouth: itemId.default(defaultEquipment.mouth),
+  head: itemId.default(defaultEquipment.head),
+  prop: itemId.default(defaultEquipment.prop),
+  pattern: itemId.default(defaultEquipment.pattern),
+});
 export const appearance = z.strictObject({
   name: z.string().trim().min(1).max(12),
   characterType: characters,
@@ -198,8 +326,8 @@ export function newProfile(): Profile {
   return {
     name: "ココロ",
     characterType: "a",
-    equippedItems: { skin: "skin_base", hat: "hat_none", badge: "badge_none" },
-    unlockedItems: ["skin_base", "hat_none", "badge_none"],
+    equippedItems: { ...defaultEquipment },
+    unlockedItems: [...starterItems],
     level: 1,
     xp: 0,
     empathy: 50,

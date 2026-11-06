@@ -1,5 +1,7 @@
 import { browser } from "wxt/browser";
-import { ITEM_CATALOG, statKeys, xpNeeded, type Profile } from "../../shared/game";
+import { ITEM_CATALOG, starCharacter, statKeys, xpNeeded, type Profile } from "../../shared/game";
+import { restingPet, type PetAnimation } from "./pet-animation";
+import { StarPet } from "./StarPet";
 
 const frame: Record<Profile["mood"], number> = {
   idle: 0,
@@ -21,10 +23,15 @@ const assets = {
 export function Pet({
   profile,
   mood = profile.mood,
+  animation = restingPet,
 }: {
   profile: Profile;
   mood?: Profile["mood"];
+  animation?: PetAnimation;
 }) {
+  if (profile.characterType === starCharacter) {
+    return <StarPet profile={profile} mood={mood} animation={animation} />;
+  }
   const { hat, badge, skin } = profile.equippedItems;
   return (
     <div className="commet-pet" data-mood={mood} aria-label="ピクセルキャラクター">

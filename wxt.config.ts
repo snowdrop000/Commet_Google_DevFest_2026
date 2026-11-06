@@ -1,8 +1,10 @@
 import { defineConfig } from "wxt";
 import { resolve } from "node:path";
 import { snsMatches } from "./extension/sns/platforms";
+import { starAssets } from "./extension/ui/star-assets";
 
 const characterAssets = ["a", "b", "c", "d", "e"].map((id) => `characters/character-${id}.png`);
+characterAssets.push(...Object.values(starAssets));
 
 export default defineConfig({
   srcDir: "extension",

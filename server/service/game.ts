@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { equipmentKeys, ITEM_CATALOG, type Appearance } from "../../shared/game";
+import { canEquip, equipmentKeys, withStarterItems, type Appearance } from "../../shared/game";
 import type { Analysis, Settlement, SettlementResult } from "../../shared/model";
 import { growthEvidence, ServiceError, type GameRepository } from "../model/state";
 import { applyGrowth } from "./growth";
@@ -15,18 +15,19 @@ export class GameService {
   ) {}
 
   async profile(uid: string) {
-    return (await this.repository.read(uid)).profile;
+    return withStarterItems((await this.repository.read(uid)).profile);
   }
 
   appearance(uid: string, value: Appearance) {
     return this.repository.transact(uid, null, (account) => {
+      const pet = withStarterItems(account.profile);
       for (const slot of equipmentKeys) {
         const item = value.equippedItems[slot];
-        if (ITEM_CATALOG[item]?.slot !== slot || !account.profile.unlockedItems.includes(item)) {
-          throw new ServiceError(400, "所持している装備を選んでください。");
+        if (!canEquip(value.characterType, slot, item) || !pet.unlockedItems.includes(item)) {
+          throw new ServiceError(400, "選んだキャラが装備できる所持アイテムを選んでください。");
         }
       }
-      account.profile = { ...account.profile, ...value };
+      account.profile = { ...pet, ...value };
       return { value: account.profile, account };
     });
   }

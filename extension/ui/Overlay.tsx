@@ -8,6 +8,7 @@ import { createMotion } from "../sns/motion";
 import type { Platform } from "../sns/platforms";
 import { watchPost } from "../sns/post-confirmation";
 import { Pet, Stats } from "./Pet";
+import { restingPet } from "./pet-animation";
 
 const initial: State = { signedIn: false, emulator: false, settings: defaults, profile: null };
 
@@ -20,6 +21,7 @@ export function Overlay({ platform }: { platform: Platform }) {
   const [pending, setPending] = useState(0);
   const [confirmed, setConfirmed] = useState(0);
   const [checking, setChecking] = useState(false);
+  const [petAnimation, setPetAnimation] = useState(restingPet);
   const panel = useRef<HTMLElement>(null);
   const dragHandle = useRef<HTMLDivElement>(null);
   const motion = useRef<ReturnType<typeof createMotion> | null>(null);
@@ -49,11 +51,16 @@ export function Overlay({ platform }: { platform: Platform }) {
     };
     onRefresh.current = refresh;
     if (panel.current && dragHandle.current) {
-      motion.current = createMotion(panel.current, dragHandle.current, (position) => {
-        const settings = { ...config.current.settings, position };
-        config.current = { ...config.current, settings };
-        void send({ type: "preferences", settings }).catch(() => {});
-      });
+      motion.current = createMotion(
+        panel.current,
+        dragHandle.current,
+        (position) => {
+          const settings = { ...config.current.settings, position };
+          config.current = { ...config.current, settings };
+          void send({ type: "preferences", settings }).catch(() => {});
+        },
+        setPetAnimation,
+      );
       motion.current.wake();
     }
     refresh();
@@ -373,7 +380,7 @@ export function Overlay({ platform }: { platform: Platform }) {
         {collapsed ? "+" : "−"}
       </button>
       <div ref={dragHandle} className="commet-drag">
-        <Pet profile={pet} mood={rule?.mood} />
+        <Pet profile={pet} mood={rule?.mood} animation={petAnimation} />
         <span className="commet-coin" aria-hidden="true">
           ●
         </span>
