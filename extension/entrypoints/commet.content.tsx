@@ -4,6 +4,7 @@ import { createShadowRootUi } from "wxt/utils/content-script-ui/shadow-root";
 import { findPlatform, snsMatches } from "../sns/platforms";
 import { Overlay } from "../ui/Overlay";
 import "../ui/style.css";
+import "../ui/wardrobe.css";
 
 export default defineContentScript({
   matches: snsMatches,
