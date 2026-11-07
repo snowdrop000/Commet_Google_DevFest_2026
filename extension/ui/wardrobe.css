@@ -46,6 +46,94 @@
   margin-bottom: 12px;
 }
 
+.commet-scene-controls {
+  display: grid;
+  gap: 10px;
+}
+
+.commet-face-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  width: min(100%, 360px);
+  margin-inline: auto;
+}
+
+.commet .commet-face-buttons button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 7px 4px;
+  border: 1px solid #ead9e1;
+  border-radius: 12px;
+  background: #fffcfa;
+  color: #785868;
+  font-size: 11px;
+}
+
+.commet-scene-art {
+  display: block;
+  position: relative;
+  width: 44px;
+  height: 38px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.commet .commet-scene-art .commet-pet {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 58px;
+  height: 58px;
+  transform: translateX(-50%);
+}
+
+.commet-motion-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.commet .commet-motion-buttons button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  border: 1px solid #ead9e1;
+  border-radius: 9px;
+  background: #fffcfa;
+  color: #785868;
+  font-size: 11px;
+}
+
+.commet-motion-buttons svg {
+  width: 17px;
+  height: 17px;
+}
+
+.commet .commet-face-buttons button:hover,
+.commet .commet-motion-buttons button:hover {
+  background: #f7eff3;
+}
+
+.commet .commet-face-buttons button[aria-pressed="true"],
+.commet .commet-motion-buttons button[aria-pressed="true"] {
+  border-color: #b97595;
+  background: #f9eaf1;
+  color: #925372;
+  box-shadow: inset 0 0 0 1px #b9759520;
+}
+
+.commet-face-buttons button:focus-visible,
+.commet-motion-buttons button:focus-visible {
+  outline: 2px solid #a45f83;
+  outline-offset: 2px;
+}
+
 .commet-wardrobe {
   display: grid;
   grid-template-columns: 105px minmax(0, 1fr);
@@ -300,8 +388,7 @@
   min-height: 120px;
 }
 
-.commet-wardrobe-dialog .commet-lab-stage .commet-pet--star,
-.commet-wardrobe-dialog .commet-star-previous {
+.commet-wardrobe-dialog .commet-lab-stage .commet-pet--star {
   width: 120px;
   height: 120px;
 }
@@ -315,6 +402,49 @@
   margin: 0;
   padding: 0;
   border: 0;
+}
+
+.commet-page-settings {
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(600px, calc(100dvh - 32px));
+  padding: 16px;
+}
+.commet-page-settings .commet-shell--embedded {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.commet-page-settings .commet-account-intro,
+.commet-page-settings .commet-account-name {
+  margin: 12px 0;
+  color: #806474;
+  font-size: 12px;
+}
+.commet-page-settings .commet-display-settings {
+  margin: 12px 0 0;
+  padding: 12px;
+  border-color: #ead8e2;
+  background: #fffdfb;
+}
+.commet-page-settings .commet-display-settings h2 {
+  font-size: 13px;
+}
+.commet-page-settings .commet-display-settings label {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 10px 0;
+  font-size: 12px;
+}
+.commet-page-settings .commet-display-settings input {
+  flex: none;
+  margin-top: 3px;
+}
+.commet.commet-page-settings button.primary {
+  border-color: #b97595;
+  color: #8a526f;
+  background: #f5e3ed;
 }
 
 @media (max-width: 560px) {

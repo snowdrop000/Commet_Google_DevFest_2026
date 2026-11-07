@@ -7,6 +7,13 @@ import {
   type AnalyzeResponse,
 } from "../../shared/model";
 import { appearance, type Profile } from "../../shared/game";
+import {
+  exchangeSelection,
+  type ExchangeRequest,
+  type ExchangeResult,
+  type ExchangeShop,
+  type GachaResult,
+} from "../../shared/gacha";
 
 export const preferences = z.object({
   position: z
@@ -28,6 +35,17 @@ export const message = z.discriminatedUnion("type", [
   z.object({ type: z.literal("login") }),
   z.object({ type: z.literal("logout") }),
   z.object({ type: z.literal("health") }),
+  z.object({ type: z.literal("gacha") }),
+  z.object({ type: z.literal("gachaPending") }),
+  z.object({ type: z.literal("gachaAck"), requestId: z.uuid() }),
+  z.object({ type: z.literal("exchangePending") }),
+  z.object({ type: z.literal("exchangeShop") }),
+  z.object({
+    type: z.literal("exchange"),
+    selection: exchangeSelection,
+    requestId: z.uuid().optional(),
+  }),
+  z.object({ type: z.literal("exchangeAck"), requestId: z.uuid() }),
   z.object({ type: z.literal("preferences"), settings: preferences }),
   z.object({ type: z.literal("appearance"), appearance }),
   z.object({ type: z.literal("preview"), draft: analyzeRequest.omit({ sessionId: true }) }),
@@ -54,6 +72,13 @@ type Results = {
   login: State;
   logout: State;
   health: { ok: true; mode: string };
+  gacha: GachaResult;
+  gachaPending: { requestId: string } | null;
+  gachaAck: null;
+  exchangePending: ExchangeRequest | null;
+  exchangeShop: ExchangeShop;
+  exchange: ExchangeResult;
+  exchangeAck: null;
   preferences: Preferences;
   appearance: Profile;
   preview: AnalyzeResponse;

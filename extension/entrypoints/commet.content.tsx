@@ -5,6 +5,8 @@ import { findPlatform, snsMatches } from "../sns/platforms";
 import { Overlay } from "../ui/Overlay";
 import "../ui/style.css";
 import "../ui/wardrobe.css";
+import "../ui/overlay.css";
+import "../ui/theme.css";
 
 export default defineContentScript({
   matches: snsMatches,

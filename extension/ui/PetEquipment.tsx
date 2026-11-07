@@ -7,62 +7,27 @@ import {
   type Profile,
 } from "../../shared/game";
 import { Pet } from "./Pet";
+import { displayRarity, gachaOnlyItems, rarities } from "../../shared/gacha";
 
 type Slot = keyof Profile["equippedItems"];
 const categories: Record<Slot, { label: string; icon: string }> = {
-  skin: { label: "スキン", icon: "◈" },
-  hat: { label: "帽子", icon: "♛" },
-  badge: { label: "バッジ", icon: "✦" },
-  eyes: { label: "目", icon: "◉" },
-  mouth: { label: "口", icon: "ω" },
-  head: { label: "耳・飾り", icon: "♧" },
-  prop: { label: "手持ち", icon: "▣" },
-  pattern: { label: "体の柄", icon: "◌" },
-};
-
-const rarities = [
-  { id: "UR", label: "ウルトラレア" },
-  { id: "SR", label: "スーパーレア" },
-  { id: "R", label: "レア" },
-  { id: "N", label: "ノーマル" },
-] as const;
-type Rarity = (typeof rarities)[number]["id"];
-
-// Display tiers for the wardrobe. The profile remains the source of item ownership.
-const displayRarity: Partial<Record<string, Rarity>> = {
-  skin_star_galaxy: "UR",
-  skin_star_kintsugi: "UR",
-  skin_aurora: "UR",
-  hat_star_wizard: "UR",
-  skin_star_pixel: "SR",
-  skin_star_soda: "SR",
-  skin_star_strawberry: "SR",
-  skin_star_toast: "SR",
-  skin_midnight: "SR",
-  head_star_ice: "SR",
-  hat_star_crown: "SR",
-  hat_star_graduate: "SR",
-  hat_crown: "SR",
-  eyes_star_shine: "SR",
-  eyes_star_digital: "SR",
-  skin_star_night: "R",
-  skin_star_mint: "R",
-  skin_sunset: "R",
-  head_moon: "R",
-  head_star_bunny: "R",
-  head_star_cat: "R",
-  head_star_cloud: "R",
-  hat_star_beret: "R",
-  hat_star_pin: "R",
-  hat_star_mushroom: "R",
-  hat_star_pumpkin: "R",
-  hat_heart: "R",
-  hat_scholar: "R",
-  hat_halo: "R",
-  eyes_glimmer: "R",
-  eyes_star_heart: "R",
-  eyes_star_odd: "R",
-  pattern_stars: "R",
+  skin: { label: "スキン", icon: "m3 8 4-5h10l4 5-9 13L3 8Zm0 0h18M7 3l5 18 5-18" },
+  hat: { label: "帽子", icon: "m3 6 5 5 4-7 4 7 5-5-3 13H6L3 6Zm3 10h12" },
+  badge: { label: "バッジ", icon: "m12 3 3 6 6 1-4 5 1 6-6-3-6 3 1-6-4-5 6-1 3-6Z" },
+  eyes: {
+    label: "目",
+    icon: "M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  },
+  mouth: { label: "口", icon: "M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM7 12q5 7 10 0" },
+  head: {
+    label: "耳・飾り",
+    icon: "M12 12c-9 0-10-9-4-9 4 0 4 7 4 9Zm0 0c9 0 10-9 4-9-4 0-4 7-4 9Zm0 0c-9 0-10 9-4 9 4 0 4-7 4-9Zm0 0c9 0 10 9 4 9-4 0-4-7-4-9Z",
+  },
+  prop: { label: "手持ち", icon: "M4 7h16v13H4V7Zm4 0V4h8v3M4 12q8 4 16 0M10 12v4h4v-4" },
+  pattern: {
+    label: "体の柄",
+    icon: "M12 3h1m4 2 1 1m2 5v2m-2 5-1 1m-4 2h-2m-4-2-1-1m-2-5v-2m2-5 1-1",
+  },
 };
 
 export function PetEquipment({
@@ -88,6 +53,12 @@ export function PetEquipment({
       role="region"
       aria-label={trial ? "試着アイテム" : "所持アイテム"}
     >
+      <div className="commet-wardrobe-title">
+        <h3>{trial ? "試着アイテム" : "所持アイテム"}</h3>
+        <span>
+          {owned.length} 点{trial ? " 試着可能" : " 所持"}
+        </span>
+      </div>
       <div className="commet-wardrobe-categories" role="group" aria-label="着せ替えカテゴリ">
         {slots.map((key) => (
           <button
@@ -96,7 +67,18 @@ export function PetEquipment({
             aria-pressed={key === slot}
             onClick={() => setCategory(key)}
           >
-            <span aria-hidden="true">{categories[key].icon}</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d={categories[key].icon} />
+            </svg>
             {categories[key].label}
           </button>
         ))}
@@ -104,9 +86,6 @@ export function PetEquipment({
       <div className="commet-wardrobe-content">
         <div className="commet-wardrobe-heading">
           <h3>{categoryLabel}</h3>
-          <span>
-            {owned.length} 点{trial ? " 試着可能" : " 所持"}
-          </span>
         </div>
         <div className="commet-wardrobe-items" key={slot}>
           {rarities.map(({ id: rarity, label }) => {
@@ -142,6 +121,9 @@ export function PetEquipment({
                         />
                       </span>
                       <span className="commet-wardrobe-name">{ITEM_CATALOG[id].name}</span>
+                      {gachaOnlyItems.includes(id) && (
+                        <small className="commet-item-exclusive">ガチャ限定</small>
+                      )}
                       {id === selected && (
                         <span className="commet-wardrobe-tick" aria-hidden="true">
                           ✓
@@ -157,10 +139,10 @@ export function PetEquipment({
             <p className="commet-wardrobe-empty">このカテゴリの所持アイテムはまだありません。</p>
           )}
         </div>
-        <p className="commet-wardrobe-selection" aria-live="polite">
-          <span>{trial ? "試着中" : "選択中"}</span> {ITEM_CATALOG[selected]?.name ?? "—"}
-        </p>
       </div>
+      <p className="commet-wardrobe-selection" aria-live="polite">
+        <span>{trial ? "試着中" : "選択中"}</span> {ITEM_CATALOG[selected]?.name ?? "—"}
+      </p>
     </div>
   );
 }

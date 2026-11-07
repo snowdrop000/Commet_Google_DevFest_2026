@@ -6,10 +6,19 @@ import { Pet, Stats } from "./Pet";
 import { CharacterLab } from "./CharacterLab";
 import { AppearanceForm } from "./AppearanceForm";
 import "./wardrobe.css";
+import { GachaPanel } from "./Gacha";
+import { RewardLab } from "./RewardLab";
 
-export function Dashboard({ developer = false }: { developer?: boolean }) {
+export function Dashboard({
+  developer = false,
+  embedded = false,
+}: {
+  developer?: boolean;
+  embedded?: boolean;
+}) {
   const [state, setState] = useState<State | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [settings, setSettings] = useState(defaults);
   const updateState = (value: State) => {
@@ -17,8 +26,35 @@ export function Dashboard({ developer = false }: { developer?: boolean }) {
     setSettings(value.settings);
   };
 
+  async function loadState() {
+    setLoading(true);
+    setMessage("");
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const value = await Promise.race([
+        send({ type: "state" }),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () =>
+              reject(
+                new Error(
+                  "接続に時間がかかっています。拡張機能を再読み込みしてから、再接続してください。",
+                ),
+              ),
+            8000,
+          );
+        }),
+      ]);
+      updateState(value);
+    } catch (error) {
+      showError(error);
+    } finally {
+      clearTimeout(timer);
+      setLoading(false);
+    }
+  }
   useEffect(() => {
-    void send({ type: "state" }).then(updateState).catch(showError);
+    void loadState();
   }, []);
   function showError(error: unknown) {
     setMessage(error instanceof Error ? error.message : "拡張機能に接続できませんでした。");
@@ -27,7 +63,12 @@ export function Dashboard({ developer = false }: { developer?: boolean }) {
     setBusy(true);
     setMessage("");
     try {
-      updateState(await send({ type: state?.signedIn ? "logout" : "login" }));
+      const next = await send({ type: state?.signedIn ? "logout" : "login" });
+      updateState(next);
+      if (embedded && (!next.signedIn || next.profile))
+        setMessage(
+          next.signedIn ? "ログインしました。このページで続けて使えます。" : "ログアウトしました。",
+        );
     } catch (error) {
       showError(error);
     } finally {
@@ -45,23 +86,64 @@ export function Dashboard({ developer = false }: { developer?: boolean }) {
 
   return (
     <main
-      className={developer ? "commet commet-shell commet-shell--options" : "commet commet-shell"}
+      className={
+        embedded
+          ? "commet commet-shell commet-shell--embedded"
+          : developer
+            ? "commet commet-shell commet-shell--options"
+            : "commet commet-shell"
+      }
     >
-      <h1>Commet</h1>
+      {!embedded && <h1>Commet</h1>}
+      {embedded && (
+        <p className="commet-account-intro">ほしもちとの記録を保存して、このページで使えます。</p>
+      )}
       <div className="controls">
-        <button disabled={!state || busy} className="primary" onClick={() => void loginOrLogout()}>
-          {state?.signedIn ? "ログアウト" : state?.emulator ? "開発用ログイン" : "Googleでログイン"}
+        <button
+          disabled={!state || busy || loading}
+          className="primary"
+          onClick={() => void loginOrLogout()}
+        >
+          {loading
+            ? "接続を確認中…"
+            : busy
+              ? state?.signedIn
+                ? "ログアウト中…"
+                : "ログイン中…"
+              : state?.signedIn
+                ? "ログアウト"
+                : state?.emulator
+                  ? "開発用ログイン"
+                  : "Googleでログイン"}
         </button>
-        {!developer && (
+        {!loading && (!state || (state.signedIn && !state.profile)) && (
+          <button disabled={busy} onClick={() => void loadState()}>
+            再接続
+          </button>
+        )}
+        {!developer && !embedded && (
           <button onClick={() => void browser.runtime.openOptionsPage()}>
             {state?.profile ? "着せ替え・設定を開く" : "設定・試着・APIテスト"}
           </button>
         )}
       </div>
       <p role="status">
-        {message || (state?.signedIn && !state.profile ? "Hono APIの接続を確認してください。" : "")}
+        {message ||
+          (loading
+            ? "拡張機能に接続しています…"
+            : busy
+              ? "ログイン状態を確認しています…"
+              : state?.signedIn && !state.profile
+                ? "ログイン済みですが、保存データを読み込めません。APIを起動して再接続してください。"
+                : "")}
       </p>
-      {state?.profile && (
+      {embedded && state?.profile && (
+        <p className="commet-account-name">
+          {state.profile.name} · Lv. {state.profile.level}
+        </p>
+      )}
+      {embedded && state && <DisplaySettings settings={settings} onChange={saveSettings} />}
+      {!embedded && state?.profile && (
         <section aria-label="キャラと育成">
           <div className="commet-profile-summary">
             {!developer && <Pet profile={state.profile} />}
@@ -90,44 +172,66 @@ export function Dashboard({ developer = false }: { developer?: boolean }) {
       )}
       {developer && (
         <>
+          {state?.profile && (
+            <section aria-label="彗星ガチャ">
+              <h2>ほしもちの彗星ガチャ</h2>
+              <GachaPanel
+                profile={state.profile}
+                onUpdate={() => {
+                  void send({ type: "state" }).then(updateState).catch(showError);
+                }}
+              />
+            </section>
+          )}
+          <RewardLab />
           {state?.profile ? (
             <details className="commet-trial-details">
               <summary>保存せずに、ほしもちを試着する</summary>
-              <CharacterLab />
+              <CharacterLab profile={state.profile} />
             </details>
           ) : (
             <CharacterLab />
           )}
-          <section>
-            <h2>表示・判定の設定</h2>
-            {(
-              [
-                ["followComposer", "コメント欄へ移動する"],
-                ["explore", "閲覧中に探索する"],
-                ["useContext", "返信元・動画の文脈を使う"],
-                ["summarizeVideos", "公開YouTube動画をGeminiで要約する"],
-                ["analyzeOnPost", "送信確認後に判定し育成へ反映する"],
-              ] as const
-            ).map(([key, label]) => (
-              <label key={key}>
-                <input
-                  type="checkbox"
-                  checked={settings[key]}
-                  onChange={(event) =>
-                    void saveSettings({ ...settings, [key]: event.target.checked })
-                  }
-                />{" "}
-                {label}
-              </label>
-            ))}
-            <button onClick={() => void saveSettings({ ...settings, position: null })}>
-              キャラを右下に戻す
-            </button>
-          </section>
+          <DisplaySettings settings={settings} onChange={saveSettings} />
           <ApiConsole signedIn={state?.signedIn === true} />
         </>
       )}
     </main>
+  );
+}
+
+function DisplaySettings({
+  settings,
+  onChange,
+}: {
+  settings: Preferences;
+  onChange: (value: Preferences) => Promise<void>;
+}) {
+  return (
+    <section className="commet-display-settings">
+      <h2>表示・判定の設定</h2>
+      {(
+        [
+          ["followComposer", "コメント欄へ移動する"],
+          ["explore", "閲覧中に探索する"],
+          ["useContext", "返信元・動画の文脈を使う"],
+          ["summarizeVideos", "公開YouTube動画をGeminiで要約する"],
+          ["analyzeOnPost", "送信確認後に判定し育成へ反映する"],
+        ] as const
+      ).map(([key, label]) => (
+        <label key={key}>
+          <input
+            type="checkbox"
+            checked={settings[key]}
+            onChange={(event) => void onChange({ ...settings, [key]: event.target.checked })}
+          />{" "}
+          {label}
+        </label>
+      ))}
+      <button type="button" onClick={() => void onChange({ ...settings, position: null })}>
+        キャラを右下に戻す
+      </button>
+    </section>
   );
 }
 

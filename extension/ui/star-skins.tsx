@@ -123,6 +123,175 @@ export const starSkins: Partial<Record<string, Skin>> = {
       </>
     ),
   },
+  skin_star_choco: {
+    tint: [1, 0.96, 0.9],
+    details: (
+      <>
+        {/* Chocolate coat on the crown with a few drips, kept above the eyes. */}
+        <path
+          d="M0 0H100V40Q95 44 90 41T80 42V49Q80 52.5 77 52.5T74 49V43Q70 40 64 42.5T52 41.5 40 43 31 41.5V47Q31 50 28.5 50T26 47V42Q22 39.5 17 42.5T0 41Z"
+          fill="#6e4334"
+        />
+        <path
+          d="M0 37Q8 40 17 38.5T31 38 52 38 64 39 80 38.5 100 37V40Q95 44 90 41T80 42Q75 39.5 70 42 64 42.5 58 41 52 41.5 46 42.5 40 43 35 42 31 41.5 26 42 22 39.5 17 42.5T0 41Z"
+          fill="#8d5a45"
+        />
+        <path
+          d="M31 37Q37 31 46 30.5"
+          fill="none"
+          stroke="#c49079"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          opacity=".8"
+        />
+        <path d="M78.2 46v3" stroke="#c49079" strokeWidth="1.1" strokeLinecap="round" />
+        <g strokeWidth="1.5" strokeLinecap="round">
+          <path d="m40 35.5 2-1" stroke="#ff9fb9" />
+          <path d="m52 33 .4 2.2" stroke="#9fe0d0" />
+          <path d="m60 36.5 2 .9" stroke="#ffe17d" />
+          <path d="m46 39 1.6-1.4" stroke="#b7a5ff" />
+          <path d="m66 39.5.2-2.1" stroke="#ff9fb9" />
+          <path d="m34 39.5 2 .4" stroke="#ffe17d" />
+          <path d="m56 39.8 1.8-.8" stroke="#9fe0d0" />
+        </g>
+      </>
+    ),
+  },
+  skin_star_pumpkin: {
+    tint: [1.02, 0.74, 0.44],
+    wash: ["#d0601e", 0.42],
+    details: (
+      // Pumpkin ribs bow outward from the crown and avoid the face.
+      <g fill="none" stroke="#c4602a" strokeWidth="1.3" strokeLinecap="round" opacity=".5">
+        <path d="M40 33Q29 60 34 92M60 33Q71 60 66 92M27 48Q16 70 21 92M73 48Q84 70 79 92" />
+        <path d="M50 66v26" opacity=".7" />
+      </g>
+    ),
+  },
+  skin_star_ginger: {
+    tint: [0.88, 0.62, 0.42],
+    wash: ["#8f4a24", 0.35],
+    details: (
+      <>
+        {/* White icing: a wavy line on the crown and a scalloped band at the hem. */}
+        <g fill="none" stroke="#fffaf3" strokeWidth="1.6" strokeLinecap="round">
+          <path d="M33 41q2.6-2.4 5.2 0t5.2 0 5.2 0 5.2 0 5.2 0 5.2 0 5.2 0" />
+          <path d="M10 78q3-3.4 6 0t6 0 6 0 6 0 6 0 6 0 6 0 6 0 6 0 6 0 6 0 6 0 6 0 6 0" />
+        </g>
+        <g stroke="#50352f" strokeWidth=".8">
+          <circle cx="50" cy="66" r="1.9" fill="#e2545f" />
+          <circle cx="50" cy="72" r="1.9" fill="#6cc985" />
+        </g>
+        <g fill="#fffaf3">
+          <circle cx="30" cy="85" r=".9" />
+          <circle cx="70" cy="85" r=".9" />
+        </g>
+      </>
+    ),
+  },
+  skin_star_franken: {
+    tint: [0.72, 0.92, 0.66],
+    wash: ["#4f8a52", 0.35],
+    details: (
+      <>
+        {/* Flat-top hair with a jagged fringe, kept above the eyes. */}
+        <path
+          d="M0 0H100V39L88 40 84 43.5 80 40.5 74 44 68 40.5 62 44 56 40.5 50 44 44 40.5 38 44 32 40.5 26 43.5 20 40 12 39H0Z"
+          fill="#3a3346"
+        />
+        <path d="M30 35.5h14" stroke="#5d5470" strokeWidth="1.4" strokeLinecap="round" />
+        <g fill="none" stroke="#50352f" strokeWidth=".8" strokeLinecap="round">
+          <path d="M57 47.2h10M59 45.6v3.2M62 45.6v3.2M65 45.6v3.2" />
+          <path d="M33 77q9 3.5 18 0M36 75.6v3.4M40 76.6v3.4M44 76.8v3.4M48 76.3v3.4" />
+        </g>
+      </>
+    ),
+  },
+  skin_star_mummy: {
+    tint: [1, 0.95, 0.84],
+    wash: ["#a8936b", 0.3],
+    details: (
+      <>
+        {/* Bandages leave a gap for the eyes and mouth. */}
+        {["M5 37 95 41", "M5 48.5 95 44.5", "M5 70 95 64.5", "M5 74 95 81", "M5 87 95 83"].map(
+          (d) => (
+            <g key={d} fill="none">
+              <path d={d} stroke="#cdbb97" strokeWidth="5.8" />
+              <path d={d} stroke="#fbf5e6" strokeWidth="4.4" />
+              <path d={d} stroke="#e6dac0" strokeWidth=".6" strokeDasharray="6 5" />
+            </g>
+          ),
+        )}
+      </>
+    ),
+  },
+  skin_star_zombie: {
+    tint: [0.74, 0.86, 0.72],
+    wash: ["#5e7a5a", 0.42],
+    details: (
+      <>
+        <g transform="rotate(-8 62 75)">
+          <rect
+            x="56"
+            y="70"
+            width="12"
+            height="10"
+            rx="1"
+            fill="#a7c79d"
+            stroke="#50352f"
+            strokeWidth=".8"
+          />
+          <path
+            d="M57.5 69v2M61 69v2M64.5 69v2M57.5 79v2M61 79v2M64.5 79v2"
+            stroke="#50352f"
+            strokeWidth=".7"
+            strokeLinecap="round"
+          />
+        </g>
+        <g fill="none" stroke="#50352f" strokeWidth=".8" strokeLinecap="round">
+          <path d="M31 81l9 3M33 80.4l-.5 2.6M36 81.4l-.5 2.6M39 82.4l-.5 2.6" />
+        </g>
+        <g transform="rotate(-25 64 40)">
+          <rect
+            x="59"
+            y="38.2"
+            width="10"
+            height="3.6"
+            rx="1.8"
+            fill="#f2c9a0"
+            stroke="#50352f"
+            strokeWidth=".7"
+          />
+          <rect x="62.5" y="38.2" width="3" height="3.6" fill="#e3b287" />
+        </g>
+        <g fill="#4f6a4c" opacity=".35">
+          <circle cx="38" cy="42" r="1.4" />
+          <circle cx="73" cy="86" r="1.8" />
+          <circle cx="24" cy="70" r="1.1" />
+        </g>
+      </>
+    ),
+  },
+  skin_star_ghost: {
+    tint: [0.93, 0.96, 1.06],
+    wash: ["#9d8fe0", 0.5],
+    details: (
+      <>
+        <path
+          d="M10 80Q30 74 50 80T90 80"
+          fill="none"
+          stroke="#fff"
+          strokeWidth="2"
+          opacity=".55"
+        />
+        <g fill="#fff">
+          <path d="M28 70l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6ZM71 74l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5Z" />
+          <circle cx="50" cy="86" r=".9" />
+          <circle cx="62" cy="83" r=".7" />
+        </g>
+      </>
+    ),
+  },
 };
 
 export function StarSkinFinish({

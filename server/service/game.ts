@@ -1,21 +1,124 @@
-import { randomUUID } from "node:crypto";
-import { canEquip, equipmentKeys, withStarterItems, type Appearance } from "../../shared/game";
+import { randomInt, randomUUID } from "node:crypto";
+import {
+  displayRarity,
+  duplicateShardRewards,
+  shardCosts,
+  GACHA_COST,
+  gachaPool,
+  gachaRates,
+  type ExchangeRequest,
+  type Rarity,
+} from "../../shared/gacha";
+import {
+  canEquip,
+  equipmentKeys,
+  ITEM_CATALOG,
+  starCharacter,
+  totalShards,
+  withStarterItems,
+  type Appearance,
+} from "../../shared/game";
 import type { Analysis, Settlement, SettlementResult } from "../../shared/model";
 import { growthEvidence, ServiceError, type GameRepository } from "../model/state";
 import { applyGrowth } from "./growth";
+import { dailyExchangeShop, dayJst } from "./exchange-shop";
+export { dayJst } from "./exchange-shop";
 
 const interval = 15_000;
 const dailyLimit = 60;
-export const dayJst = (now: number) => new Date(now + 9 * 3_600_000).toISOString().slice(0, 10);
 
 export class GameService {
   constructor(
     private readonly repository: GameRepository,
     private readonly clock = Date.now,
+    private readonly drawRandom: (upper: number) => number = randomInt,
   ) {}
 
   async profile(uid: string) {
     return withStarterItems((await this.repository.read(uid)).profile);
+  }
+
+  draw(uid: string, requestId: string) {
+    const roll = this.drawRandom(100);
+    const rarity: Rarity =
+      roll < gachaRates.N
+        ? "N"
+        : roll < gachaRates.N + gachaRates.R
+          ? "R"
+          : roll < 100 - gachaRates.UR
+            ? "SR"
+            : "UR";
+    const candidates = gachaPool.filter((id) => (displayRarity[id] ?? "N") === rarity);
+    const itemId = candidates[this.drawRandom(candidates.length)];
+    return this.repository.transactDraw(uid, requestId, (account, previous) => {
+      if (previous) return { value: previous };
+      const pet = withStarterItems(account.profile);
+      if (pet.confirmedCoins < GACHA_COST) {
+        throw new ServiceError(409, `確定コインが${GACHA_COST}枚必要です。`);
+      }
+      const duplicate = pet.unlockedItems.includes(itemId);
+      pet.confirmedCoins -= GACHA_COST;
+      pet.gacha.draws++;
+      pet.gacha.sinceSR = rarity === "SR" || rarity === "UR" ? 0 : pet.gacha.sinceSR + 1;
+      pet.gacha.sinceUR = rarity === "UR" ? 0 : pet.gacha.sinceUR + 1;
+      const shardsAwarded = duplicate ? duplicateShardRewards[rarity] : 0;
+      if (duplicate) pet.gacha.shards = totalShards(pet.gacha.shards) + shardsAwarded;
+      else pet.unlockedItems.push(itemId);
+      account.profile = pet;
+      const receipt = { requestId, itemId, rarity, duplicate, shardsAwarded };
+      return { value: receipt, account, receipt };
+    });
+  }
+
+  async exchangeShop(uid: string) {
+    const account = await this.repository.read(uid);
+    return dailyExchangeShop(this.clock(), account.profile.unlockedItems);
+  }
+
+  exchange(uid: string, request: ExchangeRequest) {
+    return this.repository.transactExchange(uid, request.requestId, (account, previous) => {
+      if (previous) {
+        const matches =
+          "itemId" in request
+            ? previous.itemId === request.itemId && previous.day === request.day
+            : previous.rarity === request.rarity && previous.slot === request.slot;
+        if (!matches) throw new ServiceError(409, "確認中の交換とアイテムが異なります。");
+        return { value: previous };
+      }
+      if (!("itemId" in request))
+        throw new ServiceError(
+          409,
+          "交換方法が新しくなりました。今日のラインナップから選び直してください。",
+        );
+      const pet = withStarterItems(account.profile);
+      const shop = dailyExchangeShop(this.clock(), pet.unlockedItems);
+      if (request.day !== shop.day)
+        throw new ServiceError(
+          409,
+          "日付が変わりました。今日のラインナップを読み込み直してください。",
+        );
+      const itemId = request.itemId;
+      if (pet.unlockedItems.includes(itemId))
+        throw new ServiceError(409, "すでに所持しているアイテムです。星のかけらは消費しません。");
+      if (!shop.items.includes(itemId))
+        throw new ServiceError(409, "今日の交換対象に含まれていないアイテムです。");
+      const rarity = displayRarity[itemId] ?? "N";
+      const cost = shardCosts[rarity];
+      const balance = totalShards(pet.gacha.shards);
+      if (balance < cost) throw new ServiceError(409, `星のかけらが${cost}個必要です。`);
+      pet.gacha.shards = balance - cost;
+      pet.unlockedItems.push(itemId);
+      account.profile = pet;
+      const receipt = {
+        ...request,
+        itemId,
+        rarity,
+        slot: ITEM_CATALOG[itemId].slot,
+        cost,
+        duplicate: false as const,
+      };
+      return { value: receipt, account, receipt };
+    });
   }
 
   appearance(uid: string, value: Appearance) {
@@ -26,6 +129,13 @@ export class GameService {
         if (!canEquip(value.characterType, slot, item) || !pet.unlockedItems.includes(item)) {
           throw new ServiceError(400, "選んだキャラが装備できる所持アイテムを選んでください。");
         }
+      }
+      if (pet.characterType !== starCharacter && !account.legacyAppearance) {
+        account.legacyAppearance = {
+          name: pet.name,
+          characterType: pet.characterType,
+          equippedItems: { ...pet.equippedItems },
+        };
       }
       account.profile = { ...pet, ...value };
       return { value: account.profile, account };

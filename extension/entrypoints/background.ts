@@ -2,11 +2,20 @@ import { browser, type Browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 import { analyzeResponse } from "../../shared/model";
 import { profile } from "../../shared/game";
+import { exchangeShop } from "../../shared/gacha";
 import { api, healthSchema } from "../core/api";
 import { currentUser, emulator, login, logout } from "../core/auth";
 import { beginPost, closePage, finishPost, recover, tick } from "../core/exploration";
 import { defaults, message, preferences, type Message, type State } from "../core/messages";
 import { findPlatform } from "../sns/platforms";
+import {
+  acknowledgeExchange,
+  acknowledgeGacha,
+  drawGacha,
+  exchangeShards,
+  pendingExchange,
+  pendingGacha,
+} from "../core/gacha";
 
 async function state(): Promise<State> {
   const user = await currentUser();
@@ -40,7 +49,8 @@ async function handle(input: Message, sender: Browser.runtime.MessageSender) {
   if (input.type === "state") return state();
   if (input.type === "health") return api("/health", healthSchema);
   if (input.type === "login" || input.type === "logout") {
-    if (tabId !== undefined) throw new Error("ログインは拡張機能の画面から行ってください。");
+    if (sender.tab && !sender.url?.startsWith(browser.runtime.getURL("/")) && tabId === undefined)
+      throw new Error("対応するSNSのページからログインしてください。");
     if (input.type === "login") {
       await login();
       const user = await currentUser();
@@ -56,6 +66,13 @@ async function handle(input: Message, sender: Browser.runtime.MessageSender) {
   }
   const user = await currentUser();
   if (!user) throw new Error("拡張機能のポップアップでログインしてください。");
+  if (input.type === "gacha") return drawGacha(user);
+  if (input.type === "gachaPending") return pendingGacha(user);
+  if (input.type === "gachaAck") return acknowledgeGacha(user, input.requestId);
+  if (input.type === "exchangePending") return pendingExchange(user);
+  if (input.type === "exchangeShop") return api("/v1/gacha/exchange-shop", exchangeShop, user);
+  if (input.type === "exchange") return exchangeShards(user, input.selection, input.requestId);
+  if (input.type === "exchangeAck") return acknowledgeExchange(user, input.requestId);
   if (input.type === "preview") return api("/v1/analyze", analyzeResponse, user, input.draft);
   if (input.type === "appearance") {
     const pet = await api("/v1/profile/appearance", profile, user, input.appearance, "PATCH");

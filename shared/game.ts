@@ -3,6 +3,11 @@ import { z } from "zod";
 export const starCharacter = "f";
 const characters = z.enum(["a", "b", "c", "d", "e", starCharacter]);
 export const statKeys = ["empathy", "criticalThinking", "resilience"] as const;
+export const statLabels = {
+  empathy: "やさしさ",
+  criticalThinking: "ひらめき",
+  resilience: "ゆうき",
+} as const;
 const commonEquipmentKeys = ["skin", "hat", "badge"] as const;
 const starEquipmentKeys = ["eyes", "mouth", "head", "prop", "pattern"] as const;
 export const equipmentKeys = [...commonEquipmentKeys, ...starEquipmentKeys] as const;
@@ -22,9 +27,12 @@ type Item = {
   character?: z.infer<typeof characters>;
 };
 
-function starItem(slot: Equipment, name: string, icon: string): Item {
-  return { slot, name, icon, hint: "ほしもち用・試作", character: starCharacter };
+function starItem(slot: Equipment, name: string, icon: string, hint = "ほしもち用・試作"): Item {
+  return { slot, name, icon, hint, character: starCharacter };
 }
+// Seasonal sets. The hint records the theme; availability is the same as other gacha items.
+const halloween = "ハロウィン";
+const christmas = "クリスマス";
 
 export const CATEGORY_RULES = Object.freeze({
   abusive: {
@@ -139,21 +147,21 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     slot: "hat",
     name: "やさしさの光輪",
     icon: "○",
-    hint: "思いやり 70",
+    hint: `${statLabels.empathy} 70`,
     requirement: { type: "stat", key: "empathy", value: 70 },
   },
   badge_book: {
     slot: "badge",
     name: "知恵の本",
     icon: "▣",
-    hint: "考える力 70",
+    hint: `${statLabels.criticalThinking} 70`,
     requirement: { type: "stat", key: "criticalThinking", value: 70 },
   },
   badge_shield: {
     slot: "badge",
     name: "しなやかシールド",
     icon: "◇",
-    hint: "しなやかさ 70",
+    hint: `${statLabels.resilience} 70`,
     requirement: { type: "stat", key: "resilience", value: 70 },
   },
   skin_aurora: {
@@ -188,6 +196,7 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
   skin_star_strawberry: starItem("skin", "いちご大福もち", "♥"),
   skin_star_toast: starItem("skin", "こんがり焼きもち", "▧"),
   skin_star_kintsugi: starItem("skin", "金継ぎもち", "◇"),
+  skin_star_choco: starItem("skin", "チョコがけもち", "◓"),
   hat_star_beret: {
     slot: "hat",
     name: "すみれベレー",
@@ -208,10 +217,11 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
   hat_star_knit: starItem("hat", "ぽんぽんニット帽", "●"),
   hat_star_cap: starItem("hat", "ミントキャップ", "◒"),
   hat_star_top: starItem("hat", "夜会のシルクハット", "▰"),
-  hat_star_pumpkin: starItem("hat", "かぼちゃ帽", "●"),
+  hat_star_pumpkin: starItem("hat", "かぼちゃ帽", "●", halloween),
   hat_star_mushroom: starItem("hat", "きのこのかさ", "●"),
   hat_star_rain: starItem("hat", "雨の日バケット", "◆"),
   hat_star_graduate: starItem("hat", "卒業の角帽", "◇"),
+  hat_star_santa: starItem("hat", "ほしぞらサンタ帽", "△", christmas),
   eyes_default: { slot: "eyes", name: "まるい目", icon: "●", hint: "ほしもち用" },
   eyes_glimmer: {
     slot: "eyes",
@@ -225,6 +235,7 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
   eyes_star_sleepy: starItem("eyes", "とろん目", "◒"),
   eyes_star_odd: starItem("eyes", "オッドアイ", "◉"),
   eyes_star_digital: starItem("eyes", "デジタル目", "▪"),
+  eyes_star_wink: starItem("eyes", "ウインク", "◠"),
   mouth_default: { slot: "mouth", name: "ちいさなW口", icon: "ω", hint: "ほしもち用" },
   mouth_smile: {
     slot: "mouth",
@@ -233,6 +244,7 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     hint: "ほしもち用",
     character: starCharacter,
   },
+  mouth_star_fang: starItem("mouth", "ちらっと八重歯", "▿"),
   head_gold: { slot: "head", name: "金の星飾り", icon: "★", hint: "ほしもち用" },
   head_moon: {
     slot: "head",
@@ -246,6 +258,7 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
   head_star_cloud: starItem("head", "わたぐも耳", "☁"),
   head_star_sprout: starItem("head", "ふたば耳", "♧"),
   head_star_ice: starItem("head", "氷の結晶耳", "❄"),
+  head_star_antler: starItem("head", "トナカイのつの", "Ψ", christmas),
   head_none: {
     slot: "head",
     name: "飾りなし",
@@ -261,6 +274,7 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     hint: "ほしもち用",
     character: starCharacter,
   },
+  prop_star_cocoa: starItem("prop", "ほしマシュマロココア", "☕", christmas),
   pattern_none: { slot: "pattern", name: "柄なし", icon: "−", hint: "ほしもち用" },
   pattern_stars: {
     slot: "pattern",
@@ -269,6 +283,31 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     hint: "ほしもち用",
     character: starCharacter,
   },
+  pattern_star_border: starItem("pattern", "マリンボーダー", "≡"),
+  badge_star_clover: starItem("badge", "よつばのおまもり", "♣"),
+  skin_star_pumpkin: starItem("skin", "かぼちゃもち", "●", halloween),
+  hat_star_witch: starItem("hat", "まじょのとんがり帽", "▲", halloween),
+  badge_star_ghost: starItem("badge", "おばけのおまもり", "◓", halloween),
+  eyes_star_jack: starItem("eyes", "ランタンの目", "▴", halloween),
+  mouth_star_jack: starItem("mouth", "ギザギザスマイル", "◡", halloween),
+  head_star_bat: starItem("head", "こうもりの羽", "⌒", halloween),
+  prop_star_candy: starItem("prop", "おかしバケツ", "◍", halloween),
+  pattern_star_ghost: starItem("pattern", "おばけ柄", "◓", halloween),
+  skin_star_franken: starItem("skin", "フランケンもち", "▦", halloween),
+  head_star_bolt: starItem("head", "フランケンのボルト", "⊣", halloween),
+  skin_star_mummy: starItem("skin", "ミイラもち", "≋", halloween),
+  skin_star_zombie: starItem("skin", "ゾンビもち", "◩", halloween),
+  eyes_star_spiral: starItem("eyes", "ぐるぐる目", "@", halloween),
+  skin_star_ghost: starItem("skin", "おばけもち", "◓", halloween),
+  mouth_star_ghost: starItem("mouth", "ひゅ〜口", "o", halloween),
+  skin_star_ginger: starItem("skin", "ジンジャーもち", "●", christmas),
+  hat_star_tree: starItem("hat", "ツリーのぼうし", "▲", christmas),
+  badge_star_bell: starItem("badge", "ベルのおまもり", "◒", christmas),
+  eyes_star_snow: starItem("eyes", "ゆきのひとみ", "❄", christmas),
+  mouth_star_cane: starItem("mouth", "キャンディケイン", "J", christmas),
+  head_star_holly: starItem("head", "ひいらぎ飾り", "♧", christmas),
+  prop_star_gift: starItem("prop", "プレゼントばこ", "▣", christmas),
+  pattern_star_snow: starItem("pattern", "ゆきもよう", "❄", christmas),
 });
 
 export const defaultEquipment = {
@@ -281,27 +320,38 @@ export const defaultEquipment = {
   prop: "prop_book",
   pattern: "pattern_none",
 } as const;
-const starterItems = [
+export const starterItems: readonly string[] = [
   ...Object.values(defaultEquipment),
-  ...Object.keys(ITEM_CATALOG).filter((id) => {
-    const item = ITEM_CATALOG[id];
-    return item.character === starCharacter && !item.requirement;
-  }),
+  "head_none",
+  "prop_none",
 ];
 
 export function withStarterItems(pet: Profile): Profile {
   return { ...pet, unlockedItems: [...new Set([...pet.unlockedItems, ...starterItems])] };
 }
 
-export function visibleEquipment(character: Appearance["characterType"]) {
+export function visibleEquipment(character: z.infer<typeof characters>) {
   return character === starCharacter ? equipmentKeys : commonEquipmentKeys;
 }
 
-export function canEquip(character: Appearance["characterType"], slot: Equipment, id: string) {
+export function canEquip(character: z.infer<typeof characters>, slot: Equipment, id: string) {
   const item = ITEM_CATALOG[id];
   if (item?.slot !== slot) return false;
   if (item.character) return item.character === character;
   return character !== starCharacter || slot === "badge" || id === defaultEquipment[slot];
+}
+
+export function ownedEquipment(
+  character: z.infer<typeof characters>,
+  current: Profile["equippedItems"],
+  owned: readonly string[],
+): Profile["equippedItems"] {
+  const equipped = { ...current };
+  for (const slot of equipmentKeys) {
+    if (!owned.includes(equipped[slot]) || !canEquip(character, slot, equipped[slot]))
+      equipped[slot] = defaultEquipment[slot];
+  }
+  return equipped;
 }
 
 const integer = z.number().int().nonnegative();
@@ -319,10 +369,12 @@ const equippedItems = z.strictObject({
 });
 export const appearance = z.strictObject({
   name: z.string().trim().min(1).max(12),
-  characterType: characters,
+  characterType: z.literal(starCharacter),
   equippedItems,
 });
 export const profile = appearance.extend({
+  // Archived character IDs remain readable; new appearance writes only accept Hoshimoti.
+  characterType: characters,
   unlockedItems: z.array(itemId),
   level: integer.min(1).max(99),
   xp: integer,
@@ -345,30 +397,46 @@ export const profile = appearance.extend({
     draws: integer,
     sinceSR: integer,
     sinceUR: integer,
-    shards: z.record(z.string(), integer),
+    // Old item/rarity balances stay readable until the account migration combines them.
+    shards: z.union([integer, z.record(z.string(), integer)]),
   }),
 });
 export type Profile = z.infer<typeof profile>;
 export type Appearance = z.infer<typeof appearance>;
 
+export function totalShards(shards: Profile["gacha"]["shards"]): number {
+  return typeof shards === "number"
+    ? shards
+    : Object.values(shards).reduce((sum, count) => sum + count, 0);
+}
+
+/** Presentation only: keep the saved legacy profile and inventory intact. */
+export function asStarProfile(pet: Profile): Profile {
+  return {
+    ...pet,
+    characterType: starCharacter,
+    equippedItems: ownedEquipment(starCharacter, pet.equippedItems, pet.unlockedItems),
+  };
+}
+
 export function newProfile(): Profile {
   return {
-    name: "ココロ",
-    characterType: "a",
+    name: "ほしもち",
+    characterType: starCharacter,
     equippedItems: { ...defaultEquipment },
     unlockedItems: [...starterItems],
     level: 1,
     xp: 0,
-    empathy: 50,
-    criticalThinking: 50,
-    resilience: 50,
+    empathy: 10,
+    criticalThinking: 10,
+    resilience: 10,
     progress: { supportive: 0, constructive: 0, respectful: 0, contextual: 0, balanced: 0 },
     mood: "idle",
     totalPosts: 0,
     streak: 0,
     lastActiveDate: null,
     confirmedCoins: 0,
-    gacha: { draws: 0, sinceSR: 0, sinceUR: 0, shards: {} },
+    gacha: { draws: 0, sinceSR: 0, sinceUR: 0, shards: 0 },
   };
 }
 

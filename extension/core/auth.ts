@@ -11,6 +11,7 @@ import {
 import { browser } from "wxt/browser";
 
 const projectId = import.meta.env.WXT_FIREBASE_PROJECT_ID || "demo-commet";
+const emulatorUrl = import.meta.env.WXT_FIREBASE_AUTH_EMULATOR || "http://127.0.0.1:9099";
 export const emulator = projectId.startsWith("demo-");
 const firebase = initializeApp({
   apiKey: import.meta.env.WXT_FIREBASE_API_KEY || "fake-api-key",
@@ -20,7 +21,7 @@ const firebase = initializeApp({
 });
 const auth = initializeAuth(firebase, { persistence: indexedDBLocalPersistence });
 if (emulator) {
-  connectAuthEmulator(auth, import.meta.env.WXT_FIREBASE_AUTH_EMULATOR || "http://127.0.0.1:9099", {
+  connectAuthEmulator(auth, emulatorUrl, {
     disableWarnings: true,
   });
 }
@@ -42,6 +43,13 @@ let googleAccessToken: string | undefined;
 
 export async function login() {
   if (emulator) {
+    try {
+      await fetch(emulatorUrl, { signal: AbortSignal.timeout(3000) });
+    } catch {
+      throw new Error(
+        "開発用の認証サービスに接続できません。npm run emulators で起動してください。",
+      );
+    }
     await signInAnonymously(auth);
   } else {
     if (

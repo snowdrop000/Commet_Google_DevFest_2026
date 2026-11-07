@@ -1,9 +1,17 @@
-import type { Firestore } from "firebase-admin/firestore";
+import type {
+  DocumentReference,
+  DocumentSnapshot,
+  Firestore,
+  Transaction,
+} from "firebase-admin/firestore";
+import { exchangeResult, gachaResult } from "../../shared/gacha";
+import { migrateInventory } from "../model/inventory";
 import {
   accountState,
   explorationSession,
   newAccount,
   newSession,
+  inventoryVersion,
   type GameRepository,
   type Mutation,
 } from "../model/state";
@@ -15,9 +23,54 @@ export class FirestoreGameRepository implements GameRepository {
     return this.database.collection("accounts").doc(uid);
   }
 
+  private async currentInventory(
+    tx: Transaction,
+    ref: DocumentReference,
+    snapshot: DocumentSnapshot,
+  ) {
+    const account = snapshot.exists ? accountState.parse(snapshot.data()) : newAccount();
+    if (account.inventoryVersion >= inventoryVersion) return { account, migrated: false };
+    const receipts =
+      account.inventoryVersion < 1
+        ? await tx.get(ref.collection("gachaDraws").select("itemId"))
+        : null;
+    const items =
+      receipts?.docs
+        .map((draw) => draw.get("itemId"))
+        .filter((id): id is string => typeof id === "string") ?? [];
+    return { account: migrateInventory(account, items), migrated: true };
+  }
+
   async read(uid: string) {
-    const snapshot = await this.account(uid).get();
-    return snapshot.exists ? accountState.parse(snapshot.data()) : newAccount();
+    const ref = this.account(uid);
+    const snapshot = await ref.get();
+    const account = snapshot.exists ? accountState.parse(snapshot.data()) : newAccount();
+    if (account.inventoryVersion >= inventoryVersion) return account;
+    return this.database.runTransaction(async (tx) => {
+      const current = await this.currentInventory(tx, ref, await tx.get(ref));
+      if (current.migrated) tx.set(ref, current.account);
+      return current.account;
+    });
+  }
+
+  transactDraw(
+    uid: string,
+    requestId: string,
+    mutate: Parameters<GameRepository["transactDraw"]>[2],
+  ) {
+    const accountRef = this.account(uid);
+    const receiptRef = accountRef.collection("gachaDraws").doc(requestId);
+    return this.database.runTransaction(async (tx) => {
+      const [account, receipt] = await tx.getAll(accountRef, receiptRef);
+      const current = await this.currentInventory(tx, accountRef, account);
+      const change = mutate(
+        current.account,
+        receipt.exists ? gachaResult.parse(receipt.data()) : null,
+      );
+      if (change.account || current.migrated) tx.set(accountRef, change.account ?? current.account);
+      if (change.receipt) tx.set(receiptRef, change.receipt);
+      return change.value;
+    });
   }
 
   transact<T>(uid: string, sessionId: string | null, mutate: Mutation<T>): Promise<T> {
@@ -28,12 +81,33 @@ export class FirestoreGameRepository implements GameRepository {
         tx.get(accountRef),
         sessionRef && tx.get(sessionRef),
       ]);
+      const current = await this.currentInventory(tx, accountRef, account);
       const change = mutate(
-        account.exists ? accountState.parse(account.data()) : newAccount(),
+        current.account,
         session?.exists ? explorationSession.parse(session.data()) : newSession(),
       );
-      if (change.account) tx.set(accountRef, change.account);
+      if (change.account || current.migrated) tx.set(accountRef, change.account ?? current.account);
       if (change.session && sessionRef) tx.set(sessionRef, change.session);
+      return change.value;
+    });
+  }
+
+  transactExchange(
+    uid: string,
+    requestId: string,
+    mutate: Parameters<GameRepository["transactExchange"]>[2],
+  ) {
+    const accountRef = this.account(uid);
+    const receiptRef = accountRef.collection("shardExchanges").doc(requestId);
+    return this.database.runTransaction(async (tx) => {
+      const [account, receipt] = await tx.getAll(accountRef, receiptRef);
+      const current = await this.currentInventory(tx, accountRef, account);
+      const change = mutate(
+        current.account,
+        receipt.exists ? exchangeResult.parse(receipt.data()) : null,
+      );
+      if (change.account || current.migrated) tx.set(accountRef, change.account ?? current.account);
+      if (change.receipt) tx.set(receiptRef, change.receipt);
       return change.value;
     });
   }
