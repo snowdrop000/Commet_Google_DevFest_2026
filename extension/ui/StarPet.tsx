@@ -3,9 +3,10 @@ import { browser } from "wxt/browser";
 import { ITEM_CATALOG, type Profile } from "../../shared/game";
 import type { PetAnimation } from "./pet-animation";
 import { starAssets } from "./star-assets";
-import { StarHat } from "./star-accessories";
+import { StarHat, StarProp, starBadges } from "./star-accessories";
 import { outline, StarEffects, StarFace, StarOrnaments, StarPattern } from "./star-parts";
 import { StarPixelBody, StarSkinFinish, starSkins } from "./star-skins";
+import "./star-reading.css";
 
 type Rect = readonly [x: number, y: number, width: number, height: number];
 type Frame = { crop: Rect; center: number; floor: number; crown: number };
@@ -84,28 +85,6 @@ function Art({
   );
 }
 
-export function PreviousStanding() {
-  const { crop, center, floor } = expressions.idle;
-  const [x, y, width, height] = crop;
-  const scale = 0.147;
-  return (
-    <svg className="commet-star-previous" viewBox="0 0 100 100" role="img" aria-label="旧ノーマル">
-      <ellipse cx="50" cy="93" rx="32" ry="3" fill="#8a79ac" opacity=".24" />
-      <Art
-        asset={starAssets.previous}
-        imageSize={[1254, 1254]}
-        crop={crop}
-        placement={[
-          50 + (x - center) * scale,
-          92 + (y - floor) * scale,
-          width * scale,
-          height * scale,
-        ]}
-      />
-    </svg>
-  );
-}
-
 export function StarPet({
   profile,
   mood,
@@ -133,7 +112,6 @@ export function StarPet({
   const flipped = (walking || peeking) && animation.direction === "left";
   const transform = [
     flipped && "translate(100 0) scale(-1 1)",
-    peeking && "rotate(8 50 90)",
     `translate(0 ${ground}) scale(1 0.89) translate(0 ${-ground})`,
   ]
     .filter(Boolean)
@@ -148,10 +126,15 @@ export function StarPet({
   const filterId = `${id}-tint`;
   const maskId = `${id}-pattern`;
   const gradientId = `${id}-skin-wash`;
-  const faceX = walking ? 57 : 50;
-  const faceY = crown + (expression === "proud" ? 24.5 : 21.7);
+  const faceX = walking ? 57 : peeking ? 51 : 50;
+  const faceY = crown + (expression === "proud" ? 24.5 : 21.7) + (peeking ? 0.35 : 0);
   const learning = expression === "proud";
-  const holdingBook = learning && prop === "prop_book";
+  const holding = learning && prop !== "prop_none";
+  const holdingBook = holding && prop === "prop_book";
+  const handY = holding ? 76.5 : 78;
+  // SVG props are narrower than the book, so their hands sit a little closer together.
+  const handInset = holding && !holdingBook ? 2 : 0;
+  const hasPattern = pattern !== "pattern_none";
   const filter = slopes ? `url(#${filterId})` : undefined;
 
   return (
@@ -162,7 +145,7 @@ export function StarPet({
       data-frame={walking ? step : expression}
       data-skin={skin}
       data-direction={flipped ? "left" : "right"}
-      aria-label="ほしもち"
+      aria-label={profile.name}
     >
       <svg className="commet-star-stage" viewBox="0 0 100 100" aria-hidden="true">
         <defs>
@@ -189,7 +172,7 @@ export function StarPet({
               />
             )}
           </g>
-          {(pattern === "pattern_stars" || hasFinish) && (
+          {(hasPattern || hasFinish) && (
             <mask
               id={maskId}
               x="0"
@@ -223,83 +206,113 @@ export function StarPet({
         </defs>
         <ellipse cx="50" cy="93" rx="32" ry="3" fill="#8a79ac" opacity=".24" />
         <g transform={transform}>
-          <StarOrnaments id={head} crown={crown} walking={walking} pixel={pixel} />
-          <g data-layer="body" filter={filter}>
-            <use href={`#${bodyId}`} />
+          <g className="commet-star-pose">
+            <StarOrnaments id={head} crown={crown} walking={walking} pixel={pixel} />
+            <g data-layer="body" filter={filter}>
+              <use href={`#${bodyId}`} />
+            </g>
+            {skinStyle && hasFinish && (
+              <StarSkinFinish skin={skinStyle} maskId={maskId} gradientId={gradientId} />
+            )}
+            {hasPattern && <StarPattern id={pattern} maskId={maskId} />}
+            <StarFace
+              expression={expression}
+              x={faceX}
+              y={faceY}
+              walking={walking}
+              reading={peeking && expression === "idle"}
+              eyes={eyes}
+              mouth={mouth}
+              pixel={pixel}
+              ink={skinStyle?.ink}
+            />
+            <StarEffects expression={expression} x={faceX} y={faceY} crown={crown} />
+            {holdingBook && (
+              <g data-layer="prop" data-part={prop}>
+                <Art
+                  asset={starAssets.book}
+                  imageSize={[1536, 1024]}
+                  crop={[240, 157, 1055, 740]}
+                  placement={[30, 65, 40, 28]}
+                />
+              </g>
+            )}
+            {holding && !holdingBook && <StarProp id={prop} outline={outline} />}
+            {learning && (
+              <g
+                data-layer="hands"
+                fill="#fae9ed"
+                stroke={outline}
+                strokeWidth="1.03"
+                filter={filter}
+              >
+                {/* Tops lean inward so the hands grip the sides of what they hold. */}
+                {[
+                  [33 + handInset, 18],
+                  [67 - handInset, -18],
+                ].map(([cx, angle]) => (
+                  <ellipse
+                    key={cx}
+                    cx={cx}
+                    cy={handY}
+                    rx="4.7"
+                    ry="6.1"
+                    transform={`rotate(${angle} ${cx} ${handY})`}
+                  />
+                ))}
+              </g>
+            )}
+            {hat === "hat_star_beret" && (
+              <g data-layer="hat" data-hat={hat}>
+                <Art
+                  asset={starAssets.beret}
+                  imageSize={[1774, 887]}
+                  crop={[471, 239, 802, 408]}
+                  placement={[32, crown - 12, 36, 18.3]}
+                />
+              </g>
+            )}
+            {hat === "hat_star_pin" && (
+              <g data-layer="hat" data-hat={hat}>
+                <Art
+                  asset={starAssets.pin}
+                  imageSize={[1536, 1024]}
+                  crop={[311, 235, 920, 585]}
+                  placement={[59, crown + 4, 18, 11.5]}
+                />
+              </g>
+            )}
+            <StarHat id={hat} crown={crown} outline={outline} />
           </g>
-          {skinStyle && hasFinish && (
-            <StarSkinFinish skin={skinStyle} maskId={maskId} gradientId={gradientId} />
-          )}
-          {pattern === "pattern_stars" && <StarPattern maskId={maskId} />}
-          <StarFace
-            expression={expression}
-            x={faceX}
-            y={faceY}
-            walking={walking}
-            eyes={eyes}
-            mouth={mouth}
-            pixel={pixel}
-            ink={skinStyle?.ink}
-          />
-          <StarEffects expression={expression} x={faceX} y={faceY} crown={crown} />
-          {holdingBook && (
-            <g data-layer="prop" data-part={prop}>
-              <Art
-                asset={starAssets.book}
-                imageSize={[1536, 1024]}
-                crop={[240, 157, 1055, 740]}
-                placement={[30, 65, 40, 28]}
-              />
-            </g>
-          )}
-          {learning && (
-            <g
-              data-layer="hands"
-              fill="#fae9ed"
-              stroke={outline}
-              strokeWidth="1.03"
-              filter={filter}
-            >
-              <ellipse
-                cx="33.5"
-                cy={holdingBook ? 76 : 78}
-                rx="4.4"
-                ry="5.9"
-                transform="rotate(-23 33.5 76)"
-              />
-              <ellipse
-                cx="66.5"
-                cy={holdingBook ? 76 : 78}
-                rx="4.4"
-                ry="5.9"
-                transform="rotate(23 66.5 76)"
-              />
-            </g>
-          )}
-          {hat === "hat_star_beret" && (
-            <g data-layer="hat" data-hat={hat}>
-              <Art
-                asset={starAssets.beret}
-                imageSize={[1774, 887]}
-                crop={[471, 239, 802, 408]}
-                placement={[32, crown - 12, 36, 18.3]}
-              />
-            </g>
-          )}
-          {hat === "hat_star_pin" && (
-            <g data-layer="hat" data-hat={hat}>
-              <Art
-                asset={starAssets.pin}
-                imageSize={[1536, 1024]}
-                crop={[311, 235, 920, 585]}
-                placement={[59, crown + 4, 18, 11.5]}
-              />
-            </g>
-          )}
-          <StarHat id={hat} crown={crown} outline={outline} />
         </g>
       </svg>
-      {badge !== "badge_none" && <span className="commet-badge">{ITEM_CATALOG[badge]?.icon}</span>}
+      {peeking && expression === "idle" && (
+        <svg className="commet-thought" viewBox="0 0 48 40" aria-hidden="true" focusable="false">
+          <g transform={flipped ? undefined : "translate(48 0) scale(-1 1)"}>
+            <g fill="#fffaf7" stroke="#d6c5cc" strokeWidth="1.1" strokeLinejoin="round">
+              <path d="M13 25C6 26 1 21 4 16 1 10 5 5 11 6 14 0 22 0 26 5 32 2 39 6 38 12 46 11 49 21 42 25 39 28 34 28 30 26 25 30 17 29 13 25Z" />
+              <circle cx="11" cy="32" r="2.2" />
+              <circle cx="6.5" cy="37.5" r="1.25" />
+            </g>
+            <g fill="#9d7e90">
+              {[18, 25, 32].map((cx) => (
+                <circle key={cx} className="commet-thought-dot" cx={cx} cy="16" r="1.45" />
+              ))}
+            </g>
+          </g>
+        </svg>
+      )}
+      {starBadges[badge] ? (
+        <span className="commet-badge commet-badge--art" data-badge={badge}>
+          <svg viewBox="-10 -10 20 20" aria-hidden="true" focusable="false">
+            <g stroke={outline} strokeWidth="1" strokeLinejoin="round">
+              {starBadges[badge]}
+            </g>
+          </svg>
+        </span>
+      ) : (
+        badge !== "badge_none" && <span className="commet-badge">{ITEM_CATALOG[badge]?.icon}</span>
+      )}
     </div>
   );
 }

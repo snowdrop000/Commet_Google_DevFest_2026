@@ -3,6 +3,8 @@ import { pixelStarEar, starEars } from "./star-accessories";
 export type StarExpression = "idle" | "happy" | "cry" | "proud";
 export const outline = "#50352f";
 
+// Hooked over the right corner of the mouth, hanging down past the chin.
+const caneShape = "M2.6-.4Q2.8-3.2 5.1-3.1 7.3-2.9 6.9-.3L5.6 8.5";
 const crystalShape = "M-8.2-9 2-7.1 4.8.4-4.1 4.8-10.3-.1Z";
 
 export function StarOrnaments({
@@ -22,13 +24,15 @@ export function StarOrnaments({
     ? { near: "translate(38.5 4.7) scale(.87 .96)", far: "translate(61 4.1) scale(-.74 .85)" }
     : { near: "translate(35 6)", far: "translate(65 6) scale(-1 1)" };
   const custom = pixel && id === "head_gold" ? pixelStarEar : starEars[id];
+  // Side-mounted parts must clear the narrower walking head, which would otherwise hide them.
+  const shift = walking && id === "head_star_bolt" ? " translate(-5.5 0)" : "";
   return (
     <g data-layer="head" data-part={id} transform={`translate(0 ${crown})`}>
       {Object.entries(placements).map(([side, transform]) =>
         custom ? (
           <g
             key={side}
-            transform={transform}
+            transform={transform + shift}
             stroke={outline}
             strokeWidth="1.05"
             strokeLinejoin="round"
@@ -140,6 +144,65 @@ function StarEye({
           <path d="M-.5-2.4H.5v1H-.5Z" fill="#cefff3" />
         </>
       );
+    case "eyes_star_wink":
+      // The viewer's right eye closes; a small sparkle sits beside it.
+      return side === 1 ? (
+        <>
+          <path
+            d="M-3.3.9Q0-3.3 3.3.9"
+            fill="none"
+            stroke={ink}
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+          <path d="m5.6-5.4.5 1.5 1.5.5-1.5.5-.5 1.5-.5-1.5-1.5-.5 1.5-.5Z" fill="#ffc94d" />
+        </>
+      ) : (
+        <>
+          <ellipse rx="2.8" ry="3.4" fill={ink} />
+          <circle cx="-.9" cy="-1.3" r=".95" fill="#fffaf2" />
+        </>
+      );
+    case "eyes_star_jack":
+      // Jack-o'-lantern triangles with a candle glow inside.
+      return (
+        <>
+          <path
+            d="M0-3.6 3.8 2.8H-3.8Z"
+            fill="#3a2530"
+            stroke="#3a2530"
+            strokeWidth=".7"
+            strokeLinejoin="round"
+          />
+          <path d="M0-.4 1.8 2.2H-1.8Z" fill="#ffae4f" />
+        </>
+      );
+    case "eyes_star_spiral":
+      // Half circles with growing radii make a spiral; mirrored so both turn outward.
+      return (
+        <path
+          d="M0 0A.6.6 0 0 1 1.2 0 1.2 1.2 0 0 1-1.2 0 1.8 1.8 0 0 1 2.4 0 2.4 2.4 0 0 1-2.4 0 3 3 0 0 1 3.6 0"
+          transform={side === 1 ? "scale(-1 1) translate(-.6 0)" : "translate(-.6 0)"}
+          fill="none"
+          stroke={ink}
+          strokeWidth=".85"
+          strokeLinecap="round"
+        />
+      );
+    case "eyes_star_snow":
+      return (
+        <>
+          <ellipse rx="3" ry="3.6" fill={ink} />
+          <ellipse cy="2" rx="2" ry=".85" fill="#8fc3ee" opacity=".8" />
+          <path
+            d="M-.9-2.5v2.4M-1.94-1.9l2.08 1.2M-1.94-.7l2.08-1.2"
+            fill="none"
+            stroke="#fff"
+            strokeWidth=".45"
+            strokeLinecap="round"
+          />
+        </>
+      );
     default:
       return pixel ? (
         <path d="M-2.7-2.25h1V-3.3h3.4v1.05h1v4.5h-1V3.3h-3.4V2.25h-1Z" fill={ink} />
@@ -154,6 +217,7 @@ export function StarFace({
   x,
   y,
   walking,
+  reading = false,
   eyes,
   mouth,
   pixel,
@@ -163,6 +227,7 @@ export function StarFace({
   x: number;
   y: number;
   walking: boolean;
+  reading?: boolean;
   eyes: string;
   mouth: string;
   pixel: boolean;
@@ -170,83 +235,146 @@ export function StarFace({
 }) {
   const reaction = expression === "happy" || expression === "cry";
   const smile = !reaction && mouth === "mouth_smile";
+  const fang = !reaction && mouth === "mouth_star_fang";
+  const cane = !reaction && mouth === "mouth_star_cane";
+  const jack = !reaction && mouth === "mouth_star_jack";
+  const hoo = !reaction && mouth === "mouth_star_ghost";
   const distance = expression === "idle" ? 8.1 : 9.8;
   const stroke = ink ?? outline;
   return (
     <g transform={`translate(${x} ${y})`}>
-      {expression !== "cry" && (
-        <g data-layer="cheeks" fill="#f094ae" opacity=".56">
-          {pixel ? (
+      <g className={reading ? "commet-reading-face" : undefined}>
+        {expression !== "cry" && (
+          <g
+            data-layer="cheeks"
+            className={reading ? "commet-thinking-cheeks" : undefined}
+            fill="#f094ae"
+            opacity=".56"
+          >
+            {pixel ? (
+              <>
+                <rect x={-distance - 7.2} y="3" width="6" height="2.6" />
+                <rect x={distance + 1.5} y={walking ? 2 : 3} width={walking ? 5 : 6} height="2.6" />
+              </>
+            ) : (
+              <>
+                <ellipse cx={-distance - 4.2} cy="4.35" rx="3.16" ry="1.48" />
+                <ellipse
+                  cx={distance + 4.2}
+                  cy={walking ? 3.35 : 4.35}
+                  rx={walking ? 2.55 : 3.16}
+                  ry="1.48"
+                />
+              </>
+            )}
+          </g>
+        )}
+        <g
+          data-layer="eyes"
+          data-part={reaction ? expression : eyes}
+          fill="none"
+          stroke={stroke}
+          strokeWidth="1.45"
+          strokeLinecap="round"
+        >
+          <g data-layer={reading ? "reading-gaze" : undefined}>
+            <g className={reading ? "commet-reading-blink" : undefined}>
+              {expression === "happy" && (
+                <path
+                  d={
+                    pixel
+                      ? "M-14 1V-1h2v-2h4v2h2v2M6 1V-1h2v-2h4v2h2v2"
+                      : "M-14 1q4-8 8 0M6 1q4-8 8 0"
+                  }
+                />
+              )}
+              {expression === "cry" && (
+                <path
+                  d={pixel ? "M-14 1h3V0h2v-2h2M7-2h2v2h2v1h3" : "M-14 1q4 .2 7-3M7-2q3 3.2 7 3"}
+                />
+              )}
+              {!reaction &&
+                [-1, 1].map((side) => {
+                  return (
+                    <g
+                      key={side}
+                      data-eye={side === -1 ? "left" : "right"}
+                      transform={`translate(${side * distance} 0)`}
+                      stroke="none"
+                    >
+                      <StarEye id={eyes} side={side} ink={ink ?? "#3c2622"} pixel={pixel} />
+                    </g>
+                  );
+                })}
+            </g>
+          </g>
+        </g>
+        <g
+          data-layer="mouth"
+          data-part={reaction ? expression : mouth}
+          data-pixel={pixel}
+          transform={`translate(${walking ? 1.3 : 0} ${expression === "idle" ? 5.7 : 7.6})`}
+          fill="none"
+          stroke={stroke}
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {/* Add-ons sit under the mouth line so the line overlaps where they meet. */}
+          {fang && (
+            <path
+              d={pixel ? "M1.5.5h2v1h-.5v1.2h-1V1.5h-.5Z" : "M.9.3 2 2.6 3 .1"}
+              fill="#fffdf8"
+              strokeWidth=".7"
+            />
+          )}
+          {cane && (
+            <g fill="none">
+              <path d={caneShape} strokeWidth="2.7" />
+              <path d={caneShape} stroke="#fffaf6" strokeWidth="1.5" />
+              <path d={caneShape} stroke="#e2545f" strokeWidth="1.5" strokeDasharray="1.1 1.2" />
+            </g>
+          )}
+          {hoo ? (
+            // A small round "hoo" mouth.
+            <ellipse cy=".6" rx="1.7" ry="2.2" fill="#7a4a5c" />
+          ) : jack ? (
             <>
-              <rect x={-distance - 7.2} y="3" width="6" height="2.6" />
-              <rect x={distance + 1.5} y={walking ? 2 : 3} width={walking ? 5 : 6} height="2.6" />
+              <path
+                d="M-4.8-1.4Q0 5.4 4.8-1.4L3.1.1 1.5-.9 0 .4-1.5-.9-3.1.1Z"
+                fill="#4a2a30"
+                strokeWidth=".9"
+              />
+              <ellipse cy="2.3" rx="1.9" ry=".6" fill="#ff9a3c" stroke="none" opacity=".75" />
             </>
-          ) : (
+          ) : pixel && expression === "happy" ? (
+            <path d="M-4-3H4V1H3V3H-3V1H-4Z" fill="#f591a8" />
+          ) : expression === "happy" ? (
             <>
-              <ellipse cx={-distance - 4.2} cy="4.35" rx="3.16" ry="1.48" />
-              <ellipse
-                cx={distance + 4.2}
-                cy={walking ? 3.35 : 4.35}
-                rx={walking ? 2.55 : 3.16}
-                ry="1.48"
+              <path d="M-4.25-3q4.25-.65 8.5 0 .1 7-4.25 7T-4.25-3Z" fill="#f591a8" />
+              <path
+                d="M-2.6.2Q0-1.35 2.6.2q-.75 2.7-2.6 2.7T-2.6.2Z"
+                fill="#ffc0ca"
+                stroke="none"
               />
             </>
+          ) : pixel ? (
+            <path
+              className={reading ? "commet-thinking-mouth" : undefined}
+              d={smile ? "M-3-1V0h1v1h4V0h1v-1" : "M-3.5-1V0H-2.5V1h2V0h1v1h2V0h1v-1"}
+            />
+          ) : smile ? (
+            <path
+              className={reading ? "commet-thinking-mouth" : undefined}
+              d="M-3.2-1q3.2 3.4 6.4 0"
+            />
+          ) : (
+            <path
+              className={reading ? "commet-thinking-mouth" : undefined}
+              d="M-3.7-.85q1.7 2.5 3.7 0 2 2.5 3.7 0"
+            />
           )}
         </g>
-      )}
-      <g
-        data-layer="eyes"
-        data-part={reaction ? expression : eyes}
-        fill="none"
-        stroke={stroke}
-        strokeWidth="1.45"
-        strokeLinecap="round"
-      >
-        {expression === "happy" && (
-          <path
-            d={pixel ? "M-14 1V-1h2v-2h4v2h2v2M6 1V-1h2v-2h4v2h2v2" : "M-14 1q4-8 8 0M6 1q4-8 8 0"}
-          />
-        )}
-        {expression === "cry" && (
-          <path d={pixel ? "M-14 1h3V0h2v-2h2M7-2h2v2h2v1h3" : "M-14 1q4 .2 7-3M7-2q3 3.2 7 3"} />
-        )}
-        {!reaction &&
-          [-1, 1].map((side) => {
-            const far = walking && side === 1;
-            const position = far
-              ? `translate(${distance} -1) scale(.76 .87)`
-              : `translate(${side * distance} 0)`;
-            return (
-              <g key={side} transform={position} stroke="none">
-                <StarEye id={eyes} side={side} ink={ink ?? "#3c2622"} pixel={pixel} />
-              </g>
-            );
-          })}
-      </g>
-      <g
-        data-layer="mouth"
-        data-part={reaction ? expression : mouth}
-        transform={`translate(${walking ? 1.3 : 0} ${expression === "idle" ? 5.7 : 7.6})`}
-        fill="none"
-        stroke={stroke}
-        strokeWidth="1.1"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {pixel && expression === "happy" ? (
-          <path d="M-4-3H4V1H3V3H-3V1H-4Z" fill="#f591a8" />
-        ) : expression === "happy" ? (
-          <>
-            <path d="M-4.25-3q4.25-.65 8.5 0 .1 7-4.25 7T-4.25-3Z" fill="#f591a8" />
-            <path d="M-2.6.2Q0-1.35 2.6.2q-.75 2.7-2.6 2.7T-2.6.2Z" fill="#ffc0ca" stroke="none" />
-          </>
-        ) : pixel ? (
-          <path d={smile ? "M-3-1V0h1v1h4V0h1v-1" : "M-3.5-1V0H-2.5V1h2V0h1v1h2V0h1v-1"} />
-        ) : smile ? (
-          <path d="M-3.2-1q3.2 3.4 6.4 0" />
-        ) : (
-          <path d="M-3.7-.85q1.7 2.5 3.7 0 2 2.5 3.7 0" />
-        )}
       </g>
     </g>
   );
@@ -326,7 +454,68 @@ export function StarEffects({
   );
 }
 
-export function StarPattern({ maskId }: { maskId: string }) {
+const ghostShape =
+  "M0-4c2.4 0 3.6 1.8 3.6 4.2v3.8l-1.2-1-1.2 1-1.2-1-1.2 1-1.2-1-1.2 1-1.2-1V.2C-3.6-2.2-2.4-4 0-4Z";
+const snowflakeShape = "M0-2.6v5.2M-2.25-1.3l4.5 2.6M-2.25 1.3l4.5-2.6";
+
+export function StarPattern({ id, maskId }: { id: string; maskId: string }) {
+  if (id === "pattern_star_ghost") {
+    return (
+      <g data-layer="pattern" data-part={id} mask={`url(#${maskId})`} opacity=".55">
+        {[
+          "translate(31 77) rotate(-10)",
+          "translate(53 70) scale(.8)",
+          "translate(69 82) rotate(8)",
+          "translate(45 86) scale(.7)",
+        ].map((transform) => (
+          <g key={transform} transform={transform}>
+            <path d={ghostShape} fill="#8f7cc4" />
+            <circle cx="-1.2" cy="-.6" r=".55" fill="#fff" />
+            <circle cx="1.2" cy="-.6" r=".55" fill="#fff" />
+          </g>
+        ))}
+      </g>
+    );
+  }
+  if (id === "pattern_star_snow") {
+    return (
+      <g data-layer="pattern" data-part={id} mask={`url(#${maskId})`} opacity=".75">
+        <g fill="none" stroke="#7fb0e0" strokeWidth=".8" strokeLinecap="round">
+          {[
+            "translate(33 74)",
+            "translate(58 70) scale(1.2)",
+            "translate(69 84) scale(.9)",
+            "translate(45 85) scale(.8)",
+          ].map((transform) => (
+            <path key={transform} d={snowflakeShape} transform={transform} />
+          ))}
+        </g>
+        <g fill="#9cc4ec">
+          <circle cx="25" cy="82" r="1" />
+          <circle cx="52" cy="78" r=".9" />
+          <circle cx="76" cy="73" r="1" />
+        </g>
+      </g>
+    );
+  }
+  if (id === "pattern_star_border") {
+    // Bands bow downward to follow the round belly; the mask trims them to the body.
+    return (
+      <g
+        data-layer="pattern"
+        data-part={id}
+        mask={`url(#${maskId})`}
+        fill="none"
+        stroke="#5f86cf"
+        strokeWidth="3.4"
+        opacity=".5"
+      >
+        <path d="M5 66Q50 74 95 66" />
+        <path d="M5 75Q50 83 95 75" />
+        <path d="M5 84Q50 92 95 84" />
+      </g>
+    );
+  }
   return (
     <g data-layer="pattern" mask={`url(#${maskId})`} fill="#856bc4" opacity=".46">
       <path d="M37 69.5q.8 3.7 4.5 4.5-3.7.8-4.5 4.5-.8-3.7-4.5-4.5 3.7-.8 4.5-4.5ZM60 73q1 4 5 5-4 1-5 5-1-4-5-5 4-1 5-5ZM70 62q.6 2.6 3.2 3.2-2.6.6-3.2 3.2-.6-2.6-3.2-3.2 2.6-.6 3.2-3.2Z" />

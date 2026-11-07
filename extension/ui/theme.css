@@ -1,0 +1,761 @@
+.commet {
+  --ui-paper: #fffcfa;
+  --ui-lavender: #f1ecf8;
+  --ui-line: #eee5ee;
+  --ui-ink: #55495c;
+  --ui-muted: #aa9bad;
+  --ui-pink: #b77f9e;
+}
+
+.commet.commet-wardrobe-dialog {
+  width: min(600px, calc(100vw - 24px));
+  padding: 22px;
+  border: 1px solid var(--ui-line);
+  border-radius: 16px;
+  background: var(--ui-paper);
+  color: var(--ui-ink);
+  box-shadow: 0 20px 70px #30253825;
+  font-size: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #dfd2e2 transparent;
+}
+.commet-wardrobe-dialog::backdrop {
+  background: #201a2860;
+}
+.commet-wardrobe-dialog .commet-wardrobe-dialog-header {
+  align-items: center;
+  margin-bottom: 18px;
+}
+.commet-dialog-title > span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--ui-pink);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+.commet .commet-dialog-title h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.commet .commet-wardrobe-dialog-header > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border: 1px solid var(--ui-line);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--ui-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.commet-wardrobe-dialog-header > button svg {
+  width: 11px;
+  height: 11px;
+}
+.commet.commet-wardrobe-dialog > button {
+  padding: 7px 10px;
+  border-color: #e6d9eb;
+  border-radius: 7px;
+  background: #f8f1f8;
+  color: #9e80aa;
+  font-size: 10px;
+}
+.commet .commet-wardrobe-notice {
+  margin: 0 0 18px;
+  padding: 9px 11px;
+  border-radius: 7px;
+  background: #f9f2f5;
+  color: #a28c9e;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.commet-lab-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 5px 16px;
+  margin: 18px 0 10px;
+}
+.commet .commet-lab-heading h2 {
+  margin: 0;
+  font-size: 12px;
+}
+.commet .commet-lab-heading p {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: 10px;
+}
+.commet .commet-lab-stage {
+  min-height: 156px;
+  margin: 10px 0 12px;
+  border-radius: 12px;
+  background: var(--ui-lavender);
+}
+.commet.commet-wardrobe-dialog .commet-lab-stage .commet-pet--star {
+  width: 154px;
+  height: 154px;
+}
+.commet .commet-scene-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+.commet .commet-face-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  width: auto;
+  gap: 6px;
+  margin: 0;
+}
+.commet .commet-face-buttons button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 38px;
+  padding: 3px 8px 3px 3px;
+  border-color: var(--ui-line);
+  border-radius: 6px;
+  background: transparent;
+  color: #9d8aa0;
+  font-size: 10px;
+  font-weight: 400;
+}
+.commet .commet-face-buttons button[aria-pressed="true"] {
+  background: #f5e9f0;
+  border-color: var(--ui-pink);
+  color: #b47097;
+  box-shadow: none;
+}
+.commet-scene-controls .commet-scene-art {
+  width: 29px;
+  height: 28px;
+}
+.commet .commet-scene-art .commet-pet {
+  width: 42px;
+  height: 42px;
+  top: -4px;
+}
+.commet .commet-motion-buttons {
+  justify-content: flex-start;
+  gap: 6px;
+  border-left: 1px solid var(--ui-line);
+  padding-left: 9px;
+}
+.commet .commet-motion-buttons button {
+  flex-direction: column;
+  min-height: 34px;
+  padding: 2px 3px;
+  gap: 3px;
+  border: 0;
+  background: transparent;
+  font-size: 9px;
+  color: #a08ba2;
+  font-weight: 400;
+}
+.commet .commet-motion-buttons button[aria-pressed="true"] {
+  background: var(--ui-lavender);
+  box-shadow: none;
+  color: #9e668d;
+}
+.commet-motion-buttons svg {
+  width: 15px;
+  height: 15px;
+}
+
+.commet .commet-wardrobe {
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 12px;
+  padding-top: 18px;
+  border: 0;
+  border-top: 1px solid var(--ui-line);
+  border-radius: 0;
+  color: var(--ui-ink);
+  background: transparent;
+}
+.commet-wardrobe-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  grid-column: 1 / -1;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+.commet-wardrobe-title h3 {
+  margin: 0;
+  font-size: 13px;
+}
+.commet-wardrobe-title > span {
+  color: var(--ui-muted);
+  font-size: 10px;
+}
+.commet .commet-wardrobe-categories {
+  gap: 3px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.commet .commet-wardrobe-categories button {
+  gap: 7px;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 7px;
+  color: #a18da2;
+  font-size: 11px;
+  font-weight: 400;
+}
+.commet .commet-wardrobe-categories button[aria-pressed="true"] {
+  background: #f4e7ee;
+  color: #b16f96;
+}
+.commet .commet-wardrobe-categories button:hover {
+  background: #f5eef5;
+}
+.commet-wardrobe-categories svg {
+  flex: none;
+  width: 15px;
+  height: 15px;
+}
+.commet-wardrobe-content {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.commet .commet-wardrobe-heading {
+  padding: 0 4px 8px;
+  border: 0;
+}
+.commet-wardrobe-heading h3 {
+  font-size: 12px;
+}
+.commet .commet-wardrobe-items {
+  padding: 0 4px 10px;
+}
+.commet .commet-wardrobe-tier {
+  --tier-art: #f2edf8;
+  --tier-border: #e9e1ee;
+  --tier-ink: #9e8bad;
+}
+.commet .commet-wardrobe-tier[data-rarity="UR"] {
+  --tier-art: #faf2e8;
+  --tier-border: #eddfcc;
+  --tier-ink: #b3966b;
+}
+.commet .commet-wardrobe-tier h4 {
+  display: table;
+  margin-bottom: 9px;
+  padding: 3px 7px;
+  border-radius: 16px;
+  background: var(--tier-art);
+  font-size: 9px;
+  font-weight: 400;
+}
+.commet .commet-wardrobe-tier h4 b {
+  min-width: 0;
+  margin-right: 4px;
+  padding: 0;
+  background: transparent;
+  font-weight: 500;
+}
+.commet .commet-wardrobe-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 116px), 116px));
+  gap: 8px;
+}
+.commet .commet-wardrobe-item {
+  padding: 5px 5px 18px;
+  border-radius: 9px;
+  border-color: #e6ddea;
+  background: #fff;
+  color: var(--ui-ink);
+  text-align: left;
+}
+.commet .commet-wardrobe-item:hover {
+  background: #fffbfd;
+  border-color: #d6aec9;
+}
+.commet .commet-wardrobe-item[aria-pressed="true"] {
+  border-color: var(--ui-pink);
+  background: #fff;
+  box-shadow: none;
+}
+.commet .commet-wardrobe-art {
+  height: 96px;
+  background: var(--tier-art);
+}
+.commet .commet-wardrobe-name {
+  padding: 7px 1px 0;
+  font-size: 10px;
+}
+.commet .commet-wardrobe-tick {
+  top: auto;
+  bottom: 4px;
+  right: 7px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  border: 1px solid #d09ab9;
+  color: #b27699;
+  background: transparent;
+  font-size: 9px;
+}
+.commet .commet-wardrobe-selection {
+  grid-column: 1 / -1;
+  padding: 9px 11px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--ui-lavender);
+  color: #7f6a91;
+  font-size: 10px;
+  font-weight: 500;
+}
+.commet-wardrobe-selection span {
+  color: #b19ebd;
+  font-size: 9px;
+}
+.commet .commet-wardrobe-profile {
+  font-size: 11px;
+  gap: 6px;
+}
+.commet .commet-wardrobe-profile input {
+  padding: 7px 9px;
+  border: 1px solid #e0d6e6;
+  border-radius: 7px;
+  background: #fffcfa;
+  color: var(--ui-ink);
+}
+.commet-wardrobe-profile small {
+  color: #a994af;
+  font-size: 9px;
+}
+.commet .commet-wardrobe-save button.primary {
+  padding: 8px 16px;
+  border-color: #dcc6db;
+  border-radius: 7px;
+  background: #f3e7ef;
+  color: #a16b8e;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.commet.commet-gacha-dialog {
+  max-width: none;
+}
+.commet .commet-gacha-wallet {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 12px;
+  color: #a491a9;
+  font-size: 11px;
+}
+.commet-gacha-wallet > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.commet-gacha-wallet svg {
+  width: 16px;
+  height: 16px;
+  color: #c5a065;
+}
+.commet-gacha-wallet b {
+  color: #62526e;
+  font-size: 21px;
+  font-weight: 700;
+}
+.commet-gacha-price {
+  padding: 4px 8px;
+  border-radius: 14px;
+  background: #f5e9f1;
+  color: #b4789e;
+  font-size: 10px;
+}
+.commet .commet-gacha-idle,
+.commet .commet-gacha-sky {
+  height: 210px;
+  margin: 12px 0;
+  border-radius: 12px;
+  background: radial-gradient(ellipse at center, #494466 0%, #1c1e38 78%);
+}
+.commet .commet-gacha-item .commet-pet {
+  width: 160px;
+  height: 160px;
+}
+.commet .commet-gacha-item::before {
+  width: 154px;
+  height: 154px;
+}
+.commet .commet-gacha-reveal .commet-gacha-result > b {
+  color: #5e4e69;
+  font-size: 17px;
+}
+.commet-result-rarity {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 4px 7px;
+  border-radius: 15px;
+  background: var(--ui-lavender);
+  color: #9b84b4;
+  font-size: 9px;
+  font-weight: 500;
+}
+.commet .commet-gacha-result {
+  min-height: 60px;
+  padding: 3px 0;
+}
+.commet .commet-gacha-result p {
+  margin: 10px 0;
+  color: #bd82a4;
+  font-size: 11px;
+}
+.commet .commet-reward-actions {
+  margin: 10px 0 18px;
+}
+.commet .commet-reward-actions button.primary {
+  width: 270px;
+  max-width: 100%;
+  min-height: 39px;
+  border: 0;
+  border-radius: 8px;
+  background: #f0e7f1;
+  color: #a77fa7;
+  font-size: 11px;
+  font-weight: 500;
+}
+.commet .commet-reward-actions button.primary:disabled {
+  color: #b5aab9;
+  background: #eee9ef;
+  opacity: 1;
+  cursor: not-allowed;
+}
+.commet .commet-reward-actions button.primary:hover:enabled {
+  background: #ead8e8;
+}
+.commet .commet-gacha-guide {
+  display: block;
+  padding: 11px 13px;
+  margin: 16px 0;
+  border-radius: 12px;
+  background: #f9f3f6;
+  color: #a493ad;
+  text-align: left;
+  font-size: 9px;
+  line-height: 2;
+}
+.commet .commet-shard-exchange {
+  margin-top: 20px;
+  padding: 18px 0 0;
+  gap: 12px;
+  border: 0;
+  border-top: 1px solid var(--ui-line);
+  border-radius: 0;
+  background: transparent;
+}
+.commet .commet-shard-exchange h3 {
+  color: var(--ui-ink);
+  font-size: 14px;
+}
+.commet .commet-exchange-heading {
+  gap: 6px;
+}
+.commet-exchange-heading p,
+.commet .commet-exchange-date {
+  font-size: 10px;
+  color: #a38eac;
+}
+.commet .commet-exchange-date small {
+  font-size: 8px;
+}
+.commet .commet-shard-balance {
+  padding: 10px 13px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ui-lavender);
+  color: #a18db7;
+  font-size: 10px;
+}
+.commet .commet-shard-balance b {
+  font-size: 22px;
+  color: #8f7aaa;
+}
+.commet .commet-exchange-items {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.commet .commet-exchange-item {
+  padding: 8px;
+  gap: 6px;
+  border-color: #ece3ed;
+  border-radius: 11px;
+  background: #fff;
+}
+.commet .commet-exchange-art {
+  height: 120px;
+  border-radius: 7px;
+  background: linear-gradient(#fbf4f5, #f5f0f8);
+}
+.commet .commet-exchange-art .commet-pet {
+  width: 118px;
+  height: 118px;
+}
+.commet .commet-exchange-item-title {
+  gap: 5px;
+  color: #b0a1b8;
+  font-size: 9px;
+}
+.commet .commet-exchange-rarity {
+  padding: 3px 6px;
+  border-radius: 16px;
+  background: #f2edf8;
+  color: #9f8cb8;
+  font-size: 9px;
+}
+.commet .commet-exchange-item h4 {
+  font-size: 11px;
+  color: #605167;
+}
+.commet .commet-exchange-cost {
+  font-size: 9px;
+  color: #ac95b8;
+}
+.commet .commet-exchange-item button {
+  padding: 6px 2px;
+  border: 0;
+  border-radius: 6px;
+  background: #f1e7f0;
+  color: #a17197;
+  font-size: 10px;
+}
+.commet .commet-exchange-item button:disabled {
+  opacity: 1;
+  color: #b7aeba;
+  background: #eee9ef;
+}
+.commet .commet-shard-exchange > small {
+  font-size: 10px;
+  color: #ad9cb6;
+}
+
+.commet .commet-xp-progress {
+  display: block;
+  width: 100%;
+  height: 4px;
+  border: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  accent-color: #bd8fa9;
+}
+.commet .commet-xp-progress::-webkit-progress-bar {
+  background: #eee6ef;
+}
+.commet .commet-xp-progress::-webkit-progress-value {
+  background: #bd8fa9;
+}
+.commet .commet-xp-progress::-moz-progress-bar {
+  background: #bd8fa9;
+}
+.commet .commet-menu {
+  z-index: 2;
+  width: 280px;
+  padding: 12px 14px 9px;
+  border-radius: 17px;
+  background: var(--ui-paper);
+  box-shadow: 0 12px 40px #49313d18;
+  color: var(--ui-ink);
+}
+.commet .commet-menu-header {
+  margin: 0 0 8px;
+  gap: 6px;
+}
+.commet .commet-menu-eyebrow {
+  margin: 0;
+  font-size: 8px;
+  color: #a38ea7;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+.commet .commet-menu-dismiss {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 3px;
+  border: 0;
+  background: transparent;
+  color: #a28fa5;
+}
+.commet-menu-dismiss svg {
+  width: 13px;
+  height: 13px;
+}
+.commet-menu-profile {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  background: var(--ui-lavender);
+}
+.commet-menu-avatar {
+  width: 66px;
+  height: 70px;
+}
+.commet .commet-menu-avatar .commet-pet {
+  width: 70px;
+  height: 70px;
+}
+.commet-menu-identity {
+  min-width: 0;
+}
+.commet .commet-menu-identity h2 {
+  margin: 0 0 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #60516c;
+  font-size: 20px;
+  font-weight: 700;
+}
+.commet-menu-identity p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: 9px;
+  color: #9f8fb0;
+}
+.commet-menu-identity p svg {
+  width: 13px;
+  height: 13px;
+}
+.commet-menu-identity p span:first-of-type {
+  color: #776184;
+}
+.commet-menu-profile .commet-level {
+  align-self: start;
+  margin-top: 17px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9989aa;
+  font-size: 8px;
+  font-weight: 400;
+}
+.commet .commet-menu-nav {
+  gap: 5px;
+}
+.commet .commet-menu .commet-menu-nav button {
+  min-height: 58px;
+  gap: 6px;
+  border: 1px solid var(--ui-line);
+  border-radius: 8px;
+  background: transparent;
+  color: #a291a4;
+  font-size: 9px;
+  font-weight: 400;
+}
+.commet .commet-menu .commet-menu-nav button[aria-pressed="true"] {
+  background: #f5e7ef;
+  border-color: #e8c9dd;
+  color: #b36e96;
+}
+.commet-menu-nav svg {
+  width: 17px;
+  height: 17px;
+}
+.commet .commet-menu-content {
+  padding: 16px 0 14px;
+}
+.commet .commet-menu-content h3 {
+  margin-bottom: 13px;
+  font-size: 11px;
+}
+.commet .commet-menu .commet-stats {
+  gap: 10px;
+  font-size: 10px;
+}
+.commet .commet-menu .commet-stats > b {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  color: #b580a0;
+  font-size: 9px;
+  font-weight: 400;
+}
+.commet .commet-menu .commet-stats .commet-xp-progress {
+  margin-top: -3px;
+  height: 4px;
+  width: 100%;
+}
+.commet .commet-menu .commet-stats label {
+  display: grid;
+  grid-template-columns: 55px minmax(0, 1fr) 20px;
+  gap: 8px;
+  color: #a08ca4;
+  font-size: 9px;
+}
+.commet .commet-menu .commet-stats label progress {
+  width: 100%;
+  height: 5px;
+}
+.commet .commet-menu .commet-stats small {
+  font-size: 8px;
+  color: #b0a0b3;
+}
+.commet .commet-menu-message {
+  font-size: 11px;
+  color: #a18da6;
+}
+.commet .commet-menu-footer {
+  border-color: var(--ui-line);
+  padding-top: 6px;
+}
+.commet .commet-menu .commet-wallet {
+  gap: 9px;
+  font-size: 9px;
+  color: #b09caf;
+}
+.commet .commet-menu .commet-settings-link {
+  font-size: 9px;
+  color: #a490a9;
+}
+.commet.commet-page-settings {
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(600px, calc(100dvh - 32px));
+  padding: 16px;
+}
+@media (max-width: 420px) {
+  .commet.commet-wardrobe-dialog {
+    padding: 16px;
+  }
+  .commet .commet-dialog-title h2 {
+    font-size: 16px;
+  }
+  .commet .commet-wardrobe {
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .commet .commet-wardrobe-categories button {
+    padding-inline: 6px;
+    font-size: 10px;
+    gap: 5px;
+  }
+  .commet .commet-exchange-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .commet .commet-face-buttons {
+    gap: 4px;
+  }
+  .commet .commet-face-buttons button {
+    padding-right: 5px;
+    font-size: 9px;
+  }
+}

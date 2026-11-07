@@ -11,12 +11,14 @@ import {
 import { AnalysisService, type GeminiQuota } from "../server/service/analysis";
 import { GameService } from "../server/service/game";
 import type { AiRepository } from "../server/repository/gemini";
-import type { GachaResult } from "../shared/gacha";
+import type { ExchangeResult, GachaResult } from "../shared/gacha";
+import { migrateInventory } from "../server/model/inventory";
 
 export class MemoryRepository implements GameRepository {
   readonly accounts = new Map<string, AccountState>();
   readonly sessions = new Map<string, ExplorationSession>();
   readonly draws = new Map<string, GachaResult>();
+  readonly exchanges = new Map<string, ExchangeResult>();
   private writes = Promise.resolve();
   transactDraw(
     uid: string,
@@ -37,7 +39,31 @@ export class MemoryRepository implements GameRepository {
     return task;
   }
   async read(uid: string) {
-    return structuredClone(this.accounts.get(uid) ?? newAccount());
+    const account = this.accounts.get(uid) ?? newAccount();
+    const items = [...this.draws.entries()]
+      .filter(([key]) => key.startsWith(uid + "/"))
+      .map(([, draw]) => draw.itemId);
+    const current = migrateInventory(account, items);
+    if (current !== account) this.accounts.set(uid, structuredClone(current));
+    return structuredClone(current);
+  }
+  transactExchange(
+    uid: string,
+    requestId: string,
+    mutate: Parameters<GameRepository["transactExchange"]>[2],
+  ) {
+    const task = this.writes.then(async () => {
+      const key = `${uid}/${requestId}`;
+      const change = mutate(await this.read(uid), structuredClone(this.exchanges.get(key) ?? null));
+      if (change.account) this.accounts.set(uid, structuredClone(change.account));
+      if (change.receipt) this.exchanges.set(key, structuredClone(change.receipt));
+      return change.value;
+    });
+    this.writes = task.then(
+      () => {},
+      () => {},
+    );
+    return task;
   }
   transact<T>(uid: string, sessionId: string | null, mutate: Mutation<T>): Promise<T> {
     const task = this.writes.then(async () => {

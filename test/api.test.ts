@@ -4,7 +4,7 @@ import { analyzeResponse, coinBalance, settlementResult } from "../shared/model"
 import { profile } from "../shared/game";
 import { ServiceError } from "../server/model/state";
 import { fakeAi, testApi } from "./fixture";
-import { gachaResult } from "../shared/gacha";
+import { duplicateShardRewards, gachaResult } from "../shared/gacha";
 import { ITEM_CATALOG } from "../shared/game";
 
 const path = {
@@ -60,7 +60,8 @@ describe("Hono API", () => {
     expect(owner.gacha.draws).toBe(1);
     expect(owner.unlockedItems).toContain(results[0].itemId);
     expect(ITEM_CATALOG[results[0].itemId]).toBeDefined();
-    if (results[0].duplicate) expect(owner.gacha.shards[results[0].itemId]).toBe(1);
+    if (results[0].duplicate)
+      expect(owner.gacha.shards).toBe(duplicateShardRewards[results[0].rarity]);
     // The same receipt remains recoverable even with an empty wallet.
     expect(await (await f.call("/v1/gacha/draw", request)).json()).toEqual(results[0]);
     expect((await f.call("/v1/gacha/draw", { requestId: randomUUID() })).status).toBe(409);

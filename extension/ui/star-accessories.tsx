@@ -42,6 +42,74 @@ export const starEars: Partial<Record<string, ReactNode>> = {
       <path d="m-10-15 .6 3 2.8.8-2.7.7-.7 2.7-.7-2.7-2.4-.7 2.4-.8Z" fill="#fff" stroke="none" />
     </>
   ),
+  head_star_antler: (
+    <>
+      {/* Drawn twice: a wide stroke in the outline color, then the antler color inside it. */}
+      <path
+        d="M-2 5Q-5-3-7-13M-5.6-6Q-10-7-14-12M-7-13Q-7-18-3-21M-7-13q-3-3-6-7"
+        fill="none"
+        strokeWidth="4.6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M-2 5Q-5-3-7-13M-5.6-6Q-10-7-14-12M-7-13Q-7-18-3-21M-7-13q-3-3-6-7"
+        fill="none"
+        stroke="#c99a6a"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M-4-1q-1.5-5-2.4-9"
+        fill="none"
+        stroke="#e8c79c"
+        strokeWidth=".8"
+        strokeLinecap="round"
+      />
+    </>
+  ),
+  head_star_bat: (
+    <g transform="scale(1.3)" strokeWidth=".85">
+      <path d="M1 2Q-6-9-17-10Q-14-6-16-3Q-12-4-10-1Q-7-2-5 3Q-2 1 1 3Z" fill="#5b4a7a" />
+      <path
+        d="M-1 1-13-7.5M-3.5 2.2-10.5-2.5"
+        fill="none"
+        stroke="#8a76ad"
+        strokeWidth=".7"
+        strokeLinecap="round"
+      />
+    </g>
+  ),
+  head_star_holly: (
+    <>
+      {/* Two spiky leaves from one path; the second is turned upward and a bit smaller. */}
+      {[undefined, "rotate(52) scale(.85)"].map((transform) => (
+        <g key={transform ?? "base"} transform={transform}>
+          <path
+            d="M0 2-1.4-3.4-4.4-3.6-5.6-6.4-8.6-6.6-9.8-9.4-14-8-14-3.6-11-3.4-9.8-.6-6.8-.4-5.6 2.4Z"
+            fill="#4fa36b"
+          />
+          <path d="M-1 1.5-12-7" fill="none" stroke="#2f7a4b" strokeWidth=".6" />
+        </g>
+      ))}
+      <g fill="#e2545f">
+        <circle cx="-1" cy="-.5" r="2.1" />
+        <circle cx="2.2" cy="1.3" r="1.9" />
+        <circle cx="-2.6" cy="2.6" r="1.8" />
+      </g>
+      <g fill="#fff" stroke="none">
+        <circle cx="-1.7" cy="-1.2" r=".55" />
+        <circle cx="1.6" cy=".7" r=".5" />
+      </g>
+    </>
+  ),
+  head_star_bolt: (
+    // Ornaments sit behind the body, so only the outer end of the bolt shows at the temple.
+    <>
+      <rect x="-10.5" y="12.4" width="10" height="3.6" rx=".8" fill="#b8c0c8" />
+      <rect x="-13.5" y="10.6" width="3.6" height="7.2" rx="1" fill="#9aa3ad" />
+      <path d="M-12.6 12v4.4" fill="none" stroke="#e3e8ee" strokeWidth=".7" strokeLinecap="round" />
+    </>
+  ),
 };
 
 export const pixelStarEar = (
@@ -148,7 +216,183 @@ const hats: Partial<Record<string, ReactNode>> = {
       <path d="m12-5-1.4 3h2.8Z" fill="#ffd67b" stroke="#b58354" strokeWidth=".55" />
     </>
   ),
+  hat_star_santa: (
+    <>
+      <path d="M-12-6Q-11-19-1-23q9-3 14 3l3 6-3 1.5-4-5q-2-2-4-.5Q6-12 11-6Z" fill="#e2545f" />
+      <path
+        d="M-6-8Q-6-17 0-20"
+        fill="none"
+        stroke="#f58b8e"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+      <g fill="#ffe08a" stroke="none">
+        <path d="m-3-15 .7 1.8 1.9.3-1.4 1.2.4 1.9-1.6-1-1.7 1 .4-1.9-1.4-1.2 1.9-.3Z" />
+        <circle cx="5" cy="-17" r=".8" />
+        <circle cx="4" cy="-10" r=".7" />
+      </g>
+      <path d="M-15-7.5q15-4 30 0 2 3 0 6-15 3-30 0-2-3 0-6Z" fill="#fff8f1" />
+      <path
+        d="M-10-3.5q10 1.6 20 0"
+        fill="none"
+        stroke="#e7dde0"
+        strokeWidth=".8"
+        strokeLinecap="round"
+      />
+      <circle cx="16" cy="-12.5" r="3.6" fill="#fff8f1" />
+      <circle cx="15" cy="-13.6" r="1.1" fill="#fff" stroke="none" />
+    </>
+  ),
+  hat_star_witch: (
+    <>
+      <path d="M-19-5q19-5 38 0 2 2.5-1 4Q0 3-18-1q-3-1.5-1-4Z" fill="#3a2f58" />
+      <path d="M-10-6-3-27q1-3 4-3 5 1 9 5-4-1-6 0L9-6Z" fill="#4a3d6e" />
+      <path d="M-9.4-10.5q9.4 2 18.8 0L9.6-6Q0-4-9.8-6Z" fill="#f39a4a" />
+      <rect x="-2.6" y="-10.6" width="5.2" height="4.6" rx=".6" fill="none" stroke="#ffd77a" />
+      <path d="M2.5-21a2.7 2.7 0 1 0 1.9 3.6 2.1 2.1 0 0 1-1.9-3.6Z" fill="#ffe08a" stroke="none" />
+      <path
+        d="M-5-16q1-5 3-9"
+        fill="none"
+        stroke="#6a5a92"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+    </>
+  ),
+  hat_star_tree: (
+    <>
+      <path d="M-14-3Q0 0 14-3L6-12H-6Z" fill="#4fa36b" />
+      <path d="M-10-10Q0-7.5 10-10L4-18H-4Z" fill="#5cb878" />
+      <path d="M-6.5-16.5Q0-14.5 6.5-16.5L0-25Z" fill="#6cc985" />
+      <path
+        d="M-11-5Q0-8 9-8.5M-7-12.5Q0-14.5 6-14"
+        fill="none"
+        stroke="#ffe08a"
+        strokeWidth=".8"
+      />
+      <g stroke="none">
+        <circle cx="-6" cy="-6" r="1.4" fill="#e2545f" />
+        <circle cx="5" cy="-5" r="1.4" fill="#9fc6f0" />
+        <circle cx="-2" cy="-12" r="1.2" fill="#ffe08a" />
+        <circle cx="3" cy="-18" r="1.1" fill="#e2545f" />
+      </g>
+      <path d="m0-30.5 1.3 2.7 3 .4-2.2 2 .6 3-2.7-1.5-2.7 1.5.6-3-2.2-2 3-.4Z" fill="#ffe284" />
+    </>
+  ),
 };
+
+// Held in the learning pose, between the hands at x 33.5 and 66.5. Stage coordinates.
+const heldProps: Partial<Record<string, ReactNode>> = {
+  prop_star_cocoa: (
+    <>
+      <path
+        d="M41 66q-1.5-2 0-4t0-4M59 66q1.5-2 0-4t0-4"
+        fill="none"
+        stroke="#e2d4ec"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+      <path d="M62 72.5q6 0 6 5t-6 5" fill="none" strokeWidth="2.6" />
+      <path d="M62 72.5q6 0 6 5t-6 5" fill="none" stroke="#9fc6f0" strokeWidth="1.2" />
+      <path d="M38 69h24v14q0 6-6 6H44q-6 0-6-6Z" fill="#9fc6f0" />
+      <path d="M41 72v10q0 3 3 4" fill="none" stroke="#d3e7fb" strokeWidth="1.6" />
+      <ellipse cx="50" cy="69" rx="12" ry="2.6" fill="#f3f8ff" />
+      <ellipse cx="50" cy="69.3" rx="10" ry="1.7" fill="#8a5640" stroke="none" />
+      <path
+        d="m50 64.6 1 2.2 2.4.3-1.8 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.8-1.6 2.4-.3Z"
+        fill="#fff7fb"
+        strokeWidth=".8"
+      />
+      <path
+        d="m50 75.5 1.1 2.3 2.5.3-1.8 1.7.4 2.5-2.2-1.2-2.2 1.2.4-2.5-1.8-1.7 2.5-.3Z"
+        fill="#ffe08a"
+        stroke="none"
+      />
+    </>
+  ),
+  prop_star_candy: (
+    <>
+      <path d="M39 72Q50 56 61 72" fill="none" strokeWidth="1.4" />
+      <circle cx="44.5" cy="69" r="2.6" fill="#f49ac1" />
+      <circle cx="55.5" cy="68.6" r="2.4" fill="#9fd6f0" />
+      <ellipse cx="50" cy="68" rx="2.4" ry="1.6" fill="#ffe08a" />
+      <path d="M37 71q13-3 26 0l-1.5 13q-1 5-11.5 5T38.5 84Z" fill="#ff9d4d" />
+      <path d="M44 70.5q-2 9 0 18M56 70.5q2 9 0 18" fill="none" stroke="#e07a32" strokeWidth=".8" />
+      <g fill="#5a2f22" stroke="none">
+        <path d="m42.5 77 2.5-3.6 2.5 3.6Zm10 0 2.5-3.6 2.5 3.6Z" />
+        <path d="M43 80.5q7 5.5 14 0l-2 1-1.5-1-1.6 1.2-1.9-1.2-1.9 1.2-1.6-1.2-1.5 1Z" />
+      </g>
+    </>
+  ),
+  prop_star_gift: (
+    <>
+      <rect x="38" y="72" width="24" height="16.5" rx="2" fill="#e2545f" />
+      <g fill="#fff2f4" stroke="none">
+        <circle cx="42" cy="79" r=".9" />
+        <circle cx="57.5" cy="83.5" r=".9" />
+        <circle cx="43.5" cy="85.5" r=".8" />
+        <circle cx="56" cy="76.5" r=".8" />
+      </g>
+      <rect x="36.5" y="68.5" width="27" height="5" rx="1.5" fill="#f0717b" />
+      <path d="M47.6 68.5h4.8v20h-4.8Z" fill="#ffe08a" />
+      <path d="M50 69q-6-5.5-7.2-1.6T50 69Zm0 0q6-5.5 7.2-1.6T50 69Z" fill="#ffe08a" />
+      <circle cx="50" cy="68.8" r="1.5" fill="#ffd25e" />
+    </>
+  ),
+};
+
+// Pin badges in a 20 × 20 box centered on the origin. Other badges show their glyph.
+export const starBadges: Partial<Record<string, ReactNode>> = {
+  badge_star_clover: (
+    <>
+      <circle r="9" fill="#fff6d8" />
+      <path d="M.6.6q2 3.2 4.6 4.8" fill="none" stroke="#4f9a63" strokeWidth="1.2" />
+      <g fill="#6cc985">
+        <circle cy="-2.6" r="2.7" />
+        <circle cx="2.6" r="2.7" />
+        <circle cy="2.6" r="2.7" />
+        <circle cx="-2.6" r="2.7" />
+      </g>
+      <circle r="1" fill="#9fe0a8" stroke="none" />
+    </>
+  ),
+  badge_star_ghost: (
+    <>
+      <circle r="9" fill="#5b4a7a" />
+      <path
+        d="M0-5.5c3 0 4.5 2.3 4.5 5.2V5L3 3.8 1.5 5 0 3.8-1.5 5-3 3.8-4.5 5V-.3C-4.5-3.2-3-5.5 0-5.5Z"
+        fill="#fffaff"
+      />
+      <g fill="#3c2622" stroke="none">
+        <ellipse cx="-1.6" cy="-.8" rx=".7" ry=".95" />
+        <ellipse cx="1.6" cy="-.8" rx=".7" ry=".95" />
+      </g>
+      <g fill="#f094ae" stroke="none" opacity=".7">
+        <ellipse cx="-2.8" cy=".8" rx=".9" ry=".5" />
+        <ellipse cx="2.8" cy=".8" rx=".9" ry=".5" />
+      </g>
+    </>
+  ),
+  badge_star_bell: (
+    <>
+      <circle r="9" fill="#4fa36b" />
+      <path d="M0-5q3.6 0 3.8 4.2l.4 2.6 1.6 1.4H-5.8l1.6-1.4.4-2.6Q-3.6-5 0-5Z" fill="#ffd76a" />
+      <circle cy="4.7" r="1.1" fill="#ffd76a" />
+      <path d="M-1.6-3.4q-1.4 1.4-1.2 3.6" fill="none" stroke="#fff3c4" strokeWidth=".7" />
+      <circle cy="-5.6" r="1.1" fill="#e2545f" />
+    </>
+  ),
+};
+
+export function StarProp({ id, outline }: { id: string; outline: string }) {
+  const art = heldProps[id];
+  if (!art) return null;
+  return (
+    <g data-layer="prop" data-part={id} stroke={outline} strokeWidth="1.05" strokeLinejoin="round">
+      {art}
+    </g>
+  );
+}
 
 export function StarHat({ id, crown, outline }: { id: string; crown: number; outline: string }) {
   const art = hats[id];

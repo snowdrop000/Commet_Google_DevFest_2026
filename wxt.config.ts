@@ -3,8 +3,8 @@ import { resolve } from "node:path";
 import { snsMatches } from "./extension/sns/platforms";
 import { starAssets } from "./extension/ui/star-assets";
 
-const characterAssets = ["a", "b", "c", "d", "e"].map((id) => `characters/character-${id}.png`);
-characterAssets.push(...Object.values(starAssets));
+// Legacy assets remain in assets/characters, but are excluded from the active extension.
+const characterAssets = Object.values(starAssets);
 
 export default defineConfig({
   srcDir: "extension",

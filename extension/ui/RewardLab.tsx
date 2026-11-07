@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { newProfile, starCharacter, type Profile } from "../../shared/game";
 import { CoinPickup, type Pickup } from "./CoinPickup";
-import { GachaPanel } from "./Gacha";
 import { Pet } from "./Pet";
 
 const pet: Profile = { ...newProfile(), characterType: starCharacter, name: "ほしもち" };
@@ -27,7 +26,6 @@ export function RewardLab() {
         </button>
       </div>
       {pickup && <CoinPickup key={pickup.id} pickup={pickup} onFinish={() => setPickup(null)} />}
-      <GachaPanel profile={null} preview />
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { browser } from "wxt/browser";
 import { CATEGORY_RULES, newProfile, starCharacter, type Profile } from "../../shared/game";
 import type { AnalyzeResponse } from "../../shared/model";
@@ -12,26 +12,35 @@ import { YoutubeWardrobe } from "./YoutubeWardrobe";
 import { restingPet } from "./pet-animation";
 import { CoinPickup, type Pickup } from "./CoinPickup";
 import { GachaDialog } from "./Gacha";
+import { OverlayIcon } from "./OverlayIcon";
+import { PageSettingsDialog } from "./PageSettingsDialog";
 
 const initial: State = { signedIn: false, emulator: false, settings: defaults, profile: null };
-const youtubeGuest: Profile = { ...newProfile(), characterType: starCharacter, name: "ほしもち" };
+const guestPet: Profile = { ...newProfile(), characterType: starCharacter, name: "ほしもち" };
 
 export function Overlay({ platform }: { platform: Platform }) {
   const [state, setState] = useState(initial);
   const [view, setView] = useState<"check" | "status">("check");
-  const [collapsed, setCollapsed] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
   const [gachaOpen, setGachaOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [pickup, setPickup] = useState<Pickup | null>(null);
   const uiOpen = useRef(false);
-  uiOpen.current = wardrobeOpen || gachaOpen;
+  uiOpen.current = menuOpen || wardrobeOpen || gachaOpen || settingsOpen;
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(0);
   const [confirmed, setConfirmed] = useState(0);
   const [checking, setChecking] = useState(false);
+  const checkingInFlight = useRef(false);
+  const [composing, setComposing] = useState(false);
   const [petAnimation, setPetAnimation] = useState(restingPet);
   const panel = useRef<HTMLElement>(null);
+  const dock = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
   const dragHandle = useRef<HTMLDivElement>(null);
   const motion = useRef<ReturnType<typeof createMotion> | null>(null);
   const editor = useRef<HTMLElement | null>(null);
@@ -51,6 +60,7 @@ export function Overlay({ platform }: { platform: Platform }) {
             setResult(null);
             setPending(0);
           }
+          if (config.current.signedIn !== next.signedIn) setStatus("");
           config.current = next;
           setState(next);
           setConfirmed(next.profile?.confirmedCoins ?? 0);
@@ -92,6 +102,65 @@ export function Overlay({ platform }: { platform: Platform }) {
   }, []);
 
   useEffect(() => {
+    motion.current?.pause(menuOpen || wardrobeOpen || gachaOpen || settingsOpen);
+  }, [menuOpen, wardrobeOpen, gachaOpen, settingsOpen]);
+
+  useLayoutEffect(() => {
+    if (!menuOpen || !menu.current || !dragHandle.current) return;
+    const popup = menu.current;
+    const anchor = dragHandle.current;
+    function positionMenu() {
+      const rect = anchor.getBoundingClientRect();
+      const gap = 12;
+      const aboveSpace = rect.top - gap * 2;
+      popup.style.maxHeight = `${Math.max(0, aboveSpace >= 180 ? Math.min(innerHeight - gap * 2, aboveSpace) : innerHeight - gap * 2)}px`;
+      const maxX = Math.max(gap, innerWidth - popup.offsetWidth - gap);
+      const maxY = Math.max(gap, innerHeight - popup.offsetHeight - gap);
+      const above = rect.top - popup.offsetHeight - gap;
+      popup.style.left = `${Math.max(gap, Math.min(maxX, rect.right - popup.offsetWidth))}px`;
+      popup.style.top = `${Math.max(gap, Math.min(maxY, above))}px`;
+    }
+    positionMenu();
+    const observer = new ResizeObserver(positionMenu);
+    observer.observe(popup);
+    observer.observe(anchor);
+    addEventListener("resize", positionMenu);
+    popup.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+    return () => {
+      observer.disconnect();
+      removeEventListener("resize", positionMenu);
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen || wardrobeOpen || gachaOpen || settingsOpen) return;
+    const events = new AbortController();
+    const { signal } = events;
+    document.addEventListener(
+      "pointerdown",
+      (event) => {
+        const root = panel.current?.getRootNode();
+        const host = root instanceof ShadowRoot ? root.host : panel.current;
+        if (host && event.composedPath().includes(host)) return;
+        setMenuOpen(false);
+      },
+      { capture: true, signal },
+    );
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key !== "Escape") return;
+        event.preventDefault();
+        event.stopPropagation();
+        setMenuOpen(false);
+        menuButton.current?.focus({ preventScroll: true });
+      },
+      { capture: true, signal },
+    );
+    return () => events.abort();
+  }, [menuOpen, wardrobeOpen, gachaOpen, settingsOpen]);
+
+  useEffect(() => {
     const events = new AbortController();
     const signal = events.signal;
     const routeKey = () =>
@@ -124,6 +193,7 @@ export function Overlay({ platform }: { platform: Platform }) {
       setPickup(null);
       preview.current = null;
       editor.current = null;
+      setComposing(false);
       motion.current?.focus(null);
       motion.current?.wake();
     }
@@ -186,14 +256,16 @@ export function Overlay({ platform }: { platform: Platform }) {
       (event) => {
         if (!isComposer(event.target, platform)) return;
         editor.current = event.target;
+        setComposing(true);
         if (
-          preview.current?.editor === event.target &&
+          !preview.current ||
+          preview.current.editor !== event.target ||
           readText(event.target) !== preview.current.text
         ) {
           preview.current = null;
           setResult(null);
         }
-        motion.current?.focus(readText(event.target) ? event.target : null);
+        motion.current?.focus(event.target);
         void tick();
       },
       { capture: true, signal },
@@ -201,7 +273,10 @@ export function Overlay({ platform }: { platform: Platform }) {
     document.addEventListener(
       "focusin",
       (event) => {
-        if (isComposer(event.target, platform)) editor.current = event.target;
+        if (!isComposer(event.target, platform)) return;
+        editor.current = event.target;
+        setComposing(true);
+        motion.current?.focus(event.target);
       },
       { signal },
     );
@@ -211,7 +286,17 @@ export function Overlay({ platform }: { platform: Platform }) {
         if (!isComposer(event.target, platform)) return;
         const root = panel.current?.getRootNode();
         if (root instanceof ShadowRoot && root.host === event.relatedTarget) return;
-        motion.current?.focus(null);
+        queueMicrotask(() => {
+          if (signal.aborted) return;
+          const active = document.activeElement;
+          if (isComposer(active, platform)) {
+            editor.current = active;
+            motion.current?.focus(active);
+            return;
+          }
+          setComposing(false);
+          motion.current?.focus(null);
+        });
       },
       { signal },
     );
@@ -328,7 +413,8 @@ export function Overlay({ platform }: { platform: Platform }) {
     };
   }, [platform]);
 
-  async function check() {
+  async function check(fromPet = false) {
+    if (checkingInFlight.current) return;
     const target =
       editor.current?.isConnected && readText(editor.current)
         ? editor.current
@@ -336,12 +422,23 @@ export function Overlay({ platform }: { platform: Platform }) {
     const text = readText(target);
     if (!target || text.length < 2) {
       setStatus("文章を2文字以上入力してください。");
+      if (fromPet) setMenuOpen(true);
       return;
     }
     if (text.length > 5000) {
       setStatus("判定できるのは5,000文字までです。");
+      if (fromPet) setMenuOpen(true);
       return;
     }
+    if (!state.signedIn) {
+      setStatus("ログインすると、キャラをクリックしてコメントをチェックできます。");
+      setMenuOpen(true);
+      return;
+    }
+    const origin = location.href;
+    checkingInFlight.current = true;
+    setResult(null);
+    setStatus("コメントを確認しています…");
     setChecking(true);
     try {
       const context = contextFor(platform, target, state.settings.useContext);
@@ -349,13 +446,22 @@ export function Overlay({ platform }: { platform: Platform }) {
         type: "preview",
         draft: { text, context, summarizeVideos: state.settings.summarizeVideos },
       });
-      if (!target.isConnected || readText(target) !== text) return;
+      if (
+        !target.isConnected ||
+        readText(target) !== text ||
+        location.href !== origin ||
+        !config.current.signedIn
+      )
+        return;
       preview.current = { editor: target, text };
       setResult(analysis);
       setStatus("投稿前のプレビューです。");
     } catch (error) {
+      if (!target.isConnected || readText(target) !== text || location.href !== origin) return;
       setStatus(error instanceof Error ? error.message : "判定できませんでした。");
+      if (fromPet) setMenuOpen(true);
     } finally {
+      checkingInFlight.current = false;
       setChecking(false);
     }
   }
@@ -372,77 +478,196 @@ export function Overlay({ platform }: { platform: Platform }) {
     }
     if (replaceDraft(draft.editor, result.analysis.suggestion)) {
       setResult(null);
+      setMenuOpen(false);
       setStatus("改善案を入力しました。送信前に内容を確認してください。");
     } else setStatus("入力欄を更新できませんでした。改善案をコピーして使えます。");
   }
 
-  const pet = state.profile ?? (platform.id === "youtube" ? youtubeGuest : newProfile());
+  const pet = state.profile ?? guestPet;
   const analysis = result?.analysis;
   const rule = analysis ? CATEGORY_RULES[analysis.category] : null;
   const browsingAnimation =
-    state.settings.explore && !uiOpen.current && !rule && petAnimation.action === "idle"
+    state.settings.explore &&
+    !composing &&
+    !uiOpen.current &&
+    !rule &&
+    petAnimation.action === "idle"
       ? { action: "walk" as const, direction: petAnimation.direction }
       : petAnimation;
+  const displayAnimation = checking
+    ? { ...petAnimation, action: "peek" as const }
+    : rule
+      ? { ...petAnimation, action: "idle" as const }
+      : browsingAnimation;
   return (
     <>
-      <aside
-        ref={panel}
-        className="commet commet-card"
-        data-collapsed={collapsed}
-        aria-label="Commet"
-      >
-        <button
-          className="commet-close"
-          aria-label={collapsed ? "Commetを開く" : "Commetを閉じる"}
-          onClick={() => setCollapsed(!collapsed)}
+      <aside ref={panel} className="commet commet-card" aria-label="Commet">
+        <div
+          ref={dragHandle}
+          className="commet-drag commet-companion"
+          role="button"
+          tabIndex={0}
+          aria-label="キャラにコメントをチェックしてもらう"
+          aria-disabled={!composing || checking}
+          aria-busy={checking}
+          title={
+            checking
+              ? "判定中…"
+              : composing
+                ? "クリックでコメントをチェック／ドラッグで移動"
+                : "ドラッグして移動"
+          }
+          onPointerDown={() => setMenuOpen(false)}
+          onClick={() => {
+            if (composing) void check(true);
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (composing) void check(true);
+          }}
         >
-          {collapsed ? "+" : "−"}
-        </button>
-        <div ref={dragHandle} className="commet-drag">
-          <Pet profile={pet} mood={rule?.mood} animation={browsingAnimation} />
-          <small>LV. {pet.level}</small>
+          <Pet
+            profile={pet}
+            mood={
+              checking
+                ? "idle"
+                : (rule?.mood ?? (displayAnimation.action === "peek" ? "idle" : undefined))
+            }
+            animation={displayAnimation}
+          />
         </div>
-        {!collapsed && (
-          <>
-            <div>
-              <h2>
-                {pet.name} · {platform.name}
-              </h2>
-              <button aria-pressed={view === "check"} onClick={() => setView("check")}>
-                投稿チェック
-              </button>{" "}
-              <button aria-pressed={view === "status"} onClick={() => setView("status")}>
-                育成状況
-              </button>{" "}
-              {platform.id === "youtube" && (
-                <button
-                  aria-haspopup="dialog"
-                  onClick={() => {
-                    setPickup(null);
-                    setWardrobeOpen(true);
-                  }}
-                >
-                  着せ替え
-                </button>
-              )}{" "}
+        <span className="commet-visually-hidden" role="status" aria-live="polite">
+          {checking
+            ? "コメントを確認しています。"
+            : rule && analysis
+              ? `${rule.label}。${analysis.reason}`
+              : ""}
+        </span>
+        <div ref={dock} className="commet-dock">
+          <div
+            className="commet-coin-counter"
+            role="status"
+            aria-label={`探索コイン 合計 ${confirmed + pending} 枚。確定 ${confirmed} 枚、仮 ${pending} 枚`}
+            title={`確定 ${confirmed.toLocaleString()} 枚 / 仮 ${pending.toLocaleString()} 枚`}
+          >
+            <OverlayIcon name="coin" />
+            <span>{(confirmed + pending).toLocaleString()}</span>
+          </div>
+          <button
+            ref={menuButton}
+            type="button"
+            className="commet-menu-toggle"
+            aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
+            aria-expanded={menuOpen}
+            aria-controls={menuId}
+            aria-haspopup="dialog"
+            data-notice={!menuOpen && Boolean(status || result)}
+            onClick={() => {
+              setPickup(null);
+              setMenuOpen(!menuOpen);
+            }}
+          >
+            <OverlayIcon name={menuOpen ? "close" : "menu"} />
+          </button>
+        </div>
+        {menuOpen && (
+          <div
+            ref={menu}
+            id={menuId}
+            className="commet-menu"
+            role="dialog"
+            aria-label={`${pet.name}のメニュー`}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <header className="commet-menu-header">
+              <p className="commet-menu-eyebrow">
+                COMMET <span>· {platform.name}</span>
+              </p>
               <button
+                type="button"
+                className="commet-menu-dismiss"
+                aria-label="メニューを閉じる"
+                onClick={() => {
+                  setMenuOpen(false);
+                  menuButton.current?.focus({ preventScroll: true });
+                }}
+              >
+                <OverlayIcon name="close" />
+              </button>
+            </header>
+            <div className="commet-menu-profile">
+              <div className="commet-menu-avatar" aria-hidden="true">
+                <Pet profile={pet} mood="idle" />
+              </div>
+              <div className="commet-menu-identity">
+                <h2>{pet.name}</h2>
+                <p>
+                  <OverlayIcon name="coin" />
+                  <span>
+                    確定 <b>{confirmed.toLocaleString()}</b>
+                  </span>
+                  <span>
+                    仮 <b>{pending.toLocaleString()}</b>
+                  </span>
+                </p>
+              </div>
+              <span className="commet-level">Lv. {pet.level}</span>
+            </div>
+            <nav className="commet-menu-nav" aria-label="Commetの機能">
+              <button
+                type="button"
+                aria-pressed={view === "check"}
+                onClick={() => setView("check")}
+              >
+                <OverlayIcon name="check" />
+                <span>投稿チェック</span>
+              </button>
+              <button
+                type="button"
+                aria-pressed={view === "status"}
+                onClick={() => setView("status")}
+              >
+                <OverlayIcon name="status" />
+                <span>育成状況</span>
+              </button>
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                onClick={() => {
+                  setPickup(null);
+                  setWardrobeOpen(true);
+                }}
+              >
+                <OverlayIcon name="wardrobe" />
+                <span>着せ替え</span>
+              </button>
+              <button
+                type="button"
                 aria-haspopup="dialog"
                 onClick={() => {
                   setPickup(null);
                   setGachaOpen(true);
                 }}
               >
-                ガチャ
+                <OverlayIcon name="gacha" />
+                <span>ガチャ</span>
               </button>
+            </nav>
+            <div className="commet-menu-content">
               {view === "status" ? (
-                <Stats profile={pet} />
+                <>
+                  <h3>いっしょに育てた記録</h3>
+                  <Stats profile={pet} />
+                </>
               ) : (
                 <>
-                  <p role="status">
+                  <p className="commet-menu-message" role="status">
                     {status ||
                       (state.signedIn
                         ? "ことばを一緒に見直そう。"
-                        : "拡張機能のポップアップからログインできます。")}
+                        : "ログインすると、投稿チェックと育成が使えます。")}
                   </p>
                   {analysis && rule && (
                     <section
@@ -474,24 +699,45 @@ export function Overlay({ platform }: { platform: Platform }) {
                     </section>
                   )}
                   <button
-                    className="primary"
+                    type="button"
+                    className="primary commet-check-action"
                     disabled={checking || !state.signedIn}
                     onClick={() => void check()}
                   >
+                    <OverlayIcon name="check" />
                     {checking ? "判定中…" : `この${platform.contentLabel}をチェック`}
                   </button>
                 </>
               )}
             </div>
-            <p className="commet-wallet">
-              探索コイン · 仮 {pending} ・ 確定 {confirmed}
-            </p>
-          </>
+            <footer className="commet-menu-footer">
+              <p className="commet-wallet">
+                <span>
+                  確定 <b>{confirmed.toLocaleString()}</b>
+                </span>
+                <span>
+                  仮 <b>{pending.toLocaleString()}</b>
+                </span>
+              </p>
+              <button
+                type="button"
+                className="commet-settings-link"
+                onClick={() => {
+                  setPickup(null);
+                  setSettingsOpen(true);
+                }}
+              >
+                <OverlayIcon name="settings" />
+                {state.signedIn ? "設定" : "設定・ログイン"}
+              </button>
+            </footer>
+          </div>
         )}
         {wardrobeOpen && (
           <YoutubeWardrobe
             profile={state.profile}
             signedIn={state.signedIn}
+            onLogin={() => setSettingsOpen(true)}
             onClose={() => setWardrobeOpen(false)}
             onSaved={() => {
               setStatus("着せ替えを保存しました。");
@@ -499,6 +745,7 @@ export function Overlay({ platform }: { platform: Platform }) {
             }}
           />
         )}
+        {settingsOpen && <PageSettingsDialog onClose={() => setSettingsOpen(false)} />}
         {gachaOpen && (
           <GachaDialog
             profile={state.profile}

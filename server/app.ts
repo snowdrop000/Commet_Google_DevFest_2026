@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import { appearance } from "../shared/game";
-import { gachaRequest } from "../shared/gacha";
+import { exchangeRequest, gachaRequest } from "../shared/gacha";
 import { analyzeRequest, coinTick, settlement } from "../shared/model";
 import { ServiceError } from "./model/state";
 import type { AnalysisService } from "./service/analysis";
@@ -62,6 +62,10 @@ export function createApp(
     const { requestId } = await readJson(c.req, gachaRequest);
     return c.json(await game.draw(c.var.uid, requestId));
   });
+  app.post("/v1/gacha/exchange", async (c) =>
+    c.json(await game.exchange(c.var.uid, await readJson(c.req, exchangeRequest))),
+  );
+  app.get("/v1/gacha/exchange-shop", async (c) => c.json(await game.exchangeShop(c.var.uid)));
   app.patch("/v1/profile/appearance", async (c) =>
     c.json(await game.appearance(c.var.uid, await readJson(c.req, appearance))),
   );
