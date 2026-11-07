@@ -3,7 +3,9 @@ import { browser } from "wxt/browser";
 import { ITEM_CATALOG, type Profile } from "../../shared/game";
 import type { PetAnimation } from "./pet-animation";
 import { starAssets } from "./star-assets";
+import { StarHat } from "./star-accessories";
 import { outline, StarEffects, StarFace, StarOrnaments, StarPattern } from "./star-parts";
+import { StarPixelBody, StarSkinFinish, starSkins } from "./star-skins";
 
 type Rect = readonly [x: number, y: number, width: number, height: number];
 type Frame = { crop: Rect; center: number; floor: number; crown: number };
@@ -82,14 +84,6 @@ function Art({
   );
 }
 
-const tint = {
-  skin_star_mint: [0.66, 0.98, 0.86],
-  skin_star_night: [0.58, 0.61, 0.92],
-} as const;
-function skinTint(id: string) {
-  return id === "skin_star_mint" || id === "skin_star_night" ? tint[id] : undefined;
-}
-
 export function PreviousStanding() {
   const { crop, center, floor } = expressions.idle;
   const [x, y, width, height] = crop;
@@ -145,11 +139,15 @@ export function StarPet({
     .filter(Boolean)
     .join(" ");
   const { skin, hat, badge, eyes, mouth, head, prop, pattern } = profile.equippedItems;
-  const slopes = skinTint(skin);
+  const skinStyle = starSkins[skin];
+  const slopes = skinStyle?.tint;
+  const hasFinish = Boolean(skinStyle?.wash || skinStyle?.details);
+  const pixel = skin === "skin_star_pixel";
   const id = useId();
   const bodyId = `${id}-body`;
   const filterId = `${id}-tint`;
   const maskId = `${id}-pattern`;
+  const gradientId = `${id}-skin-wash`;
   const faceX = walking ? 57 : 50;
   const faceY = crown + (expression === "proud" ? 24.5 : 21.7);
   const learning = expression === "proud";
@@ -169,19 +167,29 @@ export function StarPet({
       <svg className="commet-star-stage" viewBox="0 0 100 100" aria-hidden="true">
         <defs>
           <g id={bodyId}>
-            <Art
-              asset={walking ? starAssets.walk : starAssets.poses}
-              imageSize={walking ? [1536, 1024] : [1254, 1254]}
-              crop={frame.crop}
-              placement={[
-                50 + (x - frame.center) * scale,
-                ground + (y - frame.floor) * scale,
-                width * scale,
-                height * scale,
-              ]}
-            />
+            {pixel ? (
+              <StarPixelBody
+                crown={crown}
+                ground={ground}
+                walking={walking}
+                step={step}
+                expression={expression}
+              />
+            ) : (
+              <Art
+                asset={walking ? starAssets.walk : starAssets.poses}
+                imageSize={walking ? [1536, 1024] : [1254, 1254]}
+                crop={frame.crop}
+                placement={[
+                  50 + (x - frame.center) * scale,
+                  ground + (y - frame.floor) * scale,
+                  width * scale,
+                  height * scale,
+                ]}
+              />
+            )}
           </g>
-          {pattern === "pattern_stars" && (
+          {(pattern === "pattern_stars" || hasFinish) && (
             <mask
               id={maskId}
               x="0"
@@ -215,10 +223,13 @@ export function StarPet({
         </defs>
         <ellipse cx="50" cy="93" rx="32" ry="3" fill="#8a79ac" opacity=".24" />
         <g transform={transform}>
-          <StarOrnaments id={head} crown={crown} walking={walking} />
+          <StarOrnaments id={head} crown={crown} walking={walking} pixel={pixel} />
           <g data-layer="body" filter={filter}>
             <use href={`#${bodyId}`} />
           </g>
+          {skinStyle && hasFinish && (
+            <StarSkinFinish skin={skinStyle} maskId={maskId} gradientId={gradientId} />
+          )}
           {pattern === "pattern_stars" && <StarPattern maskId={maskId} />}
           <StarFace
             expression={expression}
@@ -227,6 +238,8 @@ export function StarPet({
             walking={walking}
             eyes={eyes}
             mouth={mouth}
+            pixel={pixel}
+            ink={skinStyle?.ink}
           />
           <StarEffects expression={expression} x={faceX} y={faceY} crown={crown} />
           {holdingBook && (
@@ -283,6 +296,7 @@ export function StarPet({
               />
             </g>
           )}
+          <StarHat id={hat} crown={crown} outline={outline} />
         </g>
       </svg>
       {badge !== "badge_none" && <span className="commet-badge">{ITEM_CATALOG[badge]?.icon}</span>}

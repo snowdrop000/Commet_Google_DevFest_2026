@@ -22,6 +22,10 @@ type Item = {
   character?: z.infer<typeof characters>;
 };
 
+function starItem(slot: Equipment, name: string, icon: string): Item {
+  return { slot, name, icon, hint: "ほしもち用・試作", character: starCharacter };
+}
+
 export const CATEGORY_RULES = Object.freeze({
   abusive: {
     label: "だれかを傷つける表現",
@@ -173,6 +177,17 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     hint: "ほしもち用・試作",
     character: starCharacter,
   },
+  skin_star_pixel: starItem("skin", "ドットほしもち", "▪"),
+  skin_star_sakura: starItem("skin", "さくらもち", "●"),
+  skin_star_lemon: starItem("skin", "レモンもち", "●"),
+  skin_star_sky: starItem("skin", "そらいろもち", "●"),
+  skin_star_lavender: starItem("skin", "ラベンダーもち", "●"),
+  skin_star_matcha: starItem("skin", "抹茶もち", "●"),
+  skin_star_galaxy: starItem("skin", "銀河もち", "✦"),
+  skin_star_soda: starItem("skin", "ソーダもち", "○"),
+  skin_star_strawberry: starItem("skin", "いちご大福もち", "♥"),
+  skin_star_toast: starItem("skin", "こんがり焼きもち", "▧"),
+  skin_star_kintsugi: starItem("skin", "金継ぎもち", "◇"),
   hat_star_beret: {
     slot: "hat",
     name: "すみれベレー",
@@ -187,6 +202,16 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     hint: "ほしもち用・試作",
     character: starCharacter,
   },
+  hat_star_crown: starItem("hat", "ちいさな王冠", "♛"),
+  hat_star_wizard: starItem("hat", "星読みのとんがり帽", "✦"),
+  hat_star_sailor: starItem("hat", "セーラー帽", "⚓"),
+  hat_star_knit: starItem("hat", "ぽんぽんニット帽", "●"),
+  hat_star_cap: starItem("hat", "ミントキャップ", "◒"),
+  hat_star_top: starItem("hat", "夜会のシルクハット", "▰"),
+  hat_star_pumpkin: starItem("hat", "かぼちゃ帽", "●"),
+  hat_star_mushroom: starItem("hat", "きのこのかさ", "●"),
+  hat_star_rain: starItem("hat", "雨の日バケット", "◆"),
+  hat_star_graduate: starItem("hat", "卒業の角帽", "◇"),
   eyes_default: { slot: "eyes", name: "まるい目", icon: "●", hint: "ほしもち用" },
   eyes_glimmer: {
     slot: "eyes",
@@ -195,6 +220,11 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     hint: "ほしもち用",
     character: starCharacter,
   },
+  eyes_star_shine: starItem("eyes", "星のひとみ", "✦"),
+  eyes_star_heart: starItem("eyes", "ハート目", "♥"),
+  eyes_star_sleepy: starItem("eyes", "とろん目", "◒"),
+  eyes_star_odd: starItem("eyes", "オッドアイ", "◉"),
+  eyes_star_digital: starItem("eyes", "デジタル目", "▪"),
   mouth_default: { slot: "mouth", name: "ちいさなW口", icon: "ω", hint: "ほしもち用" },
   mouth_smile: {
     slot: "mouth",
@@ -211,6 +241,11 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     hint: "ほしもち用",
     character: starCharacter,
   },
+  head_star_bunny: starItem("head", "うさ耳", "♧"),
+  head_star_cat: starItem("head", "ねこ耳", "△"),
+  head_star_cloud: starItem("head", "わたぐも耳", "☁"),
+  head_star_sprout: starItem("head", "ふたば耳", "♧"),
+  head_star_ice: starItem("head", "氷の結晶耳", "❄"),
   head_none: {
     slot: "head",
     name: "飾りなし",
@@ -248,16 +283,10 @@ export const defaultEquipment = {
 } as const;
 const starterItems = [
   ...Object.values(defaultEquipment),
-  "skin_star_mint",
-  "skin_star_night",
-  "hat_star_beret",
-  "hat_star_pin",
-  "eyes_glimmer",
-  "mouth_smile",
-  "head_moon",
-  "head_none",
-  "prop_none",
-  "pattern_stars",
+  ...Object.keys(ITEM_CATALOG).filter((id) => {
+    const item = ITEM_CATALOG[id];
+    return item.character === starCharacter && !item.requirement;
+  }),
 ];
 
 export function withStarterItems(pet: Profile): Profile {

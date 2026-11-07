@@ -1,0 +1,338 @@
+.commet-shell.commet-shell--options {
+  max-width: 880px;
+}
+
+.commet-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.commet-profile-summary .commet-stats {
+  flex: 1;
+  min-width: 0;
+}
+
+.commet-profile-summary .commet-pet {
+  flex: none;
+  width: 72px;
+}
+
+.commet-trial-details {
+  margin: 12px 0;
+}
+
+.commet-trial-details > summary {
+  cursor: pointer;
+}
+
+.commet .commet-wardrobe-preview {
+  gap: 18px;
+  padding: 8px;
+}
+
+.commet-wardrobe-profile {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.commet-wardrobe-profile input,
+.commet-wardrobe-profile select {
+  max-width: 100%;
+}
+
+.commet-wardrobe-tools {
+  margin-bottom: 12px;
+}
+
+.commet-wardrobe {
+  display: grid;
+  grid-template-columns: 105px minmax(0, 1fr);
+  overflow: hidden;
+  color: #513343;
+  background: #fff8f2;
+  border: 1px solid #e8c9cb;
+  border-radius: 14px;
+}
+
+.commet-wardrobe-categories {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  padding: 10px 8px;
+  background: #f5e0df;
+  border-right: 1px solid #e8c9cb;
+}
+
+.commet .commet-wardrobe-categories button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 38px;
+  padding: 4px 5px;
+  border-color: transparent;
+  color: #513343;
+  background: transparent;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.commet-wardrobe-categories button span {
+  display: inline-grid;
+  width: 20px;
+  place-items: center;
+  color: #804b66;
+  font-size: 17px;
+}
+
+.commet .commet-wardrobe-categories button:hover {
+  background: #faece9;
+}
+
+.commet .commet-wardrobe-categories button[aria-pressed="true"] {
+  border-color: #a9627c;
+  background: #fff8f4;
+  color: #733e58;
+}
+
+.commet-wardrobe-content {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.commet-wardrobe-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid #f0dddd;
+}
+
+.commet-wardrobe-heading h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.commet-wardrobe-heading > span {
+  color: #765b67;
+  font-size: 12px;
+}
+
+.commet-wardrobe-items {
+  max-height: 410px;
+  overflow-y: auto;
+  scrollbar-color: #c790a1 transparent;
+  padding: 9px 12px 12px;
+}
+
+.commet-wardrobe-tier {
+  --tier-ink: #655958;
+  --tier-border: #ded0c7;
+  --tier-art: #f6ede5;
+  margin-bottom: 13px;
+}
+
+.commet-wardrobe-tier:last-child {
+  margin-bottom: 0;
+}
+
+.commet-wardrobe-tier[data-rarity="UR"] {
+  --tier-ink: #8f4a24;
+  --tier-border: #e0ae72;
+  --tier-art: #fce5c9;
+}
+
+.commet-wardrobe-tier[data-rarity="SR"] {
+  --tier-ink: #785096;
+  --tier-border: #c4a1d9;
+  --tier-art: #efe3f7;
+}
+
+.commet-wardrobe-tier[data-rarity="R"] {
+  --tier-ink: #3c687f;
+  --tier-border: #a1bfd0;
+  --tier-art: #e4eff5;
+}
+
+.commet-wardrobe-tier h4 {
+  margin: 0 0 5px;
+  color: var(--tier-ink);
+  font-size: 12px;
+}
+
+.commet-wardrobe-tier h4 b {
+  display: inline-block;
+  min-width: 27px;
+  margin-right: 3px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--tier-art);
+  text-align: center;
+}
+
+.commet-wardrobe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 103px), 1fr));
+  gap: 6px;
+}
+
+.commet .commet-wardrobe-item {
+  position: relative;
+  min-width: 0;
+  padding: 3px;
+  border: 1px solid var(--tier-border);
+  border-radius: 9px;
+  background: #fffdf9;
+  color: #513343;
+}
+
+.commet .commet-wardrobe-item:hover,
+.commet .commet-wardrobe-item[aria-pressed="true"] {
+  border-color: #9c5271;
+  background: #fff3f5;
+}
+
+.commet .commet-wardrobe-item[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px #9c5271;
+}
+
+.commet-wardrobe-art {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height: 86px;
+  border-radius: 6px;
+  background: var(--tier-art);
+}
+
+.commet-wardrobe-art .commet-pet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.commet-wardrobe-art .commet-pet--star {
+  width: 103px;
+  height: 103px;
+  transform: translate(-50%, -57%);
+}
+
+.commet-wardrobe-art:is([data-slot="eyes"], [data-slot="mouth"]) .commet-pet--star {
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -56%);
+}
+
+.commet-wardrobe-name {
+  display: block;
+  overflow: hidden;
+  padding: 3px 1px 1px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.commet-wardrobe-tick {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #824160;
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.commet .commet-wardrobe-selection {
+  margin: 0;
+  padding: 7px 12px;
+  border-top: 1px solid #f0dddd;
+  background: #fff4ed;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.commet-wardrobe-selection span {
+  margin-right: 4px;
+  color: #785b68;
+  font-weight: 400;
+}
+
+.commet-wardrobe-save {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 9px;
+}
+
+.commet-wardrobe-dialog {
+  width: min(720px, calc(100vw - 24px));
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 14px;
+  overflow: auto;
+  border: 1px solid #d2a6b5;
+  border-radius: 15px;
+  color: #513343;
+  background: #fffaf6;
+  box-shadow: 0 14px 50px #36212e40;
+}
+
+.commet-wardrobe-dialog::backdrop {
+  background: #20182075;
+}
+
+.commet-wardrobe-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.commet-wardrobe-dialog .commet-lab-stage {
+  min-height: 120px;
+}
+
+.commet-wardrobe-dialog .commet-lab-stage .commet-pet--star,
+.commet-wardrobe-dialog .commet-star-previous {
+  width: 120px;
+  height: 120px;
+}
+
+.commet-wardrobe-dialog .commet-wardrobe-items {
+  max-height: min(340px, 46dvh);
+}
+
+.commet-appearance-fields {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+@media (max-width: 560px) {
+  .commet-wardrobe {
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
+  .commet-wardrobe-categories {
+    padding: 7px 4px;
+  }
+  .commet .commet-wardrobe-categories button {
+    gap: 2px;
+    padding-inline: 3px;
+  }
+  .commet-wardrobe-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 72px), 1fr));
+  }
+  .commet-wardrobe-heading,
+  .commet-wardrobe-items {
+    padding-inline: 7px;
+  }
+}

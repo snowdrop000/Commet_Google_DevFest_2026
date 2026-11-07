@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { browser } from "wxt/browser";
-import { CATEGORY_RULES, newProfile } from "../../shared/game";
+import { CATEGORY_RULES, newProfile, starCharacter, type Profile } from "../../shared/game";
 import type { AnalyzeResponse } from "../../shared/model";
 import { defaults, send, type State } from "../core/messages";
 import { composerNear, contextFor, isComposer, readText, replaceDraft } from "../sns/composer";
@@ -8,14 +8,17 @@ import { createMotion } from "../sns/motion";
 import type { Platform } from "../sns/platforms";
 import { watchPost } from "../sns/post-confirmation";
 import { Pet, Stats } from "./Pet";
+import { YoutubeWardrobe } from "./YoutubeWardrobe";
 import { restingPet } from "./pet-animation";
 
 const initial: State = { signedIn: false, emulator: false, settings: defaults, profile: null };
+const youtubeGuest: Profile = { ...newProfile(), characterType: starCharacter, name: "ほしもち" };
 
 export function Overlay({ platform }: { platform: Platform }) {
   const [state, setState] = useState(initial);
   const [view, setView] = useState<"check" | "status">("check");
   const [collapsed, setCollapsed] = useState(false);
+  const [wardrobeOpen, setWardrobeOpen] = useState(false);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(0);
@@ -362,7 +365,7 @@ export function Overlay({ platform }: { platform: Platform }) {
     } else setStatus("入力欄を更新できませんでした。改善案をコピーして使えます。");
   }
 
-  const pet = state.profile ?? newProfile();
+  const pet = state.profile ?? (platform.id === "youtube" ? youtubeGuest : newProfile());
   const analysis = result?.analysis;
   const rule = analysis ? CATEGORY_RULES[analysis.category] : null;
   return (
@@ -397,7 +400,12 @@ export function Overlay({ platform }: { platform: Platform }) {
             </button>{" "}
             <button aria-pressed={view === "status"} onClick={() => setView("status")}>
               育成状況
-            </button>
+            </button>{" "}
+            {platform.id === "youtube" && (
+              <button aria-haspopup="dialog" onClick={() => setWardrobeOpen(true)}>
+                着せ替え
+              </button>
+            )}
             {view === "status" ? (
               <Stats profile={pet} />
             ) : (
@@ -451,6 +459,17 @@ export function Overlay({ platform }: { platform: Platform }) {
             探索コイン · 仮 {pending} ・ 確定 {confirmed}
           </p>
         </>
+      )}
+      {wardrobeOpen && (
+        <YoutubeWardrobe
+          profile={state.profile}
+          signedIn={state.signedIn}
+          onClose={() => setWardrobeOpen(false)}
+          onSaved={() => {
+            setStatus("着せ替えを保存しました。");
+            onRefresh.current?.();
+          }}
+        />
       )}
     </aside>
   );

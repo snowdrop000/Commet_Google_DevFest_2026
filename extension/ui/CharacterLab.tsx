@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { newProfile, starCharacter, visibleEquipment, type Profile } from "../../shared/game";
+import { newProfile, starCharacter, type Profile } from "../../shared/game";
 import { Pet } from "./Pet";
-import { EquipmentSelect } from "./PetEquipment";
+import { PetEquipment } from "./PetEquipment";
 import { PreviousStanding } from "./StarPet";
 
 const scenes = {
@@ -25,7 +25,7 @@ export function CharacterLab() {
   return (
     <section className="commet-lab" aria-label="ほしもちの試着">
       <h2>ほしもちの試着</h2>
-      <p>目や口、体の柄などを組み合わせて、表情や動きを試せます。</p>
+      <p>カテゴリを選んで、イラストから着せ替えや表情を試せます。</p>
       <div className="commet-lab-stage">
         {compare && (
           <figure>
@@ -42,30 +42,17 @@ export function CharacterLab() {
           {compare && <figcaption>現在のほしもち</figcaption>}
         </figure>
       </div>
-      <button
-        aria-pressed={compare}
-        onClick={() => {
-          if (!compare) setScene("idle");
-          setCompare(!compare);
-        }}
-      >
-        以前のノーマルと比較
-      </button>
-      <div className="controls">
-        {visibleEquipment(starCharacter)
-          .filter((slot) => slot !== "badge")
-          .map((slot) => (
-            <EquipmentSelect
-              key={slot}
-              pet={pet}
-              slot={slot}
-              trial
-              onChange={(id) => {
-                setEquipment((current) => ({ ...current, [slot]: id }));
-                if (slot === "prop") setScene("proud");
-              }}
-            />
-          ))}
+      <div className="controls commet-wardrobe-tools">
+        <button
+          type="button"
+          aria-pressed={compare}
+          onClick={() => {
+            if (!compare) setScene("idle");
+            setCompare(!compare);
+          }}
+        >
+          以前のノーマルと比較
+        </button>
         <label>
           動き{" "}
           <select value={scene} onChange={(event) => setScene(event.currentTarget.value as Scene)}>
@@ -82,6 +69,17 @@ export function CharacterLab() {
           </button>
         )}
       </div>
+      <PetEquipment
+        pet={pet}
+        trial
+        onChange={(slot, id) => {
+          setEquipment((current) => ({ ...current, [slot]: id }));
+          if (slot === "prop") setScene("proud");
+          if ((slot === "eyes" || slot === "mouth") && (scene === "happy" || scene === "cry")) {
+            setScene("idle");
+          }
+        }}
+      />
     </section>
   );
 }
