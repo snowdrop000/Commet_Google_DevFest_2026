@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import { appearance } from "../shared/game";
+import { gachaRequest } from "../shared/gacha";
 import { analyzeRequest, coinTick, settlement } from "../shared/model";
 import { ServiceError } from "./model/state";
 import type { AnalysisService } from "./service/analysis";
@@ -57,6 +58,10 @@ export function createApp(
     bodyLimit({ maxSize: 32_768, onError: (c) => c.json({ error: "入力が長すぎます。" }, 413) }),
   );
   app.get("/v1/profile", async (c) => c.json(await game.profile(c.var.uid)));
+  app.post("/v1/gacha/draw", async (c) => {
+    const { requestId } = await readJson(c.req, gachaRequest);
+    return c.json(await game.draw(c.var.uid, requestId));
+  });
   app.patch("/v1/profile/appearance", async (c) =>
     c.json(await game.appearance(c.var.uid, await readJson(c.req, appearance))),
   );

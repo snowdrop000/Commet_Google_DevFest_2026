@@ -163,28 +163,5 @@ export function createMotion(
           360,
         );
     },
-    explore(pet: HTMLElement, coin: HTMLElement | null) {
-      if (reduced.matches || editor || drag || panel.dataset.motion !== "idle") return;
-      animatePet("walk", "right");
-      const trip = pet.animate(
-        [
-          { translate: "0" },
-          { translate: "12px -3px" },
-          { translate: "21px 0" },
-          { translate: "0" },
-        ],
-        { duration: 780, easing: "steps(5)" },
-      );
-      void trip.finished
-        .then(() => {
-          if (panel.dataset.motion === "idle") animatePet("idle");
-        })
-        .catch(() => {});
-      if (coin)
-        coin.animate(
-          [{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0, translate: "0 -12px" }],
-          780,
-        );
-    },
   };
 }

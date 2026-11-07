@@ -2,6 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { testApi } from "../fixture";
+import { newAccount } from "../../server/model/state";
 
 const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url");
 const uid = "playwright-fixture-user";
@@ -20,6 +21,10 @@ const api = testApi({
     return uid;
   },
 });
+const account = newAccount();
+account.profile.confirmedCoins = 20;
+api.repository.accounts.set(uid, account);
+setInterval(() => api.advance(1000), 1000).unref();
 const auth = new Hono();
 auth.use("*", cors());
 auth.post("/identitytoolkit.googleapis.com/v1/accounts:signUp", (c) =>

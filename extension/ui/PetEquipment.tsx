@@ -7,6 +7,7 @@ import {
   type Profile,
 } from "../../shared/game";
 import { Pet } from "./Pet";
+import { displayRarity, rarities } from "../../shared/gacha";
 
 type Slot = keyof Profile["equippedItems"];
 const categories: Record<Slot, { label: string; icon: string }> = {
@@ -18,51 +19,6 @@ const categories: Record<Slot, { label: string; icon: string }> = {
   head: { label: "耳・飾り", icon: "♧" },
   prop: { label: "手持ち", icon: "▣" },
   pattern: { label: "体の柄", icon: "◌" },
-};
-
-const rarities = [
-  { id: "UR", label: "ウルトラレア" },
-  { id: "SR", label: "スーパーレア" },
-  { id: "R", label: "レア" },
-  { id: "N", label: "ノーマル" },
-] as const;
-type Rarity = (typeof rarities)[number]["id"];
-
-// Display tiers for the wardrobe. The profile remains the source of item ownership.
-const displayRarity: Partial<Record<string, Rarity>> = {
-  skin_star_galaxy: "UR",
-  skin_star_kintsugi: "UR",
-  skin_aurora: "UR",
-  hat_star_wizard: "UR",
-  skin_star_pixel: "SR",
-  skin_star_soda: "SR",
-  skin_star_strawberry: "SR",
-  skin_star_toast: "SR",
-  skin_midnight: "SR",
-  head_star_ice: "SR",
-  hat_star_crown: "SR",
-  hat_star_graduate: "SR",
-  hat_crown: "SR",
-  eyes_star_shine: "SR",
-  eyes_star_digital: "SR",
-  skin_star_night: "R",
-  skin_star_mint: "R",
-  skin_sunset: "R",
-  head_moon: "R",
-  head_star_bunny: "R",
-  head_star_cat: "R",
-  head_star_cloud: "R",
-  hat_star_beret: "R",
-  hat_star_pin: "R",
-  hat_star_mushroom: "R",
-  hat_star_pumpkin: "R",
-  hat_heart: "R",
-  hat_scholar: "R",
-  hat_halo: "R",
-  eyes_glimmer: "R",
-  eyes_star_heart: "R",
-  eyes_star_odd: "R",
-  pattern_stars: "R",
 };
 
 export function PetEquipment({

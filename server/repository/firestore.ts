@@ -1,4 +1,5 @@
 import type { Firestore } from "firebase-admin/firestore";
+import { gachaResult } from "../../shared/gacha";
 import {
   accountState,
   explorationSession,
@@ -18,6 +19,25 @@ export class FirestoreGameRepository implements GameRepository {
   async read(uid: string) {
     const snapshot = await this.account(uid).get();
     return snapshot.exists ? accountState.parse(snapshot.data()) : newAccount();
+  }
+
+  transactDraw(
+    uid: string,
+    requestId: string,
+    mutate: Parameters<GameRepository["transactDraw"]>[2],
+  ) {
+    const accountRef = this.account(uid);
+    const receiptRef = accountRef.collection("gachaDraws").doc(requestId);
+    return this.database.runTransaction(async (tx) => {
+      const [account, receipt] = await tx.getAll(accountRef, receiptRef);
+      const change = mutate(
+        account.exists ? accountState.parse(account.data()) : newAccount(),
+        receipt.exists ? gachaResult.parse(receipt.data()) : null,
+      );
+      if (change.account) tx.set(accountRef, change.account);
+      if (change.receipt) tx.set(receiptRef, change.receipt);
+      return change.value;
+    });
   }
 
   transact<T>(uid: string, sessionId: string | null, mutate: Mutation<T>): Promise<T> {

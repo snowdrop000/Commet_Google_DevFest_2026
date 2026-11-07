@@ -4,6 +4,8 @@ import { analyzeResponse, coinBalance, settlementResult } from "../shared/model"
 import { profile } from "../shared/game";
 import { ServiceError } from "../server/model/state";
 import { fakeAi, testApi } from "./fixture";
+import { gachaResult } from "../shared/gacha";
+import { ITEM_CATALOG } from "../shared/game";
 
 const path = {
   analyze: "/v1/analyze",
@@ -39,6 +41,43 @@ function fixture(options?: Parameters<typeof testApi>[0]) {
 }
 
 describe("Hono API", () => {
+  it("spends 10 confirmed coins and grants a draw atomically across concurrent retries", async () => {
+    const f = fixture();
+    const sessionId = randomUUID();
+    await f.collect(sessionId, 10);
+    await f.call(path.settle, { sessionId, outcome: { kind: "closed" } });
+    const request = { requestId: randomUUID() };
+    const results = await Promise.all(
+      Array.from({ length: 4 }, async () =>
+        gachaResult.parse(await (await f.call("/v1/gacha/draw", request)).json()),
+      ),
+    );
+    expect(results.every((result) => JSON.stringify(result) === JSON.stringify(results[0]))).toBe(
+      true,
+    );
+    const owner = profile.parse(await (await f.call(path.profile)).json());
+    expect(owner.confirmedCoins).toBe(0);
+    expect(owner.gacha.draws).toBe(1);
+    expect(owner.unlockedItems).toContain(results[0].itemId);
+    expect(ITEM_CATALOG[results[0].itemId]).toBeDefined();
+    if (results[0].duplicate) expect(owner.gacha.shards[results[0].itemId]).toBe(1);
+    // The same receipt remains recoverable even with an empty wallet.
+    expect(await (await f.call("/v1/gacha/draw", request)).json()).toEqual(results[0]);
+    expect((await f.call("/v1/gacha/draw", { requestId: randomUUID() })).status).toBe(409);
+    expect((await f.call("/v1/gacha/draw", request, "bob")).status).toBe(409);
+  });
+
+  it("does not spend provisional coins or accept a client-selected gacha result", async () => {
+    const f = fixture();
+    await f.collect(randomUUID(), 10);
+    expect((await f.call("/v1/gacha/draw", { requestId: randomUUID() })).status).toBe(409);
+    expect((await f.call("/v1/gacha/draw", { requestId: randomUUID(), rarity: "UR" })).status).toBe(
+      400,
+    );
+    const owner = profile.parse(await (await f.call(path.profile)).json());
+    expect(owner.gacha.draws).toBe(0);
+    expect(f.repository.draws.size).toBe(0);
+  });
   it("requires verified authentication and validates requests without echoing the body", async () => {
     const f = fixture();
     expect((await f.app.request(path.profile)).status).toBe(401);

@@ -1,4 +1,5 @@
-import { randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
+import { displayRarity, GACHA_COST, gachaPool, gachaRates, type Rarity } from "../../shared/gacha";
 import { canEquip, equipmentKeys, withStarterItems, type Appearance } from "../../shared/game";
 import type { Analysis, Settlement, SettlementResult } from "../../shared/model";
 import { growthEvidence, ServiceError, type GameRepository } from "../model/state";
@@ -16,6 +17,37 @@ export class GameService {
 
   async profile(uid: string) {
     return withStarterItems((await this.repository.read(uid)).profile);
+  }
+
+  draw(uid: string, requestId: string) {
+    const roll = randomInt(100);
+    const rarity: Rarity =
+      roll < gachaRates.N
+        ? "N"
+        : roll < gachaRates.N + gachaRates.R
+          ? "R"
+          : roll < 100 - gachaRates.UR
+            ? "SR"
+            : "UR";
+    const candidates = gachaPool.filter((id) => (displayRarity[id] ?? "N") === rarity);
+    const itemId = candidates[randomInt(candidates.length)];
+    return this.repository.transactDraw(uid, requestId, (account, previous) => {
+      if (previous) return { value: previous };
+      const pet = withStarterItems(account.profile);
+      if (pet.confirmedCoins < GACHA_COST) {
+        throw new ServiceError(409, `確定コインが${GACHA_COST}枚必要です。`);
+      }
+      const duplicate = pet.unlockedItems.includes(itemId);
+      pet.confirmedCoins -= GACHA_COST;
+      pet.gacha.draws++;
+      pet.gacha.sinceSR = rarity === "SR" || rarity === "UR" ? 0 : pet.gacha.sinceSR + 1;
+      pet.gacha.sinceUR = rarity === "UR" ? 0 : pet.gacha.sinceUR + 1;
+      if (duplicate) pet.gacha.shards[itemId] = (pet.gacha.shards[itemId] ?? 0) + 1;
+      else pet.unlockedItems.push(itemId);
+      account.profile = pet;
+      const receipt = { requestId, itemId, rarity, duplicate };
+      return { value: receipt, account, receipt };
+    });
   }
 
   appearance(uid: string, value: Appearance) {

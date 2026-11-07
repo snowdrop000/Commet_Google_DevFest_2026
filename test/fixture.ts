@@ -11,11 +11,31 @@ import {
 import { AnalysisService, type GeminiQuota } from "../server/service/analysis";
 import { GameService } from "../server/service/game";
 import type { AiRepository } from "../server/repository/gemini";
+import type { GachaResult } from "../shared/gacha";
 
 export class MemoryRepository implements GameRepository {
   readonly accounts = new Map<string, AccountState>();
   readonly sessions = new Map<string, ExplorationSession>();
+  readonly draws = new Map<string, GachaResult>();
   private writes = Promise.resolve();
+  transactDraw(
+    uid: string,
+    requestId: string,
+    mutate: Parameters<GameRepository["transactDraw"]>[2],
+  ) {
+    const task = this.writes.then(async () => {
+      const key = `${uid}/${requestId}`;
+      const change = mutate(await this.read(uid), structuredClone(this.draws.get(key) ?? null));
+      if (change.account) this.accounts.set(uid, structuredClone(change.account));
+      if (change.receipt) this.draws.set(key, structuredClone(change.receipt));
+      return change.value;
+    });
+    this.writes = task.then(
+      () => {},
+      () => {},
+    );
+    return task;
+  }
   async read(uid: string) {
     return structuredClone(this.accounts.get(uid) ?? newAccount());
   }

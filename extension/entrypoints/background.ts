@@ -7,6 +7,7 @@ import { currentUser, emulator, login, logout } from "../core/auth";
 import { beginPost, closePage, finishPost, recover, tick } from "../core/exploration";
 import { defaults, message, preferences, type Message, type State } from "../core/messages";
 import { findPlatform } from "../sns/platforms";
+import { acknowledgeGacha, drawGacha } from "../core/gacha";
 
 async function state(): Promise<State> {
   const user = await currentUser();
@@ -56,6 +57,8 @@ async function handle(input: Message, sender: Browser.runtime.MessageSender) {
   }
   const user = await currentUser();
   if (!user) throw new Error("拡張機能のポップアップでログインしてください。");
+  if (input.type === "gacha") return drawGacha(user);
+  if (input.type === "gachaAck") return acknowledgeGacha(user, input.requestId);
   if (input.type === "preview") return api("/v1/analyze", analyzeResponse, user, input.draft);
   if (input.type === "appearance") {
     const pet = await api("/v1/profile/appearance", profile, user, input.appearance, "PATCH");

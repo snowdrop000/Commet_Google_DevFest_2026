@@ -6,6 +6,8 @@ import { Pet, Stats } from "./Pet";
 import { CharacterLab } from "./CharacterLab";
 import { AppearanceForm } from "./AppearanceForm";
 import "./wardrobe.css";
+import { GachaPanel } from "./Gacha";
+import { RewardLab } from "./RewardLab";
 
 export function Dashboard({ developer = false }: { developer?: boolean }) {
   const [state, setState] = useState<State | null>(null);
@@ -90,6 +92,18 @@ export function Dashboard({ developer = false }: { developer?: boolean }) {
       )}
       {developer && (
         <>
+          {state?.profile && (
+            <section aria-label="彗星ガチャ">
+              <h2>ほしもちの彗星ガチャ</h2>
+              <GachaPanel
+                profile={state.profile}
+                onUpdate={() => {
+                  void send({ type: "state" }).then(updateState).catch(showError);
+                }}
+              />
+            </section>
+          )}
+          <RewardLab />
           {state?.profile ? (
             <details className="commet-trial-details">
               <summary>保存せずに、ほしもちを試着する</summary>

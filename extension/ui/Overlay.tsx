@@ -10,6 +10,8 @@ import { watchPost } from "../sns/post-confirmation";
 import { Pet, Stats } from "./Pet";
 import { YoutubeWardrobe } from "./YoutubeWardrobe";
 import { restingPet } from "./pet-animation";
+import { CoinPickup, type Pickup } from "./CoinPickup";
+import { GachaDialog } from "./Gacha";
 
 const initial: State = { signedIn: false, emulator: false, settings: defaults, profile: null };
 const youtubeGuest: Profile = { ...newProfile(), characterType: starCharacter, name: "ほしもち" };
@@ -19,6 +21,10 @@ export function Overlay({ platform }: { platform: Platform }) {
   const [view, setView] = useState<"check" | "status">("check");
   const [collapsed, setCollapsed] = useState(false);
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
+  const [gachaOpen, setGachaOpen] = useState(false);
+  const [pickup, setPickup] = useState<Pickup | null>(null);
+  const uiOpen = useRef(false);
+  uiOpen.current = wardrobeOpen || gachaOpen;
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(0);
@@ -115,6 +121,7 @@ export function Overlay({ platform }: { platform: Platform }) {
       activeBefore = false;
       setPending(0);
       setResult(null);
+      setPickup(null);
       preview.current = null;
       editor.current = null;
       motion.current?.focus(null);
@@ -150,11 +157,15 @@ export function Overlay({ platform }: { platform: Platform }) {
         }
         if (balance.picked) {
           const pet = dragHandle.current?.querySelector<HTMLElement>(".commet-pet");
-          if (pet)
-            motion.current?.explore(
-              pet,
-              dragHandle.current?.querySelector<HTMLElement>(".commet-coin") ?? null,
-            );
+          if (
+            pet &&
+            !uiOpen.current &&
+            panel.current?.dataset.motion === "idle" &&
+            !document.hidden
+          ) {
+            const rect = pet.getBoundingClientRect();
+            setPickup({ id: crypto.randomUUID(), x: rect.left, y: rect.top });
+          }
         }
       } catch {
         /* The next heartbeat retries after a transient failure. */
@@ -368,109 +379,135 @@ export function Overlay({ platform }: { platform: Platform }) {
   const pet = state.profile ?? (platform.id === "youtube" ? youtubeGuest : newProfile());
   const analysis = result?.analysis;
   const rule = analysis ? CATEGORY_RULES[analysis.category] : null;
+  const browsingAnimation =
+    state.settings.explore && !uiOpen.current && !rule && petAnimation.action === "idle"
+      ? { action: "walk" as const, direction: petAnimation.direction }
+      : petAnimation;
   return (
-    <aside
-      ref={panel}
-      className="commet commet-card"
-      data-collapsed={collapsed}
-      aria-label="Commet"
-    >
-      <button
-        className="commet-close"
-        aria-label={collapsed ? "Commetを開く" : "Commetを閉じる"}
-        onClick={() => setCollapsed(!collapsed)}
+    <>
+      <aside
+        ref={panel}
+        className="commet commet-card"
+        data-collapsed={collapsed}
+        aria-label="Commet"
       >
-        {collapsed ? "+" : "−"}
-      </button>
-      <div ref={dragHandle} className="commet-drag">
-        <Pet profile={pet} mood={rule?.mood} animation={petAnimation} />
-        <span className="commet-coin" aria-hidden="true">
-          ●
-        </span>
-        <small>LV. {pet.level}</small>
-      </div>
-      {!collapsed && (
-        <>
-          <div>
-            <h2>
-              {pet.name} · {platform.name}
-            </h2>
-            <button aria-pressed={view === "check"} onClick={() => setView("check")}>
-              投稿チェック
-            </button>{" "}
-            <button aria-pressed={view === "status"} onClick={() => setView("status")}>
-              育成状況
-            </button>{" "}
-            {platform.id === "youtube" && (
-              <button aria-haspopup="dialog" onClick={() => setWardrobeOpen(true)}>
-                着せ替え
-              </button>
-            )}
-            {view === "status" ? (
-              <Stats profile={pet} />
-            ) : (
-              <>
-                <p role="status">
-                  {status ||
-                    (state.signedIn
-                      ? "ことばを一緒に見直そう。"
-                      : "拡張機能のポップアップからログインできます。")}
-                </p>
-                {analysis && rule && (
-                  <section
-                    className="commet-result"
-                    data-tone={analysis.category}
-                    key={analysis.suggestion + analysis.reason}
-                  >
-                    <b>
-                      {rule.label}
-                      {result?.demo ? "（デモ）" : ""}
-                    </b>
-                    <p>{analysis.reason}</p>
-                    <small>
-                      有害性 {analysis.harm.severity} · 敬意 {analysis.dialogueStyle.respect} ·
-                      建設性 {analysis.constructivenessScore} · 共感 {analysis.empathyScore} / 10
-                    </small>
-                    {result?.videoSource === "gemini_video" && (
-                      <p>
-                        <small>動画要約を考慮</small>
-                      </p>
-                    )}
-                    {analysis.suggestion && (
-                      <details>
-                        <summary>改善案を見る</summary>
-                        <p>{analysis.suggestion}</p>
-                        {preview.current && <button onClick={apply}>改善案を入力欄に反映</button>}
-                      </details>
-                    )}
-                  </section>
-                )}
+        <button
+          className="commet-close"
+          aria-label={collapsed ? "Commetを開く" : "Commetを閉じる"}
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          {collapsed ? "+" : "−"}
+        </button>
+        <div ref={dragHandle} className="commet-drag">
+          <Pet profile={pet} mood={rule?.mood} animation={browsingAnimation} />
+          <small>LV. {pet.level}</small>
+        </div>
+        {!collapsed && (
+          <>
+            <div>
+              <h2>
+                {pet.name} · {platform.name}
+              </h2>
+              <button aria-pressed={view === "check"} onClick={() => setView("check")}>
+                投稿チェック
+              </button>{" "}
+              <button aria-pressed={view === "status"} onClick={() => setView("status")}>
+                育成状況
+              </button>{" "}
+              {platform.id === "youtube" && (
                 <button
-                  className="primary"
-                  disabled={checking || !state.signedIn}
-                  onClick={() => void check()}
+                  aria-haspopup="dialog"
+                  onClick={() => {
+                    setPickup(null);
+                    setWardrobeOpen(true);
+                  }}
                 >
-                  {checking ? "判定中…" : `この${platform.contentLabel}をチェック`}
+                  着せ替え
                 </button>
-              </>
-            )}
-          </div>
-          <p className="commet-wallet">
-            探索コイン · 仮 {pending} ・ 確定 {confirmed}
-          </p>
-        </>
-      )}
-      {wardrobeOpen && (
-        <YoutubeWardrobe
-          profile={state.profile}
-          signedIn={state.signedIn}
-          onClose={() => setWardrobeOpen(false)}
-          onSaved={() => {
-            setStatus("着せ替えを保存しました。");
-            onRefresh.current?.();
-          }}
-        />
-      )}
-    </aside>
+              )}{" "}
+              <button
+                aria-haspopup="dialog"
+                onClick={() => {
+                  setPickup(null);
+                  setGachaOpen(true);
+                }}
+              >
+                ガチャ
+              </button>
+              {view === "status" ? (
+                <Stats profile={pet} />
+              ) : (
+                <>
+                  <p role="status">
+                    {status ||
+                      (state.signedIn
+                        ? "ことばを一緒に見直そう。"
+                        : "拡張機能のポップアップからログインできます。")}
+                  </p>
+                  {analysis && rule && (
+                    <section
+                      className="commet-result"
+                      data-tone={analysis.category}
+                      key={analysis.suggestion + analysis.reason}
+                    >
+                      <b>
+                        {rule.label}
+                        {result?.demo ? "（デモ）" : ""}
+                      </b>
+                      <p>{analysis.reason}</p>
+                      <small>
+                        有害性 {analysis.harm.severity} · 敬意 {analysis.dialogueStyle.respect} ·
+                        建設性 {analysis.constructivenessScore} · 共感 {analysis.empathyScore} / 10
+                      </small>
+                      {result?.videoSource === "gemini_video" && (
+                        <p>
+                          <small>動画要約を考慮</small>
+                        </p>
+                      )}
+                      {analysis.suggestion && (
+                        <details>
+                          <summary>改善案を見る</summary>
+                          <p>{analysis.suggestion}</p>
+                          {preview.current && <button onClick={apply}>改善案を入力欄に反映</button>}
+                        </details>
+                      )}
+                    </section>
+                  )}
+                  <button
+                    className="primary"
+                    disabled={checking || !state.signedIn}
+                    onClick={() => void check()}
+                  >
+                    {checking ? "判定中…" : `この${platform.contentLabel}をチェック`}
+                  </button>
+                </>
+              )}
+            </div>
+            <p className="commet-wallet">
+              探索コイン · 仮 {pending} ・ 確定 {confirmed}
+            </p>
+          </>
+        )}
+        {wardrobeOpen && (
+          <YoutubeWardrobe
+            profile={state.profile}
+            signedIn={state.signedIn}
+            onClose={() => setWardrobeOpen(false)}
+            onSaved={() => {
+              setStatus("着せ替えを保存しました。");
+              onRefresh.current?.();
+            }}
+          />
+        )}
+        {gachaOpen && (
+          <GachaDialog
+            profile={state.profile}
+            onClose={() => setGachaOpen(false)}
+            onUpdate={() => onRefresh.current?.()}
+          />
+        )}
+      </aside>
+      {pickup && <CoinPickup key={pickup.id} pickup={pickup} onFinish={() => setPickup(null)} />}
+    </>
   );
 }

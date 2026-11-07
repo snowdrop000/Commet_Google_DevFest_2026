@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { analysisResult, settlementResult } from "../../shared/model";
 import { newProfile, profile } from "../../shared/game";
+import type { GachaResult } from "../../shared/gacha";
 
 export const growthEvidence = analysisResult
   .pick({
@@ -52,6 +53,18 @@ export type Mutation<T> = (account: AccountState, session: ExplorationSession) =
 export interface GameRepository {
   read(uid: string): Promise<AccountState>;
   transact<T>(uid: string, sessionId: string | null, mutate: Mutation<T>): Promise<T>;
+  transactDraw(
+    uid: string,
+    requestId: string,
+    mutate: (
+      account: AccountState,
+      receipt: GachaResult | null,
+    ) => {
+      value: GachaResult;
+      account?: AccountState;
+      receipt?: GachaResult;
+    },
+  ): Promise<GachaResult>;
 }
 
 export class ServiceError extends Error {
