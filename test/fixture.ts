@@ -2,6 +2,7 @@ import { demoCandidate } from "../shared/demo";
 import { createApp } from "../server/app";
 import {
   newAccount,
+  migrateGrowth,
   newSession,
   type AccountState,
   type ExplorationSession,
@@ -43,7 +44,7 @@ export class MemoryRepository implements GameRepository {
     const items = [...this.draws.entries()]
       .filter(([key]) => key.startsWith(uid + "/"))
       .map(([, draw]) => draw.itemId);
-    const current = migrateInventory(account, items);
+    const current = migrateInventory(migrateGrowth(account), items);
     if (current !== account) this.accounts.set(uid, structuredClone(current));
     return structuredClone(current);
   }

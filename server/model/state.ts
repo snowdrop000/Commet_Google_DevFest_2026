@@ -6,19 +6,24 @@ import type { ExchangeResult, GachaResult } from "../../shared/gacha";
 export const growthEvidence = analysisResult
   .pick({
     category: true,
-    confidence: true,
-    harm: true,
-    dialogueStyle: true,
-    context: true,
-    constructivenessScore: true,
-    empathyScore: true,
+    S: true,
+    Q: true,
+    decision: true,
+    appreciation: true,
+    constructiveness: true,
+    information: true,
+    humor: true,
+    contextSufficient: true,
+    isReply: true,
   })
   .strip();
 export type GrowthEvidence = z.infer<typeof growthEvidence>;
 export const inventoryVersion = 3;
+export const growthVersion = 1;
 
 export const accountState = z.strictObject({
   inventoryVersion: z.number().int().nonnegative().default(0),
+  growthVersion: z.number().int().nonnegative().default(0),
   profile,
   legacyAppearance: profile
     .pick({ name: true, characterType: true, equippedItems: true })
@@ -32,6 +37,7 @@ export type AccountState = z.infer<typeof accountState>;
 export function newAccount(): AccountState {
   return {
     inventoryVersion,
+    growthVersion,
     profile: newProfile(),
     pickupDay: "",
     dailyPickups: 0,
@@ -40,12 +46,39 @@ export function newAccount(): AccountState {
   };
 }
 
+/** One-time growth reset. Appearance, inventory, balances and acquisitions stay intact. */
+export function migrateGrowth(account: AccountState): AccountState {
+  if (account.growthVersion >= growthVersion) return account;
+  const initial = newProfile();
+  return {
+    ...account,
+    growthVersion,
+    // Accept the existing wardrobe as owned; an old inventory cleanup must not
+    // remove items or change equipment while resetting growth.
+    inventoryVersion: Math.max(account.inventoryVersion, inventoryVersion),
+    profile: {
+      ...account.profile,
+      level: initial.level,
+      xp: initial.xp,
+      empathy: initial.empathy,
+      criticalThinking: initial.criticalThinking,
+      resilience: initial.resilience,
+      growth: initial.growth,
+    },
+  };
+}
+
 export const explorationSession = z.strictObject({
   pending: z.number().int().nonnegative(),
   lastTickAt: z.number().nullable(),
   postPending: z.boolean(),
   receipt: z
-    .strictObject({ id: z.uuid(), evidence: growthEvidence, expiresAt: z.number() })
+    .strictObject({
+      id: z.uuid(),
+      // Old evaluation receipts never grant rewards under the new rules.
+      evidence: growthEvidence.nullable().catch(null),
+      expiresAt: z.number(),
+    })
     .nullable(),
   result: settlementResult.nullable(),
 });

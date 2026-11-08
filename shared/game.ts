@@ -4,9 +4,9 @@ export const starCharacter = "f";
 const characters = z.enum(["a", "b", "c", "d", "e", starCharacter]);
 export const statKeys = ["empathy", "criticalThinking", "resilience"] as const;
 export const statLabels = {
-  empathy: "やさしさ",
-  criticalThinking: "ひらめき",
-  resilience: "ゆうき",
+  empathy: "ぬくもり",
+  criticalThinking: "知恵",
+  resilience: "愛嬌",
 } as const;
 const commonEquipmentKeys = ["skin", "hat", "badge"] as const;
 const starEquipmentKeys = ["eyes", "mouth", "head", "prop", "pattern"] as const;
@@ -46,32 +46,26 @@ export const CATEGORY_RULES = Object.freeze({
   abusive: {
     label: "だれかを傷つける表現",
     mood: "cry",
-    deltas: { empathy: -8, criticalThinking: -4, resilience: -3, xp: 0 },
   },
   unconstructive_criticism: {
     label: "改善につながりにくい批判",
     mood: "sad",
-    deltas: { empathy: -3, criticalThinking: -2, resilience: 0, xp: 0 },
   },
   constructive_criticism: {
-    label: "適切で建設的な批判",
+    label: "対話に貢献する投稿",
     mood: "proud",
-    deltas: { empathy: 2, criticalThinking: 6, resilience: 2, xp: 10 },
   },
   supportive: {
     label: "思いやりのある投稿",
     mood: "happy",
-    deltas: { empathy: 6, criticalThinking: 1, resilience: 2, xp: 8 },
   },
   neutral: {
     label: "穏やかな投稿",
     mood: "idle",
-    deltas: { empathy: 1, criticalThinking: 1, resilience: 1, xp: 2 },
   },
   context_required: {
-    label: "文脈が足りないため判定保留",
+    label: "追加確認が必要な投稿",
     mood: "idle",
-    deltas: { empathy: 0, criticalThinking: 0, resilience: 0, xp: 0 },
   },
 } as const);
 
@@ -370,7 +364,30 @@ export function ownedEquipment(
 }
 
 const integer = z.number().int().nonnegative();
-const stat = integer.max(100);
+export const MAX_LEVEL = 99;
+export const MAX_STAT = 300;
+const stat = integer.max(MAX_STAT);
+export const growthHistory = z.strictObject({
+  contributions: z.strictObject({
+    appreciation: integer,
+    constructiveness: integer,
+    information: integer,
+    humor: integer,
+  }),
+  tendencies: z.strictObject({ empathy: integer, criticalThinking: integer, resilience: integer }),
+  bonusCarry: z.strictObject({
+    empathy: z.number().finite(),
+    criticalThinking: z.number().finite(),
+    resilience: z.number().finite(),
+  }),
+});
+export function newGrowthHistory(): z.infer<typeof growthHistory> {
+  return {
+    contributions: { appreciation: 0, constructiveness: 0, information: 0, humor: 0 },
+    tendencies: { empathy: 0, criticalThinking: 0, resilience: 0 },
+    bonusCarry: { empathy: 0, criticalThinking: 0, resilience: 0 },
+  };
+}
 const itemId = z.string().max(48);
 const equippedItems = z.strictObject({
   skin: itemId,
@@ -391,11 +408,12 @@ export const profile = appearance.extend({
   // Archived character IDs remain readable; new appearance writes only accept Hoshimoti.
   characterType: characters,
   unlockedItems: z.array(itemId),
-  level: integer.min(1).max(99),
+  level: integer.min(1).max(MAX_LEVEL),
   xp: integer,
   empathy: stat,
   criticalThinking: stat,
   resilience: stat,
+  growth: growthHistory.default(newGrowthHistory),
   progress: z.strictObject({
     supportive: integer,
     constructive: integer,
@@ -445,6 +463,7 @@ export function newProfile(): Profile {
     empathy: 10,
     criticalThinking: 10,
     resilience: 10,
+    growth: newGrowthHistory(),
     progress: { supportive: 0, constructive: 0, respectful: 0, contextual: 0, balanced: 0 },
     mood: "idle",
     totalPosts: 0,
@@ -455,4 +474,5 @@ export function newProfile(): Profile {
   };
 }
 
-export const xpNeeded = (level: number) => 30 + (Math.max(1, level) - 1) * 15;
+export const xpNeeded = (level: number) =>
+  10 + 2 * Math.floor(Math.min(MAX_LEVEL, Math.max(1, level)) / 10);

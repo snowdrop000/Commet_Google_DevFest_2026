@@ -1,4 +1,5 @@
 import { randomInt, randomUUID } from "node:crypto";
+import { rewardsFor } from "../../shared/evaluation";
 import {
   displayRarity,
   duplicateShardRewards,
@@ -205,8 +206,14 @@ export class GameService {
     return this.repository.transact(uid, sessionId, (_account, session) => {
       if (!session.postPending || session.result)
         throw new ServiceError(409, "送信を確認するセッションがありません。");
-      if (session.receipt) return { value: session.receipt.id };
-      session.receipt = { id, evidence: growthEvidence.parse(analysis), expiresAt: now + 300_000 };
+      const evidence = growthEvidence.parse(analysis);
+      if (
+        session.receipt &&
+        session.receipt.expiresAt > now &&
+        JSON.stringify(session.receipt.evidence) === JSON.stringify(evidence)
+      )
+        return { value: session.receipt.id };
+      session.receipt = { id, evidence, expiresAt: now + 300_000 };
       return { value: id, session };
     });
   }
@@ -226,11 +233,9 @@ export class GameService {
       const multiplier =
         input.outcome.kind === "closed" && !session.postPending
           ? 1
-          : !evidence || evidence.confidence <= 4 || evidence.category === "context_required"
+          : !evidence
             ? null
-            : evidence.category === "abusive"
-              ? 0
-              : 1.5;
+            : rewardsFor(evidence.decision, evidence.Q).coinMultiplier;
       const awarded = multiplier === null ? 0 : Math.floor(session.pending * multiplier);
       if (evidence) applyGrowth(account.profile, evidence, now);
       account.profile.confirmedCoins += awarded;

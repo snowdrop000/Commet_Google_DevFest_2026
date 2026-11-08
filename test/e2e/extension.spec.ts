@@ -369,7 +369,7 @@ test("ログイン後にShadow DOMで判定・改善案を表示し、投稿を�
     await expect(options.getByLabel("レスポンス")).toContainText("emulator-demo");
     await options.getByRole("button", { name: "開発用ログイン" }).click();
     await expect(options.getByRole("button", { name: "ログアウト" })).toBeEnabled();
-    for (const name of ["やさしさ", "ひらめき", "ゆうき"]) {
+    for (const name of ["ぬくもり", "知恵", "愛嬌"]) {
       await expect(options.getByRole("progressbar", { name, exact: true })).toBeVisible();
     }
     const collection = options.getByRole("region", { name: "所持アイテム" });

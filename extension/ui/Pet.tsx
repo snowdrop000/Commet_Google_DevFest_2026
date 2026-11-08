@@ -2,6 +2,8 @@ import {
   asStarProfile,
   starCharacter,
   statKeys,
+  MAX_LEVEL,
+  MAX_STAT,
   statLabels,
   xpNeeded,
   type Profile,
@@ -25,19 +27,23 @@ export function Pet({
 
 export function Stats({ profile }: { profile: Profile }) {
   const needed = xpNeeded(profile.level);
+  const maxLevel = profile.level === MAX_LEVEL;
   return (
     <div className="commet-stats">
       <b>
         <span>LV. {profile.level}</span>
-        <span>
-          {" "}
-          ・ XP {profile.xp} / {needed}
-        </span>
+        <span> ・ {maxLevel ? "MAX" : `XP ${profile.xp} / ${needed}`}</span>
       </b>
-      <progress className="commet-xp-progress" aria-label="XP" max={needed} value={profile.xp} />
+      <progress
+        className="commet-xp-progress"
+        aria-label="XP"
+        max={needed}
+        value={maxLevel ? needed : profile.xp}
+      />
       {statKeys.map((key) => (
         <label key={key}>
-          {statLabels[key]} <progress aria-label={statLabels[key]} max={100} value={profile[key]} />{" "}
+          {statLabels[key]}{" "}
+          <progress aria-label={statLabels[key]} max={MAX_STAT} value={profile[key]} />{" "}
           {profile[key]}
         </label>
       ))}

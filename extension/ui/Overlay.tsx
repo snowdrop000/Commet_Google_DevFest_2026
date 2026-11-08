@@ -686,8 +686,10 @@ export function Overlay({ platform }: { platform: Platform }) {
                       </b>
                       <p>{analysis.reason}</p>
                       <small>
-                        有害性 {analysis.harm.severity} · 敬意 {analysis.dialogueStyle.respect} ·
-                        建設性 {analysis.constructivenessScore} · 共感 {analysis.empathyScore} / 10
+                        安全性 S {analysis.S} / 2 · 貢献度 Q {analysis.Q} / 2
+                        <br />
+                        投稿成功時：{analysis.needsSecondaryCheck ? "暫定 " : ""}
+                        {analysis.xp} XP · コイン {analysis.coinMultiplier}倍
                       </small>
                       {result?.videoSource === "gemini_video" && (
                         <p>
