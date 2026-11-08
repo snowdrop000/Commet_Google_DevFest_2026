@@ -714,6 +714,80 @@
   font-size: 11px;
   color: #a18da6;
 }
+.commet-level-rewards {
+  border-top: 1px solid #eee5ed;
+  padding-top: 10px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.commet-earned-title {
+  margin: 0 0 8px;
+  color: #796786;
+}
+.commet-earned-title > span,
+.commet-item-level {
+  border-radius: 5px;
+  padding: 2px 5px;
+  background: #eee8f7;
+  color: #8c739e;
+  font-size: 9px;
+}
+.commet-next-unlock {
+  display: grid;
+  gap: 3px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  background: #f1ecf8;
+  color: #796786;
+}
+.commet-next-unlock b {
+  font-size: 11px;
+}
+.commet-next-unlock > span {
+  color: #ad809d;
+  font-size: 10px;
+}
+.commet-level-rewards details {
+  margin-top: 8px;
+}
+.commet-level-rewards summary {
+  cursor: pointer;
+  color: #8c739e;
+  padding: 4px 0;
+}
+.commet-level-rewards summary:focus-visible {
+  outline: 2px solid #bf8eb0;
+  outline-offset: 2px;
+}
+.commet-level-guide {
+  margin: 5px 0;
+  color: #a18da6;
+  font-size: 10px;
+}
+.commet-level-roadmap {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.commet-level-roadmap li {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee5ed;
+  font-size: 10px;
+}
+.commet-level-roadmap li > div {
+  display: grid;
+  overflow-wrap: anywhere;
+}
+.commet-level-roadmap li[data-unlocked="true"] {
+  color: #ab7596;
+}
+.commet-level-roadmap li > small {
+  white-space: nowrap;
+}
 .commet .commet-menu-footer {
   border-color: var(--ui-line);
   padding-top: 6px;

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import type { PetAnimation } from "./pet-animation";
 import "./rewards.css";
 
-export type Pickup = { id: string; x: number; y: number };
+export type Pickup = { id: string; x: number; y: number; direction: PetAnimation["direction"] };
 
 export function CoinPickup({ pickup, onFinish }: { pickup: Pickup; onFinish: () => void }) {
   const coin = useRef<HTMLDivElement>(null);
@@ -11,7 +12,7 @@ export function CoinPickup({ pickup, onFinish }: { pickup: Pickup; onFinish: () 
   const x = Math.min(Math.max(0, pickup.x), Math.max(0, innerWidth - width));
   const y = Math.min(Math.max(0, pickup.y), Math.max(0, innerHeight - 115));
   const right = Math.max(0, innerWidth - width - x);
-  const distance = right >= 60 ? Math.min(135, right) : -Math.min(135, x);
+  const distance = pickup.direction === "left" ? -Math.min(135, x) : Math.min(135, right);
 
   useEffect(() => {
     const controller = new AbortController();

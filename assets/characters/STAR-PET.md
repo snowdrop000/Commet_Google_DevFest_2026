@@ -20,6 +20,22 @@ Use case: illustration-story. Asset type: one detached game wearable for the ref
 
 Use case: illustration-story. Asset type: one detached game wearable for the referenced Commet mascot. Input Image 1: style reference, do not depict its character. Draw ONLY one cute tiny blue star hairpin: a single five-point icy pastel-blue star with subtle gem facets, fitted on a short diagonal lilac clip. Warm chocolate outline and smooth pastel sticker art matching the reference. Single object centered, large in canvas, fully visible with margins. Transparent RGBA, no head, no characters, no text, no shadow.
 
+## レベル報酬
+
+レベル到達時に自動で所持品へ追加します。既存プロフィールも読み込み時に不足分を受け取れます。ガチャ・星のかけら交換には含めません。
+
+| レベル | 報酬                     |
+| ------ | ------------------------ |
+| 2      | ひだまりもち（スキン）   |
+| 3      | はじまりのリボン（帽子） |
+| 5      | ゆうやけもち（スキン）   |
+| 7      | 成長のしるし（バッジ）   |
+| 10     | オーロラもち（スキン）   |
+| 15     | 星のティアラ（帽子）     |
+| 20     | 月あかりもち（スキン）   |
+
+スキンは `star-skins.tsx` の着色・SVG模様、帽子とバッジは `star-accessories.tsx` のSVGで描画します。育成状況に現在の称号、次の解放と必要XP、報酬一覧を表示します。未解放の装備は種類と必要レベルだけ表示します。称号と報酬の定義は `shared/progression.ts` にあります。
+
 ## レイヤー分離版
 
 - `star-body-poses.png` と `star-body-walk.png` は顔や装備を外した本体です。

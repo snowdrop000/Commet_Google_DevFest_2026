@@ -8,6 +8,7 @@ import {
 } from "../../shared/game";
 import { restingPet, type PetAnimation } from "./pet-animation";
 import { StarPet } from "./StarPet";
+import { LevelRewards } from "./LevelRewards";
 
 export function Pet({
   profile,
@@ -43,6 +44,7 @@ export function Stats({ profile }: { profile: Profile }) {
       <small>
         {profile.totalPosts} 投稿 ・ {profile.streak} 日連続 ・ 確定 {profile.confirmedCoins} 枚
       </small>
+      <LevelRewards profile={profile} />
     </div>
   );
 }

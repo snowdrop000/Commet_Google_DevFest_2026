@@ -234,7 +234,12 @@ export function Overlay({ platform }: { platform: Platform }) {
             !document.hidden
           ) {
             const rect = pet.getBoundingClientRect();
-            setPickup({ id: crypto.randomUUID(), x: rect.left, y: rect.top });
+            setPickup({
+              id: crypto.randomUUID(),
+              x: rect.left,
+              y: rect.top,
+              direction: pet.dataset.direction === "left" ? "left" : "right",
+            });
           }
         }
       } catch {

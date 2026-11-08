@@ -75,7 +75,8 @@ export function createMotion(
       reading = true;
       animatePet("peek", readingDirection(x));
     } else {
-      animatePet("idle");
+      // Face into the viewport while browsing, including after dragging or resizing.
+      animatePet("idle", x + panel.offsetWidth / 2 >= innerWidth / 2 ? "left" : "right");
     }
   }
 

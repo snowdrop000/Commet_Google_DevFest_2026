@@ -17,6 +17,7 @@ export const gachaPool = Object.keys(ITEM_CATALOG).filter((id) => {
   const item = ITEM_CATALOG[id];
   return (
     !starterItems.includes(id) &&
+    item.acquisition !== "level" &&
     (item.character === starCharacter || item.slot === "badge") &&
     canEquip(starCharacter, item.slot, id)
   );
@@ -32,6 +33,12 @@ export type Rarity = (typeof rarities)[number]["id"];
 
 // Shared by server-side draws and the wardrobe. Ownership comes from the profile.
 export const displayRarity: Partial<Record<string, Rarity>> = {
+  hat_level_ribbon: "R",
+  skin_level_twilight: "R",
+  badge_level_bloom: "R",
+  skin_level_aurora: "SR",
+  hat_level_tiara: "SR",
+  skin_level_moonlight: "UR",
   skin_star_galaxy: "UR",
   skin_star_kintsugi: "UR",
   skin_aurora: "UR",

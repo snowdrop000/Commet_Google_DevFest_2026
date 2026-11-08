@@ -17,6 +17,10 @@ test("coin journeys and comet reveals follow confirmed rewards and spend 10 coin
     const options = await context.newPage();
     options.setDefaultTimeout(5000);
     await options.goto(root + "/options.html");
+    // Wait until the loading status clears before checking the preview's position.
+    await expect(
+      options.getByRole("button", { name: "開発用ログイン", exact: true }),
+    ).toBeEnabled();
     const lab = options.getByRole("region", { name: "報酬アニメーションのプレビュー" });
     await lab.getByRole("button", { name: "コイン獲得演出を試す" }).click();
     const journey = lab.locator(".commet-coin-journey");

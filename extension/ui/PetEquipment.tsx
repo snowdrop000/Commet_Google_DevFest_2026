@@ -121,6 +121,9 @@ export function PetEquipment({
                         />
                       </span>
                       <span className="commet-wardrobe-name">{ITEM_CATALOG[id].name}</span>
+                      {ITEM_CATALOG[id].acquisition === "level" && (
+                        <small className="commet-item-level">レベル報酬</small>
+                      )}
                       {gachaOnlyItems.includes(id) && (
                         <small className="commet-item-exclusive">ガチャ限定</small>
                       )}

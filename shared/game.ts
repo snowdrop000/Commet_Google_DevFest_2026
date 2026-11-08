@@ -25,10 +25,18 @@ type Item = {
   hint: string;
   requirement?: Requirement;
   character?: z.infer<typeof characters>;
+  acquisition?: "level";
 };
 
 function starItem(slot: Equipment, name: string, icon: string, hint = "ほしもち用・試作"): Item {
   return { slot, name, icon, hint, character: starCharacter };
+}
+function levelItem(slot: Equipment, name: string, icon: string, level: number): Item {
+  return {
+    ...starItem(slot, name, icon, `LV.${level}で解放`),
+    acquisition: "level",
+    requirement: { type: "level", value: level },
+  };
 }
 // Seasonal sets. The hint records the theme; availability is the same as other gacha items.
 const halloween = "ハロウィン";
@@ -178,6 +186,13 @@ export const ITEM_CATALOG: Record<string, Item> = Object.freeze({
     hint: "ほしもち用・試作",
     character: starCharacter,
   },
+  skin_level_sunrise: levelItem("skin", "ひだまりもち", "☀", 2),
+  hat_level_ribbon: levelItem("hat", "はじまりのリボン", "⋈", 3),
+  skin_level_twilight: levelItem("skin", "ゆうやけもち", "◒", 5),
+  badge_level_bloom: levelItem("badge", "成長のしるし", "✿", 7),
+  skin_level_aurora: levelItem("skin", "オーロラもち", "✦", 10),
+  hat_level_tiara: levelItem("hat", "星のティアラ", "♛", 15),
+  skin_level_moonlight: levelItem("skin", "月あかりもち", "☽", 20),
   skin_star_night: {
     slot: "skin",
     name: "夜空もち",

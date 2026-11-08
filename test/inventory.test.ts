@@ -9,6 +9,7 @@ import {
   starterItems,
 } from "../shared/game";
 import { gachaPool } from "../shared/gacha";
+import { withLevelRewards } from "../shared/progression";
 import { inventoryVersion, newAccount } from "../server/model/state";
 import { testApi } from "./fixture";
 
@@ -44,13 +45,16 @@ describe("earned wardrobe", () => {
     const original = structuredClone(legacy);
     f.repository.accounts.set("alice", legacy);
     const saved = profile.parse(await f.game.profile("alice"));
-    expect(saved).toEqual(original.profile);
+    expect(saved).toEqual(withLevelRewards(original.profile));
     const shown = asStarProfile(saved);
     expect(shown.characterType).toBe("f");
     expect(shown.equippedItems).toEqual(defaultEquipment);
     expect(shown).toMatchObject({ name: "まえの子", confirmedCoins: 42, level: 5 });
     expect(shown.unlockedItems).toEqual(saved.unlockedItems);
-    expect(f.repository.accounts.get("alice")).toEqual(original);
+    expect(f.repository.accounts.get("alice")).toEqual({
+      ...original,
+      profile: withLevelRewards(original.profile),
+    });
     expect(
       appearance.safeParse({
         name: saved.name,

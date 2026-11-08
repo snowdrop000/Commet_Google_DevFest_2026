@@ -121,6 +121,39 @@ export const pixelStarEar = (
 );
 
 const hats: Partial<Record<string, ReactNode>> = {
+  hat_level_ribbon: (
+    <>
+      <path
+        d="M-3-7q-14-13-17-4t13 10l-6 8 7-1 5-10M3-7q14-13 17-4T7-1l6 8-7-1L1-4"
+        fill="#e7a6c6"
+      />
+      <path
+        d="m-16-9 11 3m21-3L5-6"
+        fill="none"
+        stroke="#f7d6e7"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <circle cy="-6" r="4" fill="#ffe5ac" />
+      <path
+        d="m0-8 1 1.4 1.6.3-1.1 1.1.2 1.6L0-4.4l-1.7.8.2-1.6-1.1-1.1 1.6-.3Z"
+        fill="#fff8e9"
+        stroke="none"
+      />
+    </>
+  ),
+  hat_level_tiara: (
+    <>
+      <path d="m-16-2 1-13 7 7 8-15 8 15 7-7 1 13Q0 3-16-2Z" fill="#ede4fb" />
+      <path d="M-13-1Q0 2 13-1" fill="none" stroke="#b6a4d2" strokeWidth="1.2" />
+      <path d="m0-15 3 4-3 4-3-4Z" fill="#a8ddeb" />
+      <g fill="#fff8d5">
+        <circle cx="-10" cy="-7" r="1.4" />
+        <circle cx="10" cy="-7" r="1.4" />
+        <circle cy="-22" r="1.5" />
+      </g>
+    </>
+  ),
   hat_star_crown: (
     <>
       <path d="m-12-2-3-13 8 4 7-8 7 8 8-4-3 13Z" fill="#ffc862" />
@@ -343,6 +376,18 @@ const heldProps: Partial<Record<string, ReactNode>> = {
 
 // Pin badges in a 20 × 20 box centered on the origin. Other badges show their glyph.
 export const starBadges: Partial<Record<string, ReactNode>> = {
+  badge_level_bloom: (
+    <>
+      <circle r="9" fill="#faf0da" />
+      <g fill="#dca2c7">
+        {[0, 72, 144, 216, 288].map((angle) => (
+          <ellipse key={angle} cy="-3.4" rx="2.2" ry="3.2" transform={`rotate(${angle})`} />
+        ))}
+      </g>
+      <circle r="2.4" fill="#ffe19a" />
+      <circle cx="-.7" cy="-.8" r=".7" fill="#fffaf3" stroke="none" />
+    </>
+  ),
   badge_star_clover: (
     <>
       <circle r="9" fill="#fff6d8" />

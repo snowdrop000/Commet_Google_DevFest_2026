@@ -21,6 +21,7 @@ import {
 import type { Analysis, Settlement, SettlementResult } from "../../shared/model";
 import { growthEvidence, ServiceError, type GameRepository } from "../model/state";
 import { applyGrowth } from "./growth";
+import { withLevelRewards } from "../../shared/progression";
 import { dailyExchangeShop, dayJst } from "./exchange-shop";
 export { dayJst } from "./exchange-shop";
 
@@ -35,7 +36,15 @@ export class GameService {
   ) {}
 
   async profile(uid: string) {
-    return withStarterItems((await this.repository.read(uid)).profile);
+    const current = withStarterItems((await this.repository.read(uid)).profile);
+    if (withLevelRewards(current) === current) return current;
+    return this.repository.transact(uid, null, (account) => {
+      const pet = withStarterItems(account.profile);
+      const rewarded = withLevelRewards(pet);
+      if (rewarded === pet) return { value: pet };
+      account.profile = rewarded;
+      return { value: rewarded, account };
+    });
   }
 
   draw(uid: string, requestId: string) {
@@ -52,7 +61,7 @@ export class GameService {
     const itemId = candidates[this.drawRandom(candidates.length)];
     return this.repository.transactDraw(uid, requestId, (account, previous) => {
       if (previous) return { value: previous };
-      const pet = withStarterItems(account.profile);
+      const pet = withLevelRewards(withStarterItems(account.profile));
       if (pet.confirmedCoins < GACHA_COST) {
         throw new ServiceError(409, `確定コインが${GACHA_COST}枚必要です。`);
       }
@@ -71,8 +80,8 @@ export class GameService {
   }
 
   async exchangeShop(uid: string) {
-    const account = await this.repository.read(uid);
-    return dailyExchangeShop(this.clock(), account.profile.unlockedItems);
+    const pet = await this.profile(uid);
+    return dailyExchangeShop(this.clock(), pet.unlockedItems);
   }
 
   exchange(uid: string, request: ExchangeRequest) {
@@ -90,7 +99,7 @@ export class GameService {
           409,
           "交換方法が新しくなりました。今日のラインナップから選び直してください。",
         );
-      const pet = withStarterItems(account.profile);
+      const pet = withLevelRewards(withStarterItems(account.profile));
       const shop = dailyExchangeShop(this.clock(), pet.unlockedItems);
       if (request.day !== shop.day)
         throw new ServiceError(
@@ -123,7 +132,7 @@ export class GameService {
 
   appearance(uid: string, value: Appearance) {
     return this.repository.transact(uid, null, (account) => {
-      const pet = withStarterItems(account.profile);
+      const pet = withLevelRewards(withStarterItems(account.profile));
       for (const slot of equipmentKeys) {
         const item = value.equippedItems[slot];
         if (!canEquip(value.characterType, slot, item) || !pet.unlockedItems.includes(item)) {

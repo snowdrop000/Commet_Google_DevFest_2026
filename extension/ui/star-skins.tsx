@@ -9,6 +9,65 @@ type Skin = {
 };
 
 export const starSkins: Partial<Record<string, Skin>> = {
+  skin_level_sunrise: {
+    tint: [1.04, 0.98, 0.72],
+    wash: ["#ffd57c", 0.18],
+    details: (
+      <g fill="#fff7d7" opacity=".8">
+        <ellipse cx="33" cy="75" rx="8" ry="3" />
+        <ellipse cx="67" cy="80" rx="6" ry="2.5" />
+        <path d="m50 72 1.2 3.1 3.3 1.2-3.3 1.2L50 81l-1.2-3.5-3.3-1.2 3.3-1.2Z" />
+      </g>
+    ),
+  },
+  skin_level_twilight: {
+    tint: [1.03, 0.79, 0.83],
+    wash: ["#e99c82", 0.2],
+    details: (
+      <>
+        <path d="M8 79Q29 69 50 78T94 75v23H8Z" fill="#d2a6dc" opacity=".35" />
+        <path d="M24 78q15-5 30 0t27-1" fill="none" stroke="#ffedd2" strokeWidth="2" opacity=".8" />
+        <g fill="#fff1cf">
+          <circle cx="32" cy="71" r="1" />
+          <circle cx="66" cy="76" r="1.3" />
+          <circle cx="57" cy="84" r=".8" />
+        </g>
+      </>
+    ),
+  },
+  skin_level_aurora: {
+    tint: [0.84, 1.02, 0.98],
+    wash: ["#bad4f3", 0.24],
+    details: (
+      <>
+        <g fill="none" strokeLinecap="round" opacity=".44">
+          <path d="M14 89Q33 62 52 75T88 63" stroke="#a9ead2" strokeWidth="15" />
+          <path d="M15 96Q35 69 54 82T89 70" stroke="#c3b4ee" strokeWidth="12" />
+        </g>
+        <g fill="#fffef4">
+          <path d="m33 72 .8 2.4 2.5.8-2.5.8-.8 2.4-.8-2.4-2.5-.8 2.5-.8Zm37 7 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z" />
+          <circle cx="52" cy="86" r="1.1" />
+        </g>
+      </>
+    ),
+  },
+  skin_level_moonlight: {
+    tint: [0.88, 0.88, 1.04],
+    ink: "#716383",
+    wash: ["#d5cfef", 0.2],
+    details: (
+      <>
+        <path d="M15 85Q35 70 52 80T91 75v22H15Z" fill="#c7c4e9" opacity=".5" />
+        <path d="M54 68a8 8 0 1 0 6 13 6.6 6.6 0 0 1-6-13Z" fill="#fff6ca" />
+        <g fill="#fffdf0">
+          <path d="m30 75 1 2.6 2.8 1-2.8 1-1 2.6-1-2.6-2.8-1 2.8-1Z" />
+          <circle cx="71" cy="72" r="1.2" />
+          <circle cx="74" cy="84" r=".9" />
+          <circle cx="40" cy="86" r=".8" />
+        </g>
+      </>
+    ),
+  },
   skin_star_mint: { tint: [0.66, 0.98, 0.86] },
   skin_star_night: { tint: [0.58, 0.61, 0.92] },
   skin_star_sakura: { tint: [1, 0.77, 0.87] },

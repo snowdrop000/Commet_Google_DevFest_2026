@@ -54,9 +54,11 @@ test("ログイン後にShadow DOMで判定・改善案を表示し、投稿を�
     await menuToggle.click();
     const companionMenu = youtubePanel.getByRole("dialog", { name: "ほしもちのメニュー" });
     await expect(companionMenu).toBeVisible();
-    const menuBounds = await companionMenu.boundingBox();
-    const characterBounds = await youtubePanel.locator(".commet-companion").boundingBox();
-    expect(menuBounds!.y + menuBounds!.height).toBeLessThanOrEqual(characterBounds!.y - 8);
+    await expect(async () => {
+      const menuBounds = await companionMenu.boundingBox();
+      const characterBounds = await youtubePanel.locator(".commet-companion").boundingBox();
+      expect(menuBounds!.y + menuBounds!.height).toBeLessThanOrEqual(characterBounds!.y - 8);
+    }).toPass();
     await companionMenu.screenshot({ path: test.info().outputPath("companion-menu.png") });
     await youtube.setViewportSize({ width: 390, height: 420 });
     await expect(async () => {
@@ -162,6 +164,14 @@ test("ログイン後にShadow DOMで判定・改善案を表示し、投稿を�
     await menuToggle.click();
 
     await youtubePanel.getByRole("button", { name: "育成状況", exact: true }).click();
+    const levelRewards = youtubePanel.getByRole("region", { name: "レベル報酬", exact: true });
+    await expect(levelRewards).toContainText("あと 30 XP");
+    await expect(levelRewards).toContainText("はじまりのほし");
+    await levelRewards.getByText("レベル報酬を見る", { exact: true }).click();
+    await expect(levelRewards.getByText("スキン解放", { exact: true })).toHaveCount(4);
+    await expect(levelRewards).not.toContainText("ひだまりもち");
+    await expect(levelRewards).not.toContainText("月あかりもち");
+    await levelRewards.getByText("レベル報酬を見る", { exact: true }).click();
     await youtubePanel.getByRole("button", { name: "設定・ログイン", exact: true }).click();
     await expect(loginDialog).toBeVisible();
     expect(context.pages().length).toBe(guestPages);

@@ -19,7 +19,8 @@ export function RewardLab() {
           disabled={Boolean(pickup)}
           onClick={() => {
             const rect = stage.current?.querySelector(".commet-pet")?.getBoundingClientRect();
-            if (rect) setPickup({ id: crypto.randomUUID(), x: rect.left, y: rect.top });
+            if (rect)
+              setPickup({ id: crypto.randomUUID(), x: rect.left, y: rect.top, direction: "right" });
           }}
         >
           コイン獲得演出を試す
