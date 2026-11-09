@@ -19,3 +19,6 @@ playwright-report/
 # Deployment notes with project-specific infrastructure details (kept local)
 docs/CLOUD-RUN.md
 docs/DEPLOYMENT-2026-11-09.md
+
+# Local generated files (PDF exports, etc.)
+output/
