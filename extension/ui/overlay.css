@@ -63,6 +63,40 @@
   border: 0;
 }
 
+.commet-speech {
+  position: absolute;
+  z-index: 1;
+  width: 224px;
+  max-width: calc(100vw - 24px);
+  padding: 13px 16px;
+  border: 1px solid #e4cfdc;
+  border-radius: 22px;
+  background: #fffcf9;
+  box-shadow: 0 5px 18px #49313d14;
+  color: #796786;
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.commet-card:has(.commet-speech),
+.commet-card:has(.commet-menu) {
+  transition: none;
+}
+
+.commet-speech::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 6px);
+  left: -6px;
+  width: 11px;
+  height: 11px;
+  border-left: 1px solid #e4cfdc;
+  border-bottom: 1px solid #e4cfdc;
+  background: #fffcf9;
+  transform: rotate(45deg);
+}
+
 .commet-companion .commet-pet {
   width: 140px;
   height: 108px;
@@ -94,7 +128,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 8px;
   min-width: 0;
   padding: 0 6px;
   font-size: 13px;
@@ -103,9 +137,18 @@
   letter-spacing: 0.02em;
 }
 
-.commet-coin-counter span {
+.commet-coin-confirmed,
+.commet-coin-pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.commet-coin-counter span > span {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .commet-coin-counter svg {
@@ -115,6 +158,20 @@
   color: #b98c40;
   fill: #fff0c8;
   stroke-width: 1.4;
+}
+
+.commet-coin-pending {
+  gap: 3px;
+  color: var(--companion-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.commet-coin-pending svg {
+  flex-basis: 11px;
+  width: 11px;
+  height: 11px;
+  fill: none;
 }
 
 .commet button.commet-menu-toggle {
@@ -159,10 +216,12 @@
 
 .commet-menu {
   position: fixed;
+  display: flex;
+  flex-direction: column;
   width: 316px;
   max-width: calc(100vw - 24px);
   max-height: calc(100dvh - 24px);
-  overflow: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
   padding: 18px 16px 10px;
   border: 1px solid var(--companion-border);
@@ -174,6 +233,26 @@
   pointer-events: auto;
   animation: commet-menu-in 0.16s ease-out;
   scrollbar-width: thin;
+  cursor: grab;
+}
+
+.commet-menu-eyebrow[role="button"] {
+  touch-action: none;
+}
+
+.commet-menu[data-dragging="true"] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.commet-menu-eyebrow[role="button"]:focus-visible {
+  outline: 2px solid #a45f83;
+  outline-offset: 4px;
+}
+
+.commet-suggestion p {
+  cursor: text;
+  user-select: text;
 }
 
 @keyframes commet-menu-in {
@@ -272,7 +351,35 @@
 }
 
 .commet-menu-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
   padding: 16px 0;
+}
+
+.commet-menu > :not(.commet-menu-content) {
+  flex-shrink: 0;
+}
+
+.commet-menu > .commet-check-action {
+  margin-bottom: 10px;
+}
+
+.commet .commet-menu[data-compact="true"] .commet-menu-profile {
+  display: none;
+}
+
+.commet .commet-menu[data-compact="true"] .commet-menu-nav button {
+  min-height: 42px;
+  gap: 3px;
+  padding-block: 4px;
+}
+
+.commet .commet-menu[data-compact="true"] .commet-menu-content {
+  padding-block: 8px;
 }
 
 .commet-menu-content h3 {
@@ -336,7 +443,57 @@
   color: var(--companion-muted);
 }
 
-.commet-menu .commet-result button {
+.commet-suggestion {
+  margin-bottom: 12px;
+  border: 1px solid #e4cfdc;
+  border-radius: 10px;
+  background: #fbf6f8;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.commet-suggestion summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.commet-suggestion summary::-webkit-details-marker,
+.commet-suggestion-open,
+.commet-suggestion[open] .commet-suggestion-closed {
+  display: none;
+}
+
+.commet-suggestion[open] .commet-suggestion-open {
+  display: inline;
+}
+
+.commet-suggestion summary::after {
+  content: "▼";
+  color: #a45f83;
+  font-size: 10px;
+}
+
+.commet-suggestion[open] summary::after {
+  content: "▲";
+}
+
+.commet-suggestion summary:focus-visible {
+  outline: 2px solid #a45f83;
+  outline-offset: -3px;
+  border-radius: 9px;
+}
+
+.commet-suggestion > div {
+  padding: 0 12px 12px;
+  overflow-wrap: anywhere;
+}
+
+.commet-menu .commet-suggestion button {
   width: 100%;
   margin-top: 7px;
   border-color: #dfd0d7;
@@ -391,26 +548,11 @@
 .commet-menu-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: 6px;
   padding-top: 8px;
   border-top: 1px solid #eee5e8;
-}
-
-.commet .commet-wallet {
-  display: flex;
-  gap: 12px;
-  margin: 0;
-  color: var(--companion-muted);
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-}
-
-.commet-wallet b {
-  margin-left: 3px;
-  color: #7c6570;
-  font-weight: 650;
 }
 
 .commet .commet-settings-link {

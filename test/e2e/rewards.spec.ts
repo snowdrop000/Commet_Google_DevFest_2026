@@ -50,7 +50,12 @@ test("coin journeys and comet reveals follow confirmed rewards and spend 10 coin
     const panel = video.getByRole("complementary", { name: "Commet" });
     // The fixture clock advances like the live server. A successful tick starts the journey.
     await expect(video.locator(".commet-coin-journey")).toBeVisible({ timeout: 22_000 });
-    await expect(panel.locator(".commet-coin-counter")).toHaveAttribute("aria-label", /仮 1 枚/);
+    await expect(panel.locator(".commet-coin-counter")).toHaveAttribute(
+      "aria-label",
+      /確定前 1 枚/,
+    );
+    await expect(panel.locator(".commet-coin-confirmed > span")).toHaveText("20");
+    await expect(panel.locator(".commet-coin-pending > span")).toHaveText("1");
     await panel.getByRole("button", { name: "メニューを開く" }).click();
     await panel.getByRole("button", { name: "ガチャ", exact: true }).click();
     const dialog = video.getByRole("dialog", { name: "ほしもちの彗星ガチャ" });
@@ -76,7 +81,7 @@ test("coin journeys and comet reveals follow confirmed rewards and spend 10 coin
     await expect(dialog.getByRole("button", { name: "10枚でガチャを回す" })).toBeEnabled();
     await dialog.screenshot({ path: test.info().outputPath("gacha-reward.png") });
     await dialog.getByRole("button", { name: "閉じる", exact: true }).click();
-    await expect(panel.locator(".commet-wallet")).toContainText(`確定 ${balance - 10}`);
+    await expect(panel.locator(".commet-coin-confirmed > span")).toHaveText(String(balance - 10));
     await options.reload();
     await expect(options.getByLabel("初期キャラ")).toHaveCount(0);
     const collection = options.getByRole("region", { name: "所持アイテム" });

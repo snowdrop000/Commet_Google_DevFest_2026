@@ -47,7 +47,7 @@ test("ログイン後にShadow DOMで判定・改善案を表示し、投稿を�
     await expect(openWardrobe).toBeHidden();
     await expect(youtubePanel.locator(".commet-coin-counter")).toHaveAttribute(
       "aria-label",
-      "探索コイン 合計 0 枚。確定 0 枚、仮 0 枚",
+      "探索コイン 使えるコイン 0 枚、確定前 0 枚",
     );
     expect((await youtubePanel.boundingBox())?.width).toBeLessThan(190);
     await youtubePanel.screenshot({ path: test.info().outputPath("companion-compact.png") });
@@ -503,9 +503,9 @@ test("ログイン後にShadow DOMで判定・改善案を表示し、投稿を�
     await expect(panel.getByText("だれかを傷つける表現（デモ）")).toBeVisible();
     await expect(panel.locator("[data-mood=cry]")).toBeVisible();
     await expect(panel.getByText("相手の人格に触れず", { exact: false })).toBeHidden();
-    await panel.getByText("改善案を見る").click();
+    await panel.getByText("言い換え例を見る").click();
     await expect(panel.getByText("相手の人格に触れず", { exact: false })).toBeVisible();
-    await panel.getByRole("button", { name: "改善案を入力欄に反映" }).click();
+    await panel.getByRole("button", { name: "入力欄に反映" }).click();
     await expect(panel.locator(".commet-menu")).toBeHidden();
     await expect(page.getByRole("textbox", { name: "投稿内容" })).toContainText(
       "相手の人格に触れず",
