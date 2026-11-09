@@ -1,0 +1,12 @@
+**
+!Dockerfile
+!package.json
+!package-lock.json
+!tsconfig.api.json
+!server/
+!server/**
+!shared/
+!shared/**
+**/.env*
+**/service-account*.json
+**/firebase-adminsdk*.json

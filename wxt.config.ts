@@ -2,6 +2,7 @@ import { defineConfig } from "wxt";
 import { resolve } from "node:path";
 import { snsMatches } from "./extension/sns/platforms";
 import { starAssets } from "./extension/ui/star-assets";
+import { resolveApiBase } from "./shared/api-config";
 
 // Legacy assets remain in assets/characters, but are excluded from the active extension.
 const characterAssets = Object.values(starAssets);
@@ -11,6 +12,10 @@ export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   manifestVersion: 3,
   manifest: () => {
+    const apiBase = resolveApiBase(
+      process.env.WXT_API_BASE_URL,
+      process.env.WXT_FIREBASE_PROJECT_ID,
+    );
     const emulator = (process.env.WXT_FIREBASE_PROJECT_ID || "demo-commet").startsWith("demo-");
     const clientId = !emulator && process.env.WXT_GOOGLE_CLIENT_ID;
     return {
@@ -18,7 +23,7 @@ export default defineConfig({
       description: "X・YouTubeのコメントを振り返り、ことばでキャラクターを育てます。",
       permissions: clientId ? ["storage", "identity"] : ["storage"],
       host_permissions: [
-        "http://127.0.0.1:8765/*",
+        `${apiBase}/*`,
         ...(emulator
           ? ["http://127.0.0.1:9099/*"]
           : ["https://identitytoolkit.googleapis.com/*", "https://securetoken.googleapis.com/*"]),

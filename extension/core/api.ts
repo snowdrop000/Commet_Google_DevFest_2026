@@ -1,7 +1,11 @@
 import type { User } from "firebase/auth/web-extension";
 import { z } from "zod";
+import { resolveApiBase } from "../../shared/api-config";
 
-export const apiBase = "http://127.0.0.1:8765";
+export const apiBase = resolveApiBase(
+  import.meta.env.WXT_API_BASE_URL,
+  import.meta.env.WXT_FIREBASE_PROJECT_ID,
+);
 export const healthSchema = z.object({ ok: z.literal(true), mode: z.string() });
 
 export class ApiError extends Error {
@@ -33,7 +37,7 @@ export async function api<T>(
       signal: AbortSignal.timeout(path === "/v1/analyze" ? 24_000 : 5_000),
     });
   } catch {
-    throw new ApiError("localhost のHono APIに接続できませんでした。", 0);
+    throw new ApiError("APIに接続できませんでした。接続先とネットワークを確認してください。", 0);
   }
   const data: unknown = await response.json().catch(() => null);
   if (!response.ok) {

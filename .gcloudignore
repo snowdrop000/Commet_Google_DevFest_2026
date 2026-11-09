@@ -1,0 +1,14 @@
+.git/
+.gitignore
+#!include:.gitignore
+.env*
+assets/
+demo/
+docs/
+extension/
+lib/
+test/
+tests/
+.venv/
+__pycache__/
+*.log

@@ -22,6 +22,7 @@ export function createApp(
   analysis: AnalysisService,
   verifyToken: VerifyToken,
   mode: "gemini" | "emulator-demo" | "unconfigured",
+  provider?: "developer" | "vertex",
 ) {
   const app = new Hono<{ Variables: { uid: string } }>();
   const requests = new Map<string, number>();
@@ -30,7 +31,7 @@ export function createApp(
     await next();
     c.header("Cache-Control", "no-store");
   });
-  app.get("/health", (c) => c.json({ ok: true, mode }));
+  app.get("/health", (c) => c.json({ ok: true, mode, ...(provider && { provider }) }));
   app.use("/v1/*", async (c, next) => {
     const header = c.req.header("Authorization");
     const token = header?.match(/^Bearer ([^\s]{1,8192})$/)?.[1];

@@ -24,7 +24,11 @@ export interface AiRepository {
   comment(input: unknown): Promise<Axes>;
   video(videoId: string): Promise<VideoSummary>;
 }
-type Part = { text: string } | { fileData: { fileUri: string } };
+type Part = { text: string } | { fileData: { fileUri: string; mimeType: string } };
+export type GeminiConnection = {
+  endpoint: string;
+  headers: () => Promise<Record<string, string>>;
+};
 
 function geminiSchema(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(geminiSchema);
@@ -54,7 +58,7 @@ const response = z.object({
 
 export class GeminiRepository implements AiRepository {
   constructor(
-    private readonly apiKey: string,
+    private readonly connection: string | GeminiConnection,
     private readonly model: string,
   ) {}
 
@@ -64,30 +68,37 @@ export class GeminiRepository implements AiRepository {
 
   video(videoId: string) {
     return this.generate(videoSummary, [
-      { fileData: { fileUri: `https://www.youtube.com/watch?v=${videoId}` } },
+      {
+        fileData: { fileUri: `https://www.youtube.com/watch?v=${videoId}`, mimeType: "video/mp4" },
+      },
       { text: videoPrompt },
     ]);
   }
 
   private async generate<T>(schema: z.ZodType<T>, parts: Part[], prompt?: string): Promise<T> {
     try {
-      const result = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(this.model)}:generateContent`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-goog-api-key": this.apiKey },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts }],
-            ...(prompt && { systemInstruction: { parts: [{ text: prompt }] } }),
-            generationConfig: {
-              maxOutputTokens: 2048,
-              responseMimeType: "application/json",
-              responseJsonSchema: geminiSchema(z.toJSONSchema(schema)),
-            },
-          }),
-          signal: AbortSignal.timeout(10_000),
-        },
-      );
+      const endpoint =
+        typeof this.connection === "string"
+          ? `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(this.model)}:generateContent`
+          : this.connection.endpoint;
+      const headers =
+        typeof this.connection === "string"
+          ? { "x-goog-api-key": this.connection }
+          : await this.connection.headers();
+      const result = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...headers },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts }],
+          ...(prompt && { systemInstruction: { parts: [{ text: prompt }] } }),
+          generationConfig: {
+            maxOutputTokens: 2048,
+            responseMimeType: "application/json",
+            responseJsonSchema: geminiSchema(z.toJSONSchema(schema)),
+          },
+        }),
+        signal: AbortSignal.timeout(10_000),
+      });
       if (!result.ok) {
         await result.body?.cancel();
         throw new Error("Gemini HTTP error");

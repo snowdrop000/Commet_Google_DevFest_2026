@@ -6,6 +6,7 @@ import { z } from "zod";
 import { createApp } from "./app";
 import { FirestoreGameRepository, FirestoreGeminiQuota } from "./repository/firestore";
 import { GeminiRepository } from "./repository/gemini";
+import { VertexGeminiRepository } from "./repository/vertex";
 import { AnalysisService } from "./service/analysis";
 import { GameService } from "./service/game";
 
@@ -15,6 +16,9 @@ const config = z
     FIREBASE_AUTH_EMULATOR_HOST: z.string().optional(),
     FIRESTORE_EMULATOR_HOST: z.string().optional(),
     GEMINI_API_KEY: z.string().optional(),
+    GEMINI_PROVIDER: z.enum(["developer", "vertex"]).default("developer"),
+    GOOGLE_CLOUD_PROJECT: z.string().min(1).optional(),
+    GOOGLE_CLOUD_LOCATION: z.string().default("global"),
     GEMINI_MODEL: z
       .string()
       .regex(/^gemini-[a-zA-Z0-9.-]+$/)
@@ -45,7 +49,7 @@ if (!emulator && config.FIREBASE_PROJECT_ID.startsWith("demo-")) {
   throw new Error("Emulator を設定するか、Firebase のプロジェクト ID を指定してください。");
 }
 const demo = config.COMMET_DEMO_AI === "true";
-if (demo && (!emulator || config.GEMINI_API_KEY)) {
+if (demo && (!emulator || config.GEMINI_API_KEY || config.GEMINI_PROVIDER === "vertex")) {
   throw new Error("デモ判定は Gemini キーなしの Emulator 環境でのみ使用できます。");
 }
 
@@ -60,9 +64,16 @@ const quota = new FirestoreGeminiQuota(
   config.COMMET_GEMINI_USER_DAILY,
   config.COMMET_GEMINI_PROJECT_DAILY,
 );
-const ai = config.GEMINI_API_KEY
-  ? new GeminiRepository(config.GEMINI_API_KEY, config.GEMINI_MODEL)
-  : null;
+const ai =
+  config.GEMINI_PROVIDER === "vertex"
+    ? new VertexGeminiRepository(
+        config.GOOGLE_CLOUD_PROJECT ?? config.FIREBASE_PROJECT_ID,
+        config.GOOGLE_CLOUD_LOCATION,
+        config.GEMINI_MODEL,
+      )
+    : config.GEMINI_API_KEY
+      ? new GeminiRepository(config.GEMINI_API_KEY, config.GEMINI_MODEL)
+      : null;
 const mode = ai ? "gemini" : demo ? "emulator-demo" : "unconfigured";
 const app = createApp(
   game,
@@ -74,7 +85,10 @@ const app = createApp(
     return claims.uid;
   },
   mode,
+  ai ? config.GEMINI_PROVIDER : undefined,
 );
 serve({ fetch: app.fetch, hostname: config.HOST, port: config.PORT }, (info) => {
-  console.log(`Commet API http://${config.HOST}:${info.port} (${mode})`);
+  console.log(
+    `Commet API http://${config.HOST}:${info.port} (${mode}${ai ? `/${config.GEMINI_PROVIDER}` : ""})`,
+  );
 });

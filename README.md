@@ -11,7 +11,9 @@ npm ci
 cp .env.example .env
 ```
 
-`.env` の `GEMINI_API_KEY` を設定すると、コメントの6軸判定、改善案、公開YouTube動画の要約を実際のGemini APIで処理します。キーなしで開発する場合は、`demo-commet` のEmulator構成で `COMMET_DEMO_AI=true` を設定します。
+コメントの6軸判定、改善案、公開YouTube動画の要約は、Vertex AI経由またはDeveloper APIキーで実行できます。Vertex AIを使う場合は`.env`に`GEMINI_PROVIDER=vertex`・実プロジェクトの`GOOGLE_CLOUD_PROJECT`・`GOOGLE_CLOUD_LOCATION=global`を設定し、`gcloud auth application-default login`で開発用認証を用意します。Developer APIを使う場合は`GEMINI_PROVIDER=developer`と`GEMINI_API_KEY`を設定します。実APIを使わず開発する場合は、`demo-commet`のEmulator構成でキーを未設定にし、`GEMINI_PROVIDER=developer`・`COMMET_DEMO_AI=true`を設定します。
+
+動画要約を取得できない場合はタイトル・説明文を使って判定します。Vertex AIで確認できた範囲と動画読み込みの制限は、[接続確認の記録](docs/CLOUD-RUN.md#このプロジェクトのvertex-ai設定)を参照してください。
 
 次のコマンドをそれぞれ別のターミナルで実行します。
 
@@ -49,6 +51,8 @@ SNS上では、歩くほしもちの下にコイン数と三本線のボタン�
 
 ## Firebaseの実プロジェクトで開発する
 
+Cloud Runで公開する場合は、[Cloud RunとFirebaseの公開設定](docs/CLOUD-RUN.md)を参照してください。API用Dockerfile・`npm run build:api`・公開用の環境変数テンプレートを用意しています。
+
 - SparkプランのFirebaseプロジェクトで、AuthenticationのGoogleプロバイダとCloud Firestoreを有効にします。
 - Firebase Webアプリの公開設定を `WXT_FIREBASE_*` に設定します。FirebaseのプロジェクトIDを、サーバー側の `FIREBASE_PROJECT_ID` とそろえます。両方のEmulatorホスト設定を外します。
 - 実際に読み込むChrome拡張のIDに紐づくChrome Extension用Google OAuthクライアントを作成し、`WXT_GOOGLE_CLIENT_ID` に設定します。開発と配布で同じ拡張IDを使う場合は `WXT_EXTENSION_PUBLIC_KEY` で公開鍵を指定します。Firebase側で拡張IDを承認済みドメインに追加します。[FirebaseのChrome拡張認証ガイド](https://firebase.google.com/docs/auth/web/chrome-extension)
@@ -58,15 +62,15 @@ FirestoreへはHonoのAdmin SDKからアクセスします。クライアント�
 
 ## コードレビューの入口
 
-| 場所 | 責務 |
-|---|---|
-| `shared/` | フロント・バックエンド共通のZodスキーマ、型、育成カタログ |
-| `server/app.ts` | Honoのルーティング、認証ミドルウェア、入力検証 |
-| `server/service/` | AI分類・動画文脈、成長、コイン精算 |
-| `server/repository/` | Gemini HTTP通信、Firestoreトランザクション・日次クォータ |
-| `extension/core/` | Firebaseログイン、APIクライアント、精算の再送 |
-| `extension/sns/` | SNS別セレクタ、文脈取得、投稿成功の検出、キャラ移動 |
-| `extension/ui/`・`extension/entrypoints/` | React UI、WXTのShadow DOM・ポップアップ・設定画面 |
+| 場所                                      | 責務                                                      |
+| ----------------------------------------- | --------------------------------------------------------- |
+| `shared/`                                 | フロント・バックエンド共通のZodスキーマ、型、育成カタログ |
+| `server/app.ts`                           | Honoのルーティング、認証ミドルウェア、入力検証            |
+| `server/service/`                         | AI分類・動画文脈、成長、コイン精算                        |
+| `server/repository/`                      | Gemini HTTP通信、Firestoreトランザクション・日次クォータ  |
+| `extension/core/`                         | Firebaseログイン、APIクライアント、精算の再送             |
+| `extension/sns/`                          | SNS別セレクタ、文脈取得、投稿成功の検出、キャラ移動       |
+| `extension/ui/`・`extension/entrypoints/` | React UI、WXTのShadow DOM・ポップアップ・設定画面         |
 
 分析結果から確定に必要な数値・分類だけを短期レシートとして保持します。コメントや返信元本文はFirestoreに保存しません。XPとコイン残高は、セッション単位のFirestoreトランザクションで一度だけ更新します。投稿の成功はSNSの表示から確認し、確認できない場合は精算を保留します。
 
