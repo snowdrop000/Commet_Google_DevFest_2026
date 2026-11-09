@@ -12,6 +12,8 @@ import {
   newAccount,
   newSession,
   inventoryVersion,
+  growthVersion,
+  migrateGrowth,
   type GameRepository,
   type Mutation,
 } from "../model/state";
@@ -28,8 +30,10 @@ export class FirestoreGameRepository implements GameRepository {
     ref: DocumentReference,
     snapshot: DocumentSnapshot,
   ) {
-    const account = snapshot.exists ? accountState.parse(snapshot.data()) : newAccount();
-    if (account.inventoryVersion >= inventoryVersion) return { account, migrated: false };
+    const original = snapshot.exists ? accountState.parse(snapshot.data()) : newAccount();
+    const account = migrateGrowth(original);
+    if (account.inventoryVersion >= inventoryVersion)
+      return { account, migrated: account !== original };
     const receipts =
       account.inventoryVersion < 1
         ? await tx.get(ref.collection("gachaDraws").select("itemId"))
@@ -45,7 +49,8 @@ export class FirestoreGameRepository implements GameRepository {
     const ref = this.account(uid);
     const snapshot = await ref.get();
     const account = snapshot.exists ? accountState.parse(snapshot.data()) : newAccount();
-    if (account.inventoryVersion >= inventoryVersion) return account;
+    if (account.inventoryVersion >= inventoryVersion && account.growthVersion >= growthVersion)
+      return account;
     return this.database.runTransaction(async (tx) => {
       const current = await this.currentInventory(tx, ref, await tx.get(ref));
       if (current.migrated) tx.set(ref, current.account);
@@ -118,9 +123,11 @@ export class FirestoreGeminiQuota {
     private readonly database: Firestore,
     private readonly userLimit: number,
     private readonly projectLimit: number,
+    private readonly enabled = true,
   ) {}
 
   reserve(uid: string, day: string): Promise<boolean> {
+    if (!this.enabled) return Promise.resolve(true);
     const limits = this.database.collection("geminiQuotas");
     const project = limits.doc("project");
     const user = limits.doc("users").collection("byUid").doc(uid);

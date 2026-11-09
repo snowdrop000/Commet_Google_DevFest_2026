@@ -88,7 +88,7 @@ describe("Hono API", () => {
     expect(await invalid.text()).not.toContain("テスト本文");
   });
 
-  it("returns a six-axis preview with no profile or receipt writes", async () => {
+  it("returns an S/Q preview with no profile or receipt writes", async () => {
     const f = fixture();
     const response = await f.call(path.analyze, {
       text: "頭が悪い。",

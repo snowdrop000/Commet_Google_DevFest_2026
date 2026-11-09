@@ -1,12 +1,13 @@
 import { createHash } from "node:crypto";
 import type { z } from "zod";
+import { evaluate } from "../../shared/evaluation";
 import { demoCandidate } from "../../shared/demo";
 import {
   analyzeRequest,
+  analysisResult,
   type Analysis,
   type AnalyzeResponse,
   type Axes,
-  type Category,
   type VideoSummary,
 } from "../../shared/model";
 import { ServiceError } from "../model/state";
@@ -88,56 +89,48 @@ export class AnalysisService {
         })
       : demoCandidate(text);
     return {
-      analysis: classify(axes, text, context.reply?.isReply === true && !context.reply.parentText),
+      analysis: classify(
+        axes,
+        text,
+        context.reply?.isReply === true && !context.reply.parentText,
+        context.reply?.isReply === true,
+      ),
       demo: !ai,
       videoSource,
     };
   }
 }
 
-export function classify(candidate: Axes, text: string, missingReply: boolean): Analysis {
+export function classify(
+  candidate: Axes,
+  text: string,
+  missingReply = false,
+  isReply = false,
+): Analysis {
   const axes = missingReply
     ? {
         ...candidate,
-        confidence: Math.min(candidate.confidence, 4),
-        context: { ...candidate.context, quality: "insufficient" as const },
-        reason: "返信元が取得できないため、判定を保留しました。",
+        contextSufficient: false,
+        reason: "返信元が取得できないため、追加確認が必要です。",
       }
     : candidate;
-  const mean = (scores: number[]) => Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-  const constructivenessScore = mean(Object.values(axes.constructiveness));
-  const empathyScore = mean(Object.values(axes.prosocial));
-  const purpose = [axes.discoursePurpose.primary, ...axes.discoursePurpose.secondary];
-  const dangerous = axes.harm.labels.some((label) =>
-    ["threat", "identity_hate", "violence_incitation"].includes(label),
-  );
-  let category: Category = "neutral";
-  if (axes.context.quality === "insufficient" || axes.confidence <= 3)
-    category = "context_required";
-  else if (axes.harm.severity >= 7 || dangerous) category = "abusive";
-  else if (
-    axes.harm.severity >= 3 ||
-    Math.max(axes.dialogueStyle.hostility, axes.dialogueStyle.generalization) >= 7
-  )
-    category = "unconstructive_criticism";
-  else if (
-    constructivenessScore >= 6 &&
-    axes.dialogueStyle.respect >= 5 &&
-    purpose.some((value) => ["disagreement", "proposal", "advice"].includes(value))
-  )
-    category = "constructive_criticism";
-  else if (
-    empathyScore >= 6 ||
-    purpose.some((value) => ["appreciation", "empathy", "encouragement"].includes(value))
-  )
-    category = "supportive";
-  return {
+  const reward = evaluate(axes, text);
+  const category =
+    reward.decision === "harmful"
+      ? "abusive"
+      : reward.needsSecondaryCheck
+        ? "context_required"
+        : axes.appreciation > 0 &&
+            axes.appreciation >= Math.max(axes.constructiveness, axes.information, axes.humor)
+          ? "supportive"
+          : axes.constructiveness > 0 || axes.information > 0
+            ? "constructive_criticism"
+            : "neutral";
+  return analysisResult.parse({
     ...axes,
+    ...reward,
     category,
-    constructivenessScore,
-    empathyScore,
-    suggestion:
-      category === "abusive" || category === "unconstructive_criticism" ? axes.suggestion : "",
-    rationaleSpans: axes.rationaleSpans.filter((span) => span && text.includes(span)),
-  };
+    isReply,
+    suggestion: missingReply || reward.decision === "safe" ? "" : axes.suggestion,
+  });
 }

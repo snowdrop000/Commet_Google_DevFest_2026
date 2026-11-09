@@ -20,6 +20,7 @@ const config = z
       .regex(/^gemini-[a-zA-Z0-9.-]+$/)
       .default("gemini-3.1-flash-lite"),
     COMMET_DEMO_AI: z.enum(["true", "false"]).default("false"),
+    COMMET_GEMINI_QUOTA_ENABLED: z.enum(["true", "false"]).default("true"),
     COMMET_GEMINI_USER_DAILY: z.coerce.number().int().min(1).default(20),
     COMMET_GEMINI_PROJECT_DAILY: z.coerce.number().int().min(1).default(150),
     HOST: z.string().default("127.0.0.1"),
@@ -59,6 +60,7 @@ const quota = new FirestoreGeminiQuota(
   database,
   config.COMMET_GEMINI_USER_DAILY,
   config.COMMET_GEMINI_PROJECT_DAILY,
+  config.COMMET_GEMINI_QUOTA_ENABLED === "true",
 );
 const ai = config.GEMINI_API_KEY
   ? new GeminiRepository(config.GEMINI_API_KEY, config.GEMINI_MODEL)
