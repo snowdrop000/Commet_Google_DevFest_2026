@@ -54,10 +54,10 @@ export function Stats({ profile }: { profile: Profile }) {
         value={maxLevel ? needed : profile.xp}
       />
       {statKeys.map((key) => (
-        <label key={key}>
-          {statLabels[key]}{" "}
+        <label key={key} data-stat={key}>
+          <span>{statLabels[key]}</span>
           <progress aria-label={statLabels[key]} max={MAX_STAT} value={profile[key]} />{" "}
-          {profile[key]}
+          <span className="commet-stat-value">{profile[key]}</span>
         </label>
       ))}
       <small>

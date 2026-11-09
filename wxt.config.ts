@@ -6,6 +6,12 @@ import { resolveApiBase } from "./shared/api-config";
 
 // Legacy assets remain in assets/characters, but are excluded from the active extension.
 const characterAssets = Object.values(starAssets);
+const fontAssets = [
+  "fonts/zen-maru-gothic-regular.woff2",
+  "fonts/zen-maru-gothic-medium.woff2",
+  "fonts/zen-maru-gothic-bold.woff2",
+  "fonts/OFL.txt",
+];
 
 export default defineConfig({
   srcDir: "extension",
@@ -41,7 +47,7 @@ export default defineConfig({
         : {}),
       web_accessible_resources: [
         {
-          resources: ["characters/*.png"],
+          resources: ["characters/*.png", "fonts/*.woff2"],
           matches: snsMatches,
         },
       ],
@@ -49,9 +55,15 @@ export default defineConfig({
   },
   hooks: {
     "prepare:publicPaths": (_wxt, paths) => {
-      paths.push(...characterAssets);
+      paths.push(...characterAssets, ...fontAssets);
     },
     "build:publicAssets": (wxt, files) => {
+      for (const file of fontAssets) {
+        files.push({
+          absoluteSrc: resolve(wxt.config.root, "extension/assets", file),
+          relativeDest: file,
+        });
+      }
       for (const file of characterAssets) {
         files.push({ absoluteSrc: resolve(wxt.config.root, "assets", file), relativeDest: file });
       }

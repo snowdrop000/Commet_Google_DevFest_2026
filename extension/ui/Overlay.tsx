@@ -14,6 +14,7 @@ import { CoinPickup, type Pickup } from "./CoinPickup";
 import { GachaDialog } from "./Gacha";
 import { OverlayIcon } from "./OverlayIcon";
 import { PageSettingsDialog } from "./PageSettingsDialog";
+import { starSkins } from "./star-skins";
 
 const initial: State = { signedIn: false, emulator: false, settings: defaults, profile: null };
 const guestPet: Profile = { ...newProfile(), characterType: starCharacter, name: "ほしもち" };
@@ -133,6 +134,7 @@ export function Overlay({ platform }: { platform: Platform }) {
     root.getAnimations().forEach((animation) => animation.cancel());
     function positionMenu() {
       const gap = 12;
+      const menuMaxHeight = 520;
       const clamp = (value: number, min: number, max: number) =>
         Math.max(min, Math.min(Math.max(min, max), value));
       if (bubble) {
@@ -144,7 +146,7 @@ export function Overlay({ platform }: { platform: Platform }) {
       const height = Math.max(root.offsetHeight, bubbleBottom);
       const width = root.offsetWidth + (bubble ? bubble.offsetWidth + 4 : 0);
       const maxTop = Math.max(gap, innerHeight - height - gap);
-      const minTop = popup ? Math.min(maxTop, 480 + gap * 2) : gap;
+      const minTop = popup ? Math.min(maxTop, menuMaxHeight + gap * 2) : gap;
       const minLeft = popup
         ? Math.min((popup.offsetWidth - root.offsetWidth) / 2 + gap, innerWidth - width - gap)
         : gap;
@@ -165,7 +167,7 @@ export function Overlay({ platform }: { platform: Platform }) {
         right: Math.max(rect.right, speechRect?.right ?? rect.right),
         bottom: Math.max(rect.bottom, speechRect?.bottom ?? rect.bottom),
       };
-      const available = Math.max(0, Math.min(480, rect.top - gap * 2));
+      const available = Math.max(0, Math.min(menuMaxHeight, rect.top - gap * 2));
       popup.dataset.compact = String(available < 360);
       popup.style.maxHeight = `${available}px`;
       const w = popup.offsetWidth,
@@ -238,6 +240,7 @@ export function Overlay({ platform }: { platform: Platform }) {
           event.target.closest("button, a, input, textarea, select, summary, .commet-suggestion p")
         )
           return;
+        popup.getAnimations().forEach((animation) => animation.finish());
         const rect = popup.getBoundingClientRect();
         if (event.clientX >= rect.right - 10) return;
         const content = popup.querySelector(".commet-menu-content")?.getBoundingClientRect();
@@ -310,6 +313,7 @@ export function Overlay({ platform }: { platform: Platform }) {
         const delta = directions[event.key];
         if (!delta) return;
         event.preventDefault();
+        popup.getAnimations().forEach((animation) => animation.finish());
         const rect = popup.getBoundingClientRect();
         menuPosition.current = { x: rect.left + delta[0], y: rect.top + delta[1] };
         positionOverlays.current();
@@ -799,6 +803,7 @@ export function Overlay({ platform }: { platform: Platform }) {
             ref={menu}
             id={menuId}
             className="commet-menu"
+            data-view={view}
             role="dialog"
             aria-label={`${pet.name}のメニュー`}
             onKeyDown={(event) => event.stopPropagation()}
@@ -811,7 +816,10 @@ export function Overlay({ platform }: { platform: Platform }) {
                 aria-label="パネルを移動"
                 title="ドラッグ、または矢印キーでパネルを移動"
               >
-                COMMET <span>· {platform.name}</span>
+                <span className="commet-wordmark">
+                  Commet <span aria-hidden="true">✦</span>
+                </span>
+                <span className="commet-platform">{platform.name}</span>
               </p>
               <button
                 type="button"
@@ -825,23 +833,28 @@ export function Overlay({ platform }: { platform: Platform }) {
                 <OverlayIcon name="close" />
               </button>
             </header>
-            <div className="commet-menu-profile">
+            <div
+              className="commet-menu-profile"
+              style={{
+                backgroundColor: starSkins[pet.equippedItems.skin]?.background ?? "#fae8ef",
+              }}
+            >
               <div className="commet-menu-avatar" aria-hidden="true">
                 <Pet profile={pet} mood="idle" />
               </div>
               <div className="commet-menu-identity">
                 <h2>{pet.name}</h2>
-                <p>
+                <p title="使えるコイン">
                   <OverlayIcon name="coin" />
                   <span>
-                    確定 <b>{confirmed.toLocaleString()}</b>
-                  </span>
-                  <span>
-                    仮 <b>{pending.toLocaleString()}</b>
+                    <span className="commet-visually-hidden">使えるコイン </span>
+                    <b key={confirmed}>{confirmed.toLocaleString()}</b>
                   </span>
                 </p>
               </div>
-              <span className="commet-level">Lv. {pet.level}</span>
+              <span key={pet.level} className="commet-level">
+                Lv. {pet.level}
+              </span>
             </div>
             <nav className="commet-menu-nav" aria-label="Commetの機能">
               <button
@@ -958,10 +971,11 @@ export function Overlay({ platform }: { platform: Platform }) {
                 type="button"
                 className="primary commet-check-action"
                 disabled={checking || !state.signedIn}
+                aria-busy={checking}
                 onClick={() => void check()}
               >
                 <OverlayIcon name="check" />
-                {checking ? "判定中…" : `この${platform.contentLabel}をチェック`}
+                <span>{checking ? "判定中…" : `この${platform.contentLabel}をチェック`}</span>
               </button>
             )}
             <footer className="commet-menu-footer">

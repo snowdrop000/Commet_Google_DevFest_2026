@@ -5,8 +5,8 @@ const characters = z.enum(["a", "b", "c", "d", "e", starCharacter]);
 export const statKeys = ["empathy", "criticalThinking", "resilience"] as const;
 export const statLabels = {
   empathy: "ぬくもり",
-  criticalThinking: "知恵",
-  resilience: "愛嬌",
+  criticalThinking: "ひらめき",
+  resilience: "おちゃめ",
 } as const;
 const commonEquipmentKeys = ["skin", "hat", "badge"] as const;
 const starEquipmentKeys = ["eyes", "mouth", "head", "prop", "pattern"] as const;

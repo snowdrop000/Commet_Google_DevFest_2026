@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { Dashboard } from "../../ui/Dashboard";
+import "../../ui/fonts";
 import "../../ui/style.css";
 import "../../ui/theme.css";
 
