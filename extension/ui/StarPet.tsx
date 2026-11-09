@@ -1,9 +1,9 @@
 import { useEffect, useId, useState } from "react";
 import { browser } from "wxt/browser";
-import { ITEM_CATALOG, type Profile } from "../../shared/game";
+import type { Profile } from "../../shared/game";
 import type { PetAnimation } from "./pet-animation";
 import { starAssets } from "./star-assets";
-import { StarHat, StarProp, starBadges } from "./star-accessories";
+import { StarBadge, StarHat, StarProp } from "./star-accessories";
 import { GemHand } from "./star-gems";
 import { outline, StarEffects, StarFace, StarOrnaments, StarPattern } from "./star-parts";
 import { StarPixelBody, StarSkinFinish, starSkins } from "./star-skins";
@@ -112,9 +112,10 @@ export function StarPet({
   const ground = 92;
   const crown = ground + (frame.crown - frame.floor) * scale;
   const flipped = (walking || peeking) && animation.direction === "left";
+  const squash = 0.89;
   const transform = [
     flipped && "translate(100 0) scale(-1 1)",
-    `translate(0 ${ground}) scale(1 0.89) translate(0 ${-ground})`,
+    `translate(0 ${ground}) scale(1 ${squash}) translate(0 ${-ground})`,
   ]
     .filter(Boolean)
     .join(" ");
@@ -141,6 +142,10 @@ export function StarPet({
     [33 + handInset, 18],
     [67 - handInset, -18],
   ];
+  // The pin rides on the chest, below the right cheek. Measured from the crown, so it bobs
+  // with each walking frame; the thinking pose moves it up to the shoulder, clear of the hands.
+  const badgeX = walking ? 63 : learning ? 74 : 61;
+  const badgeY = crown + (learning ? 36 : walking ? 44 : 45);
   const hasPattern = pattern !== "pattern_none";
   const filter = slopes ? `url(#${filterId})` : undefined;
 
@@ -286,6 +291,17 @@ export function StarPet({
                 ))}
               </g>
             )}
+            <StarBadge
+              id={badge}
+              x={badgeX}
+              y={badgeY}
+              flipped={flipped}
+              walking={walking}
+              step={step}
+              squash={squash}
+              uid={id}
+              outline={outline}
+            />
             {hat === "hat_star_beret" && (
               <g data-layer="hat" data-hat={hat}>
                 <Art
@@ -325,17 +341,6 @@ export function StarPet({
             </g>
           </g>
         </svg>
-      )}
-      {starBadges[badge] ? (
-        <span className="commet-badge commet-badge--art" data-badge={badge}>
-          <svg viewBox="-10 -10 20 20" aria-hidden="true" focusable="false">
-            <g stroke={outline} strokeWidth="1" strokeLinejoin="round">
-              {starBadges[badge]}
-            </g>
-          </svg>
-        </span>
-      ) : (
-        badge !== "badge_none" && <span className="commet-badge">{ITEM_CATALOG[badge]?.icon}</span>
       )}
     </div>
   );

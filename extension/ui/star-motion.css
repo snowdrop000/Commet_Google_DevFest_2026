@@ -69,6 +69,63 @@
   }
 }
 
+/* Chest pin. Without motion the glint stays off the face and the sparkle stays lit,
+   so a still frame looks finished. */
+.commet-pet--star .commet-badge-glint {
+  transform: translateX(-16px);
+}
+.commet-pet--star .commet-badge-sparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .commet-pet--star .commet-badge-swing {
+    transition: transform 0.12s linear;
+  }
+  .commet-pet--star .commet-badge-glint {
+    animation: commet-badge-glint 4.6s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-badge-sparkle {
+    animation: commet-badge-sparkle 4.6s ease-in-out infinite;
+  }
+  /* Walking quickens the shine, as if catching the light while moving. */
+  .commet-pet--star[data-action="walk"] .commet-badge-glint,
+  .commet-pet--star[data-action="walk"] .commet-badge-sparkle {
+    animation-duration: 1.8s;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .commet-pet--star .commet-badge-trail {
+    display: none;
+  }
+}
+@keyframes commet-badge-glint {
+  0%,
+  55% {
+    transform: translateX(-16px);
+  }
+  80%,
+  100% {
+    transform: translateX(16px);
+  }
+}
+@keyframes commet-badge-sparkle {
+  0%,
+  70%,
+  100% {
+    transform: scale(0.35) rotate(0);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1) rotate(45deg);
+    opacity: 1;
+  }
+  90% {
+    transform: scale(0.6) rotate(90deg);
+    opacity: 0.6;
+  }
+}
+
 @keyframes commet-ur-twinkle {
   0%,
   100% {

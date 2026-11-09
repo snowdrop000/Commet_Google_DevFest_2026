@@ -111,23 +111,6 @@
   margin: 0 0 6px;
   text-align: center;
 }
-.commet-badge {
-  position: absolute;
-}
-.commet-badge {
-  left: 70%;
-  bottom: 12%;
-  color: #6653e8;
-}
-.commet-badge--art {
-  width: 19%;
-  aspect-ratio: 1;
-}
-.commet-badge--art svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
 .commet-result {
   overflow-wrap: anywhere;
   background: #eff3f2;

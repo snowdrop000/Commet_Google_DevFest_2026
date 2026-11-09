@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ITEM_CATALOG } from "../../shared/game";
 import { motion, sparkle, starShape } from "./star-motion";
 
 // Angel wing in three overlapping rows, each with a scalloped trailing edge:
@@ -622,6 +623,126 @@ export const starBadges: Partial<Record<string, ReactNode>> = {
     </>
   ),
 };
+
+// The round face of each pin, for the passing glint. Most pins fill a radius-9 circle.
+const badgeFaces: Partial<Record<string, readonly [cx: number, cy: number, r: number]>> = {
+  badge_star_medal: [0, -1.5, 7.2],
+};
+
+// Pendulum angles, one per walking frame, so the pin swings with each stride.
+const badgeSwing = [0, 7, 7, 0, -7, -7];
+// Pin size relative to its 20 × 20 drawing box.
+const badgeScale = 0.72;
+
+// Badges without their own drawing become a gold-rimmed medal showing their glyph.
+function GlyphMedal({ icon, id }: { icon: string; id: string }) {
+  return (
+    <>
+      <defs>
+        <radialGradient id={`${id}-rim`} cx="35%" cy="30%" r="75%">
+          <stop offset="0" stopColor="#fff2b8" />
+          <stop offset=".55" stopColor="#f2c24e" />
+          <stop offset="1" stopColor="#c98a23" />
+        </radialGradient>
+        <radialGradient id={`${id}-face`} cx="40%" cy="35%" r="70%">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#e9defc" />
+        </radialGradient>
+      </defs>
+      <circle r="9" fill={`url(#${id}-rim)`} />
+      <circle r="6.6" fill={`url(#${id}-face)`} stroke="#b7862c" strokeWidth=".7" />
+      <text
+        y=".4"
+        fill="#6653e8"
+        stroke="none"
+        fontSize="8.6"
+        fontWeight="700"
+        textAnchor="middle"
+        dominantBaseline="central"
+      >
+        {icon}
+      </text>
+    </>
+  );
+}
+
+// A pin worn on the chest. It sits inside the pose, so it follows the body as it bobs and turns;
+// the art itself is never mirrored. Walking swings it and leaves short speed lines behind.
+export function StarBadge({
+  id,
+  x,
+  y,
+  flipped,
+  walking,
+  step,
+  squash,
+  uid,
+  outline,
+}: {
+  id: string;
+  x: number;
+  y: number;
+  flipped: boolean;
+  walking: boolean;
+  step: number;
+  squash: number;
+  uid: string;
+  outline: string;
+}) {
+  const art = starBadges[id];
+  const icon = ITEM_CATALOG[id]?.icon;
+  if (id === "badge_none" || (!art && !icon)) return null;
+  const [cx, cy, r] = badgeFaces[id] ?? [0, 0, 9];
+  const clipId = `${uid}-badge-face`;
+  const swing = walking ? badgeSwing[step % badgeSwing.length] : 0;
+  return (
+    <g data-layer="badge" data-badge={id} transform={`translate(${x} ${y}) scale(1 ${1 / squash})`}>
+      {walking && (
+        // Behind the pin: the pose faces +x, and the whole pose is mirrored when walking left.
+        <path
+          className="commet-badge-trail"
+          d="M-8.5-2.4h-4.2M-9.2.9h-6M-8.5 4.2h-3.4"
+          fill="none"
+          stroke="#a58fc2"
+          strokeWidth=".95"
+          strokeLinecap="round"
+          opacity={step % 2 ? 0.85 : 0.5}
+        />
+      )}
+      <g
+        className="commet-badge-swing"
+        style={{ transform: `rotate(${swing}deg)`, transformOrigin: "0px -5px" }}
+      >
+        <g transform={`scale(${flipped ? -badgeScale : badgeScale} ${badgeScale})`}>
+          <defs>
+            <clipPath id={clipId}>
+              <circle cx={cx} cy={cy} r={r} />
+            </clipPath>
+          </defs>
+          <ellipse cx="1" cy="1.8" rx="9" ry="8.6" fill="#4a2f45" opacity=".18" />
+          <g stroke={outline} strokeWidth="1" strokeLinejoin="round">
+            {art ?? <GlyphMedal icon={icon!} id={`${uid}-badge`} />}
+          </g>
+          <g clipPath={`url(#${clipId})`} stroke="none">
+            <path
+              className="commet-badge-glint"
+              d="M-3-12h3.2L-4 12h-3.2ZM2.2-12h1.4L-.6 12h-1.4Z"
+              fill="#fff"
+              opacity=".75"
+            />
+          </g>
+          <path
+            className="commet-badge-sparkle"
+            d={sparkle(cx + r * 0.72, cy - r * 0.72, 2.6)}
+            fill="#fffbe8"
+            stroke="#e6b94a"
+            strokeWidth=".45"
+          />
+        </g>
+      </g>
+    </g>
+  );
+}
 
 export function StarProp({ id, outline }: { id: string; outline: string }) {
   const art = heldProps[id];

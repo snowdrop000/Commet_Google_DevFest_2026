@@ -150,16 +150,6 @@
   background: #fff3d9;
   box-shadow: 0 0 45px #ffd87280;
 }
-.commet-gacha-item .commet-badge {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: #fff3c4;
-  color: #8657a3;
-  font-size: 26px;
-}
 @keyframes commet-gacha-item {
   from {
     transform: scale(0.65) translateY(20px);
