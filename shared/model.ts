@@ -8,98 +8,60 @@ export const category = z.enum([
   "neutral",
   "context_required",
 ]);
-const purpose = z.enum([
-  "information",
-  "question",
-  "answer",
-  "elaboration",
-  "agreement",
-  "disagreement",
-  "proposal",
-  "advice",
+export const safetyKeys = [
+  "personalAttack",
+  "discrimination",
+  "threatViolence",
+  "harassment",
+] as const;
+export const contributionKeys = [
   "appreciation",
-  "empathy",
-  "encouragement",
+  "constructiveness",
+  "information",
   "humor",
-  "emotional_reaction",
-  "other",
-]);
-const score = z.number().int().min(0).max(10);
-const harmLabel = z.enum([
-  "personal_attack",
-  "insult",
-  "threat",
-  "identity_hate",
-  "violence_incitation",
-  "sexual_harassment",
-  "provocation",
-  "exclusion",
-  "profanity",
-]);
+] as const;
+const score = z.number().int().min(0).max(2);
+export const decision = z.enum(["safe", "harmful", "needs_secondary_check"]);
 
+// Gemini supplies observations only. S/Q and rewards are calculated by the server.
 export const axes = z.strictObject({
-  discoursePurpose: z.strictObject({ primary: purpose, secondary: z.array(purpose).max(3) }),
-  harm: z.strictObject({
-    severity: score,
-    labels: z.array(harmLabel).max(5),
-    target: z.enum([
-      "individual",
-      "group",
-      "organization",
-      "work",
-      "policy",
-      "behavior",
-      "self",
-      "none",
-      "unclear",
-    ]),
-  }),
-  dialogueStyle: z.strictObject({
-    respect: score,
-    hostility: score,
-    openness: score,
-    generalization: score,
-  }),
-  constructiveness: z.strictObject({
-    specificity: score,
-    evidence: score,
-    solutionOrientation: score,
-    actionability: score,
-  }),
-  prosocial: z.strictObject({ empathy: score, support: score, appreciation: score }),
-  context: z.strictObject({
-    quality: z.enum(["full", "partial", "insufficient"]),
-    replyRelation: z.enum([
-      "not_reply",
-      "agreement",
-      "constructive_disagreement",
-      "correction",
-      "answer",
-      "emotional_support",
-      "elaboration",
-      "negative_reaction",
-      "mockery",
-      "unclear",
-    ]),
-    contentRelation: z.enum([
-      "not_applicable",
-      "on_topic",
-      "supports_content",
-      "challenges_content",
-      "adds_information",
-      "unrelated",
-      "cannot_determine",
-    ]),
-  }),
-  confidence: score,
-  reason: z.string().min(1).max(200),
+  personalAttack: score,
+  discrimination: score,
+  threatViolence: score,
+  harassment: score,
+  appreciation: score,
+  constructiveness: score,
+  information: score,
+  humor: score,
+  safetyConfidence: z.number().int().min(0).max(10),
+  target: z.enum([
+    "person",
+    "group",
+    "attribute",
+    "work",
+    "opinion",
+    "behavior",
+    "self",
+    "none",
+    "unknown",
+  ]),
+  isQuotation: z.boolean(),
+  contextSufficient: z.boolean(),
+  isDirectAttack: z.boolean(),
+  attackEvidence: z.array(z.string().min(1).max(200)).max(3),
+  reason: z.string().min(1).max(1000),
   suggestion: z.string().max(280),
-  rationaleSpans: z.array(z.string().max(80)).max(3),
 });
 export const analysisResult = axes.extend({
   category,
-  constructivenessScore: score,
-  empathyScore: score,
+  S: score,
+  Q: score,
+  decision,
+  needsSecondaryCheck: z.boolean(),
+  reviewReasons: z.array(z.string().max(80)).max(8),
+  xp: z.union([z.literal(0), z.literal(2), z.literal(6), z.literal(10)]),
+  coinMultiplier: z.union([z.literal(0), z.literal(1), z.literal(1.5)]),
+  isReply: z.boolean(),
 });
 export type Analysis = z.infer<typeof analysisResult>;
 export type Axes = z.infer<typeof axes>;

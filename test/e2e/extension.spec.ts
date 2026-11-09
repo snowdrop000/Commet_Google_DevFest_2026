@@ -165,7 +165,7 @@ test("ログイン後にShadow DOMで判定・改善案を表示し、投稿を�
 
     await youtubePanel.getByRole("button", { name: "育成状況", exact: true }).click();
     const levelRewards = youtubePanel.getByRole("region", { name: "レベル報酬", exact: true });
-    await expect(levelRewards).toContainText("あと 30 XP");
+    await expect(levelRewards).toContainText("あと 10 XP");
     await expect(levelRewards).toContainText("はじまりのほし");
     await levelRewards.getByText("レベル報酬を見る", { exact: true }).click();
     await expect(levelRewards.getByText("スキン解放", { exact: true })).toHaveCount(4);
@@ -369,7 +369,7 @@ test("ログイン後にShadow DOMで判定・改善案を表示し、投稿を�
     await expect(options.getByLabel("レスポンス")).toContainText("emulator-demo");
     await options.getByRole("button", { name: "開発用ログイン" }).click();
     await expect(options.getByRole("button", { name: "ログアウト" })).toBeEnabled();
-    for (const name of ["やさしさ", "ひらめき", "ゆうき"]) {
+    for (const name of ["ぬくもり", "知恵", "愛嬌"]) {
       await expect(options.getByRole("progressbar", { name, exact: true })).toBeVisible();
     }
     const collection = options.getByRole("region", { name: "所持アイテム" });
@@ -425,7 +425,9 @@ test("ログイン後にShadow DOMで判定・改善案を表示し、投稿を�
     );
     await options.getByRole("button", { name: "コメント判定をテスト" }).click();
     await expect(options.getByLabel("リクエスト")).toContainText("POST /v1/analyze");
-    await expect(options.getByLabel("レスポンス")).toContainText("unconstructive_criticism");
+    await expect(options.getByLabel("レスポンス")).toContainText(
+      /"category":\s*"constructive_criticism"/,
+    );
 
     await context.route("https://x.com/**", (route) =>
       route.fulfill({ contentType: "text/html", body: fixture }),

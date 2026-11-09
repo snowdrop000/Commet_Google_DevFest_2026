@@ -4,6 +4,7 @@ import { newProfile, defaultEquipment, xpNeeded } from "../shared/game";
 import { demoCandidate } from "../shared/demo";
 import { exchangePool, gachaPool } from "../shared/gacha";
 import { levelRewards, levelTitle, withLevelRewards, xpUntilLevel } from "../shared/progression";
+import { classify } from "../server/service/analysis";
 import { growthEvidence, newAccount, newSession } from "../server/model/state";
 import { testApi } from "./fixture";
 
@@ -11,7 +12,7 @@ describe("level progression", () => {
   it("grants the first reward on a confirmed level-up exactly once across retries", async () => {
     const f = testApi();
     const account = newAccount();
-    account.profile.xp = 28;
+    account.profile.xp = 8;
     f.repository.accounts.set("alice", account);
     const sessionId = randomUUID(),
       analysisId = randomUUID();
@@ -21,13 +22,9 @@ describe("level progression", () => {
       receipt: {
         id: analysisId,
         expiresAt: Date.parse("2026-11-07T00:00:00Z"),
-        evidence: growthEvidence.parse({
-          ...demoCandidate("今日の動画です。"),
-          confidence: 8,
-          category: "neutral",
-          constructivenessScore: 3,
-          empathyScore: 5,
-        }),
+        evidence: growthEvidence.parse(
+          classify(demoCandidate("今日の動画です。"), "今日の動画です。"),
+        ),
       },
     });
     await Promise.all(
@@ -47,7 +44,7 @@ describe("level progression", () => {
   it("does not unlock equipment from a preview or an unconfirmed post", async () => {
     const f = testApi();
     const account = newAccount();
-    account.profile.xp = 29;
+    account.profile.xp = 9;
     f.repository.accounts.set("alice", account);
     const preview = await f.app.request("/v1/analyze", {
       method: "POST",
@@ -122,7 +119,7 @@ describe("level progression", () => {
     expect(levelTitle(1)).toBe("はじまりのほし");
     expect(levelTitle(9)).toBe("ほしの旅人");
     expect(levelTitle(99)).toBe("ほしの伝説");
-    expect(xpUntilLevel({ level: 1, xp: 29 }, 2)).toBe(1);
+    expect(xpUntilLevel({ level: 1, xp: 9 }, 2)).toBe(1);
     expect(xpUntilLevel({ level: 2, xp: 9 }, 5)).toBe(xpNeeded(2) + xpNeeded(3) + xpNeeded(4) - 9);
     expect(xpUntilLevel({ level: 99, xp: 30 }, 99)).toBe(0);
   });

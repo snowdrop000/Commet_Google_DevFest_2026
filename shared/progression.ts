@@ -1,4 +1,4 @@
-import { ITEM_CATALOG, xpNeeded, type Profile } from "./game";
+import { ITEM_CATALOG, MAX_LEVEL, xpNeeded, type Profile } from "./game";
 
 export const levelRewards = Object.entries(ITEM_CATALOG)
   .flatMap(([itemId, item]) =>
@@ -44,6 +44,7 @@ export const milestoneLevels = [
 export function xpUntilLevel(pet: Pick<Profile, "level" | "xp">, target: number): number {
   if (target <= pet.level) return 0;
   let needed = -pet.xp;
-  for (let level = pet.level; level < Math.min(99, target); level++) needed += xpNeeded(level);
+  for (let level = pet.level; level < Math.min(MAX_LEVEL, target); level++)
+    needed += xpNeeded(level);
   return Math.max(0, needed);
 }

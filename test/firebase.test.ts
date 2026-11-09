@@ -10,6 +10,9 @@ import { GameService } from "../server/service/game";
 import { newAccount, inventoryVersion } from "../server/model/state";
 import { starterItems } from "../shared/game";
 import { displayRarity, exchangeResult, shardCosts } from "../shared/gacha";
+import { newProfile } from "../shared/game";
+import { demoCandidate } from "../shared/demo";
+import { classify } from "../server/service/analysis";
 
 const authHost = process.env.FIREBASE_AUTH_EMULATOR_HOST;
 const firestoreHost = process.env.FIRESTORE_EMULATOR_HOST;
@@ -17,6 +20,82 @@ const loopback = /^127\.0\.0\.1:\d+$/;
 describe.skipIf(
   !authHost || !firestoreHost || !loopback.test(authHost) || !loopback.test(firestoreHost),
 )("Firebase Emulator Suite", () => {
+  it("resets only growth once and preserves all acquisitions through a confirmed post", async () => {
+    const firebase = initializeApp(
+      { projectId: "demo-commet-gemini-rewards" },
+      "commet-growth-test",
+    );
+    try {
+      const db = getFirestore(firebase);
+      const repository = new FirestoreGameRepository(db);
+      const game = new GameService(repository);
+      const uid = `growth-${randomUUID()}`;
+      const ref = db.collection("accounts").doc(uid);
+      const old = newAccount();
+      old.growthVersion = 0;
+      old.inventoryVersion = 0;
+      Object.assign(old.profile, {
+        level: 20,
+        xp: 123,
+        empathy: 88,
+        criticalThinking: 76,
+        resilience: 54,
+        confirmedCoins: 321,
+      });
+      old.profile.unlockedItems.push("skin_star_galaxy", "hat_star_beret", "skin_level_moonlight");
+      old.profile.equippedItems.skin = "skin_star_galaxy";
+      old.profile.equippedItems.hat = "hat_star_beret";
+      old.profile.gacha = { draws: 21, sinceSR: 4, sinceUR: 6, shards: 17 };
+      const raw = structuredClone(old) as Record<string, unknown>;
+      delete raw.growthVersion;
+      delete (raw.profile as Record<string, unknown>).growth;
+      await ref.set(raw);
+      const expected = {
+        ...old.profile,
+        level: 1,
+        xp: 0,
+        empathy: 10,
+        criticalThinking: 10,
+        resilience: 10,
+        growth: newProfile().growth,
+      };
+      const pets = await Promise.all(Array.from({ length: 4 }, () => game.profile(uid)));
+      for (const pet of pets) expect(pet).toEqual(expected);
+      expect((await ref.get()).get("growthVersion")).toBe(1);
+      const sessionId = randomUUID();
+      await game.preparePost(uid, sessionId);
+      const analysis = classify(demoCandidate("応援しています！"), "応援しています！");
+      const analysisId = await game.issueReceipt(uid, sessionId, analysis);
+      await Promise.all(
+        Array.from({ length: 4 }, () =>
+          game.settle(uid, { sessionId, outcome: { kind: "posted", analysisId } }),
+        ),
+      );
+      const pet = await game.profile(uid);
+      expect(pet).toMatchObject({
+        level: 2,
+        xp: 0,
+        empathy: 15,
+        criticalThinking: 12,
+        resilience: 12,
+        confirmedCoins: 321,
+      });
+      expect(pet.equippedItems).toEqual(old.profile.equippedItems);
+      expect(pet.gacha).toEqual(old.profile.gacha);
+      expect(pet.unlockedItems).toEqual([
+        ...old.profile.unlockedItems,
+        "skin_sunset",
+        "skin_level_sunrise",
+      ]);
+      expect((await game.profile(uid)).level).toBe(2);
+      expect(
+        JSON.stringify((await ref.collection("exploration").doc(sessionId).get()).data()),
+      ).not.toContain("応援しています");
+    } finally {
+      await deleteApp(firebase);
+    }
+  }, 20_000);
+
   it("verifies an emulator token and persists a single transaction across requests", async () => {
     const firebase = initializeApp({ projectId: "demo-commet" }, "commet-test");
     try {
