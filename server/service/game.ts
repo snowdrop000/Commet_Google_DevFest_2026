@@ -21,7 +21,7 @@ import {
 } from "../../shared/game";
 import type { Analysis, Settlement, SettlementResult } from "../../shared/model";
 import { growthEvidence, ServiceError, type GameRepository } from "../model/state";
-import { applyGrowth } from "./growth";
+import { applyGrowth, currentStreak } from "./growth";
 import { withLevelRewards } from "../../shared/progression";
 import { dailyExchangeShop, dayJst } from "./exchange-shop";
 export { dayJst } from "./exchange-shop";
@@ -38,14 +38,17 @@ export class GameService {
 
   async profile(uid: string) {
     const current = withStarterItems((await this.repository.read(uid)).profile);
-    if (withLevelRewards(current) === current) return current;
-    return this.repository.transact(uid, null, (account) => {
-      const pet = withStarterItems(account.profile);
-      const rewarded = withLevelRewards(pet);
-      if (rewarded === pet) return { value: pet };
-      account.profile = rewarded;
-      return { value: rewarded, account };
-    });
+    const pet =
+      withLevelRewards(current) === current
+        ? current
+        : await this.repository.transact(uid, null, (account) => {
+            const pet = withStarterItems(account.profile);
+            const rewarded = withLevelRewards(pet);
+            if (rewarded === pet) return { value: pet };
+            account.profile = rewarded;
+            return { value: rewarded, account };
+          });
+    return { ...pet, streak: currentStreak(pet, this.clock()) };
   }
 
   draw(uid: string, requestId: string) {

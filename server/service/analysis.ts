@@ -48,6 +48,12 @@ export class AnalysisService {
     uid: string,
     draft: Omit<z.output<typeof analyzeRequest>, "sessionId">,
   ): Promise<Preview> {
+    const deadline = Date.now() + 25_000;
+    const timeout = (limit: number) => {
+      const remaining = Math.min(limit, deadline - Date.now());
+      if (remaining <= 0) throw new ServiceError(503, "Geminiの判定を取得できませんでした。");
+      return remaining;
+    };
     const ai = this.ai;
     if (!ai && !this.demo)
       throw new ServiceError(503, "サーバーでGEMINI_API_KEYを設定してください。");
@@ -65,7 +71,7 @@ export class AnalysisService {
         const summary = await this.videos.load(videoId, async () => {
           if (!(await reserve())) throw new ServiceError(429, "動画要約の上限に達しました。");
           try {
-            return await ai.video(videoId);
+            return await ai.video(videoId, timeout(10_000));
           } catch (error) {
             if (!(error instanceof ServiceError) || error.status !== 503) throw error;
             return null;
@@ -81,12 +87,15 @@ export class AnalysisService {
       }
     }
     const axes = ai
-      ? await ai.comment({
-          draft: text,
-          platform: context.platform,
-          reply_context: context.reply,
-          content_context: { ...metadata, videoSummary },
-        })
+      ? await ai.comment(
+          {
+            draft: text,
+            platform: context.platform,
+            reply_context: context.reply,
+            content_context: { ...metadata, videoSummary },
+          },
+          timeout(20_000),
+        )
       : demoCandidate(text);
     return {
       analysis: classify(

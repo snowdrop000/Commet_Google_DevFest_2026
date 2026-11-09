@@ -31,7 +31,6 @@ export function Overlay({ platform }: { platform: Platform }) {
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(0);
-  const [confirmed, setConfirmed] = useState(0);
   const [checking, setChecking] = useState(false);
   const checkingInFlight = useRef(false);
   const [composing, setComposing] = useState(false);
@@ -39,6 +38,9 @@ export function Overlay({ platform }: { platform: Platform }) {
   const panel = useRef<HTMLElement>(null);
   const dock = useRef<HTMLDivElement>(null);
   const menu = useRef<HTMLDivElement>(null);
+  const speechBubble = useRef<HTMLSpanElement>(null);
+  const menuPosition = useRef<{ x: number; y: number } | null>(null);
+  const positionOverlays = useRef(() => {});
   const menuButton = useRef<HTMLButtonElement>(null);
   const menuId = useId();
   const dragHandle = useRef<HTMLDivElement>(null);
@@ -63,7 +65,6 @@ export function Overlay({ platform }: { platform: Platform }) {
           if (config.current.signedIn !== next.signedIn) setStatus("");
           config.current = next;
           setState(next);
-          setConfirmed(next.profile?.confirmedCoins ?? 0);
           motion.current?.configure(next.settings);
         })
         .catch(() => {});
@@ -105,37 +106,216 @@ export function Overlay({ platform }: { platform: Platform }) {
     motion.current?.pause(menuOpen || wardrobeOpen || gachaOpen || settingsOpen);
   }, [menuOpen, wardrobeOpen, gachaOpen, settingsOpen]);
 
+  useEffect(() => {
+    if (!menuOpen || !state.signedIn) return;
+    const refresh = () => {
+      if (!document.hidden) onRefresh.current?.();
+    };
+    refresh();
+    const timer = setInterval(refresh, 30_000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [menuOpen, view, state.signedIn]);
+
   useLayoutEffect(() => {
-    if (!menuOpen || !menu.current || !dragHandle.current) return;
-    const popup = menu.current;
-    const anchor = dragHandle.current;
+    const popup = menuOpen ? menu.current : null;
+    const bubble =
+      result && !checking && !wardrobeOpen && !gachaOpen && !settingsOpen
+        ? speechBubble.current
+        : null;
+    if ((!popup && !bubble) || !panel.current) return;
+    const root = panel.current;
+    root.getAnimations().forEach((animation) => animation.cancel());
     function positionMenu() {
-      const rect = anchor.getBoundingClientRect();
       const gap = 12;
-      const aboveSpace = rect.top - gap * 2;
-      popup.style.maxHeight = `${Math.max(0, aboveSpace >= 180 ? Math.min(innerHeight - gap * 2, aboveSpace) : innerHeight - gap * 2)}px`;
-      const maxX = Math.max(gap, innerWidth - popup.offsetWidth - gap);
-      const maxY = Math.max(gap, innerHeight - popup.offsetHeight - gap);
-      const above = rect.top - popup.offsetHeight - gap;
-      popup.style.left = `${Math.max(gap, Math.min(maxX, rect.right - popup.offsetWidth))}px`;
-      popup.style.top = `${Math.max(gap, Math.min(maxY, above))}px`;
+      const clamp = (value: number, min: number, max: number) =>
+        Math.max(min, Math.min(Math.max(min, max), value));
+      if (bubble) {
+        bubble.style.maxWidth = `${Math.max(1, innerWidth - root.offsetWidth - gap * 2 - 4)}px`;
+        bubble.style.left = `${root.offsetWidth + 4}px`;
+        bubble.style.top = `${Math.max(8, (dragHandle.current?.offsetHeight ?? 140) * 0.55 - bubble.offsetHeight / 2)}px`;
+      }
+      const bubbleBottom = bubble ? bubble.offsetTop + bubble.offsetHeight : 0;
+      const height = Math.max(root.offsetHeight, bubbleBottom);
+      const width = root.offsetWidth + (bubble ? bubble.offsetWidth + 4 : 0);
+      const maxTop = Math.max(gap, innerHeight - height - gap);
+      const minTop = popup ? Math.min(maxTop, 480 + gap * 2) : gap;
+      const minLeft = popup
+        ? Math.min((popup.offsetWidth - root.offsetWidth) / 2 + gap, innerWidth - width - gap)
+        : gap;
+      const left = clamp(
+        parseFloat(root.style.left) || 0,
+        Math.max(gap, minLeft),
+        innerWidth - width - gap,
+      );
+      const top = clamp(parseFloat(root.style.top) || 0, minTop, maxTop);
+      if (parseFloat(root.style.left) !== left) root.style.left = `${left}px`;
+      if (parseFloat(root.style.top) !== top) root.style.top = `${top}px`;
+      const rect = root.getBoundingClientRect();
+      if (!popup) return;
+      const speechRect = bubble?.getBoundingClientRect();
+      const group = {
+        left: rect.left,
+        top: rect.top,
+        right: Math.max(rect.right, speechRect?.right ?? rect.right),
+        bottom: Math.max(rect.bottom, speechRect?.bottom ?? rect.bottom),
+      };
+      const available = Math.max(0, Math.min(480, rect.top - gap * 2));
+      popup.dataset.compact = String(available < 360);
+      popup.style.maxHeight = `${available}px`;
+      const w = popup.offsetWidth,
+        h = popup.offsetHeight;
+      const maxX = innerWidth - w - gap,
+        maxY = innerHeight - h - gap;
+      const wanted = {
+        x: clamp(menuPosition.current?.x ?? rect.left + (rect.width - w) / 2, gap, maxX),
+        y: clamp(menuPosition.current?.y ?? rect.top - h - gap, gap, maxY),
+      };
+      const candidates = [
+        wanted,
+        { x: group.left - w - gap, y: wanted.y },
+        { x: group.right + gap, y: wanted.y },
+        { x: wanted.x, y: group.top - h - gap },
+        { x: wanted.x, y: group.bottom + gap },
+      ].filter(
+        ({ x, y }) =>
+          x >= gap &&
+          x <= maxX &&
+          y >= gap &&
+          y <= maxY &&
+          (x + w + gap <= group.left ||
+            x >= group.right + gap ||
+            y + h + gap <= group.top ||
+            y >= group.bottom + gap),
+      );
+      const position = candidates.sort(
+        (a, b) =>
+          Math.hypot(a.x - wanted.x, a.y - wanted.y) - Math.hypot(b.x - wanted.x, b.y - wanted.y),
+      )[0];
+      if (position) {
+        popup.style.left = `${position.x}px`;
+        popup.style.top = `${position.y}px`;
+      }
     }
+    positionOverlays.current = positionMenu;
     positionMenu();
     const observer = new ResizeObserver(positionMenu);
-    observer.observe(popup);
-    observer.observe(anchor);
+    if (popup) observer.observe(popup);
+    if (bubble) observer.observe(bubble);
+    observer.observe(root);
+    const movement = new MutationObserver(positionMenu);
+    if (panel.current)
+      movement.observe(panel.current, { attributes: true, attributeFilter: ["style"] });
     addEventListener("resize", positionMenu);
-    popup.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+    if (menuOpen) popup?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
     return () => {
       observer.disconnect();
+      movement.disconnect();
+      positionOverlays.current = () => {};
       removeEventListener("resize", positionMenu);
     };
-  }, [menuOpen]);
+  }, [menuOpen, result, checking, wardrobeOpen, gachaOpen, settingsOpen]);
 
   useEffect(() => {
     if (!menuOpen || wardrobeOpen || gachaOpen || settingsOpen) return;
     const events = new AbortController();
     const { signal } = events;
+    const popup = menu.current;
+    let drag: { id: number; startX: number; startY: number; x: number; y: number } | null = null;
+    let dragged = false;
+    popup?.addEventListener(
+      "pointerdown",
+      (event) => {
+        dragged = false;
+        if (
+          event.button !== 0 ||
+          !(event.target instanceof Element) ||
+          event.target.closest("button, a, input, textarea, select, summary, .commet-suggestion p")
+        )
+          return;
+        const rect = popup.getBoundingClientRect();
+        if (event.clientX >= rect.right - 10) return;
+        const content = popup.querySelector(".commet-menu-content")?.getBoundingClientRect();
+        if (
+          content &&
+          event.clientX >= content.right - 12 &&
+          event.clientX <= content.right &&
+          event.clientY >= content.top &&
+          event.clientY <= content.bottom
+        )
+          return;
+        drag = {
+          id: event.pointerId,
+          startX: event.clientX,
+          startY: event.clientY,
+          x: rect.left,
+          y: rect.top,
+        };
+        popup.setPointerCapture(event.pointerId);
+        event.preventDefault();
+      },
+      { signal },
+    );
+    popup?.addEventListener(
+      "pointermove",
+      (event) => {
+        if (
+          !drag ||
+          event.pointerId !== drag.id ||
+          (!dragged && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 5)
+        )
+          return;
+        dragged = true;
+        popup.dataset.dragging = "true";
+        menuPosition.current = {
+          x: drag.x + event.clientX - drag.startX,
+          y: drag.y + event.clientY - drag.startY,
+        };
+        positionOverlays.current();
+      },
+      { signal },
+    );
+    const stopDrag = () => {
+      drag = null;
+      if (popup) delete popup.dataset.dragging;
+    };
+    popup?.addEventListener("lostpointercapture", stopDrag, { signal });
+    popup?.addEventListener("pointercancel", stopDrag, { signal });
+    popup?.addEventListener(
+      "click",
+      (event) => {
+        if (!dragged) return;
+        dragged = false;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      },
+      { capture: true, signal },
+    );
+    popup?.addEventListener(
+      "keydown",
+      (event) => {
+        if (!(event.target instanceof Element) || !event.target.matches(".commet-menu-eyebrow"))
+          return;
+        const directions: Record<string, readonly [number, number]> = {
+          ArrowLeft: [-12, 0],
+          ArrowRight: [12, 0],
+          ArrowUp: [0, -12],
+          ArrowDown: [0, 12],
+        };
+        const delta = directions[event.key];
+        if (!delta) return;
+        event.preventDefault();
+        const rect = popup.getBoundingClientRect();
+        menuPosition.current = { x: rect.left + delta[0], y: rect.top + delta[1] };
+        positionOverlays.current();
+      },
+      { signal },
+    );
     document.addEventListener(
       "pointerdown",
       (event) => {
@@ -219,7 +399,7 @@ export function Overlay({ platform }: { platform: Platform }) {
         const balance = await send({ type: "tick", pageId, active });
         if (expected !== generation || signal.aborted || !config.current.signedIn) return;
         setPending(balance.pending);
-        setConfirmed(balance.confirmed);
+        if (balance.confirmed !== config.current.profile?.confirmedCoins) onRefresh.current?.();
         if (balance.limited) {
           const day = 86_400_000,
             offset = 9 * 3_600_000;
@@ -321,8 +501,13 @@ export function Overlay({ platform }: { platform: Platform }) {
       const confirmation = watchPost(platform.id, text, target, readText);
       try {
         await send({ type: "beginPost", pageId: id, postId });
+        const posted = await confirmation;
+        if (posted && !signal.aborted && id === pageId) {
+          setResult(null);
+          preview.current = null;
+        }
         const draft =
-          (await confirmation) && context && text.length <= 5000
+          posted && context && text.length <= 5000
             ? { text, context, summarizeVideos: settings.summarizeVideos }
             : undefined;
         const update = await send({ type: "finishPost", pageId: id, postId, draft });
@@ -336,8 +521,6 @@ export function Overlay({ platform }: { platform: Platform }) {
               ? "投稿または判定を確認できず、精算を保留しました。"
               : "接続後に精算します。",
         );
-        if (update.analysis) setResult(update.analysis);
-        preview.current = null;
         onRefresh.current?.();
       } catch (error) {
         if (!signal.aborted)
@@ -460,7 +643,7 @@ export function Overlay({ platform }: { platform: Platform }) {
         return;
       preview.current = { editor: target, text };
       setResult(analysis);
-      setStatus("投稿前のプレビューです。");
+      setStatus("");
     } catch (error) {
       if (!target.isConnected || readText(target) !== text || location.href !== origin) return;
       setStatus(error instanceof Error ? error.message : "判定できませんでした。");
@@ -489,8 +672,24 @@ export function Overlay({ platform }: { platform: Platform }) {
   }
 
   const pet = state.profile ?? guestPet;
+  const confirmed = pet.confirmedCoins;
   const analysis = result?.analysis;
   const rule = analysis ? CATEGORY_RULES[analysis.category] : null;
+  const speech = !analysis
+    ? ""
+    : analysis.decision === "harmful"
+      ? "んむ…。この言葉は、相手を傷つけちゃうかも。伝えたいことを残して、いっしょに整えてみよ？"
+      : analysis.needsSecondaryCheck
+        ? analysis.contextSufficient
+          ? "んむ…。ことばの受け取り方が分かれそう。伝えたいことを、いっしょに確かめよ？"
+          : "んむ…。もう少しお話がわかると、いっしょに考えられそう。"
+        : analysis.appreciation > 0
+          ? `わぁ、あったかいことばだね。${pet.name}も、ぽかぽかだよ。`
+          : analysis.humor > 0
+            ? `ふふっ、ことばに遊び心があるね。${pet.name}、にっこり。`
+            : analysis.Q > 0
+              ? `ふむふむ、考えを伝えてくれたんだね。${pet.name}、ちゃんと読んだよ。`
+              : `うんうん、穏やかなことばだね。${pet.name}、ちゃんと読んだよ。`;
   const browsingAnimation =
     state.settings.explore &&
     !composing &&
@@ -543,22 +742,33 @@ export function Overlay({ platform }: { platform: Platform }) {
             animation={displayAnimation}
           />
         </div>
-        <span className="commet-visually-hidden" role="status" aria-live="polite">
-          {checking
-            ? "コメントを確認しています。"
-            : rule && analysis
-              ? `${rule.label}。${analysis.reason}`
-              : ""}
+        <span
+          ref={speechBubble}
+          className={
+            analysis && !checking && !wardrobeOpen && !gachaOpen && !settingsOpen
+              ? "commet-speech"
+              : "commet-visually-hidden"
+          }
+          role="status"
+          aria-live="polite"
+        >
+          {checking ? "コメントを確認しています。" : speech}
         </span>
         <div ref={dock} className="commet-dock">
           <div
             className="commet-coin-counter"
             role="status"
-            aria-label={`探索コイン 合計 ${confirmed + pending} 枚。確定 ${confirmed} 枚、仮 ${pending} 枚`}
-            title={`確定 ${confirmed.toLocaleString()} 枚 / 仮 ${pending.toLocaleString()} 枚`}
+            aria-label={`探索コイン 使えるコイン ${confirmed} 枚、確定前 ${pending} 枚`}
+            title={`使えるコイン ${confirmed.toLocaleString()} 枚 / 確定前 ${pending.toLocaleString()} 枚`}
           >
-            <OverlayIcon name="coin" />
-            <span>{(confirmed + pending).toLocaleString()}</span>
+            <span className="commet-coin-confirmed" aria-hidden="true">
+              <OverlayIcon name="coin" />
+              <span>{confirmed.toLocaleString()}</span>
+            </span>
+            <span className="commet-coin-pending" aria-hidden="true">
+              <OverlayIcon name="coin" />
+              <span>{pending.toLocaleString()}</span>
+            </span>
           </div>
           <button
             ref={menuButton}
@@ -587,7 +797,13 @@ export function Overlay({ platform }: { platform: Platform }) {
             onKeyDown={(event) => event.stopPropagation()}
           >
             <header className="commet-menu-header">
-              <p className="commet-menu-eyebrow">
+              <p
+                className="commet-menu-eyebrow"
+                role="button"
+                tabIndex={0}
+                aria-label="パネルを移動"
+                title="ドラッグ、または矢印キーでパネルを移動"
+              >
                 COMMET <span>· {platform.name}</span>
               </p>
               <button
@@ -660,7 +876,12 @@ export function Overlay({ platform }: { platform: Platform }) {
                 <span>ガチャ</span>
               </button>
             </nav>
-            <div className="commet-menu-content">
+            <div
+              className="commet-menu-content"
+              role="region"
+              aria-label={view === "check" ? "判定と例文" : "育成記録"}
+              tabIndex={0}
+            >
               {view === "status" ? (
                 <>
                   <h3>いっしょに育てた記録</h3>
@@ -668,64 +889,70 @@ export function Overlay({ platform }: { platform: Platform }) {
                 </>
               ) : (
                 <>
-                  <p className="commet-menu-message" role="status">
-                    {status ||
-                      (state.signedIn
-                        ? "ことばを一緒に見直そう。"
-                        : "ログインすると、投稿チェックと育成が使えます。")}
-                  </p>
-                  {analysis && rule && (
-                    <section
-                      className="commet-result"
-                      data-tone={analysis.category}
-                      key={analysis.suggestion + analysis.reason}
-                    >
-                      <b>
-                        {rule.label}
-                        {result?.demo ? "（デモ）" : ""}
-                      </b>
-                      <p>{analysis.reason}</p>
-                      <small>
-                        安全性 S {analysis.S} / 2 · 貢献度 Q {analysis.Q} / 2
-                        <br />
-                        投稿成功時：{analysis.needsSecondaryCheck ? "暫定 " : ""}
-                        {analysis.xp} XP · コイン {analysis.coinMultiplier}倍
-                      </small>
-                      {result?.videoSource === "gemini_video" && (
-                        <p>
-                          <small>動画要約を考慮</small>
-                        </p>
-                      )}
-                      {analysis.suggestion && (
-                        <details>
-                          <summary>改善案を見る</summary>
-                          <p>{analysis.suggestion}</p>
-                          {preview.current && <button onClick={apply}>改善案を入力欄に反映</button>}
-                        </details>
-                      )}
-                    </section>
+                  {(status || !analysis) && (
+                    <p className="commet-menu-message" role="status">
+                      {status ||
+                        (state.signedIn
+                          ? "ことばを一緒に見直そう。"
+                          : "ログインすると、投稿チェックと育成が使えます。")}
+                    </p>
                   )}
-                  <button
-                    type="button"
-                    className="primary commet-check-action"
-                    disabled={checking || !state.signedIn}
-                    onClick={() => void check()}
-                  >
-                    <OverlayIcon name="check" />
-                    {checking ? "判定中…" : `この${platform.contentLabel}をチェック`}
-                  </button>
+                  {analysis && rule && (
+                    <div key={analysis.suggestion + analysis.reason}>
+                      <details className="commet-suggestion">
+                        <summary>
+                          <span className="commet-suggestion-closed">言い換え例を見る</span>
+                          <span className="commet-suggestion-open">言い換え例を閉じる</span>
+                        </summary>
+                        <div>
+                          <p>
+                            {analysis.suggestion ||
+                              (analysis.decision === "harmful"
+                                ? "言い換え例を用意できなかったよ。伝えたい意見と、相手を傷つける表現を分けて見直してみよ？"
+                                : analysis.needsSecondaryCheck
+                                  ? "まだ判断が難しいので、無理に言い換えず、伝えたい内容や文脈を確かめてね。"
+                                  : "今の表現に強い攻撃は見当たらないよ。無理に言い換えなくても大丈夫だよ。")}
+                          </p>
+                          {analysis.suggestion && preview.current && (
+                            <button onClick={apply}>入力欄に反映</button>
+                          )}
+                        </div>
+                      </details>
+                      <section className="commet-result" data-tone={analysis.category}>
+                        <b>
+                          {rule.label}
+                          {result?.demo ? "（デモ）" : ""}
+                        </b>
+                        <p>{analysis.reason}</p>
+                        <small>
+                          安全性 S {analysis.S} / 2 · 貢献度 Q {analysis.Q} / 2
+                          <br />
+                          投稿成功時：{analysis.needsSecondaryCheck ? "暫定 " : ""}
+                          {analysis.xp} XP · コイン {analysis.coinMultiplier}倍
+                        </small>
+                        {result?.videoSource === "gemini_video" && (
+                          <p>
+                            <small>動画要約を考慮</small>
+                          </p>
+                        )}
+                      </section>
+                    </div>
+                  )}
                 </>
               )}
             </div>
+            {view === "check" && (
+              <button
+                type="button"
+                className="primary commet-check-action"
+                disabled={checking || !state.signedIn}
+                onClick={() => void check()}
+              >
+                <OverlayIcon name="check" />
+                {checking ? "判定中…" : `この${platform.contentLabel}をチェック`}
+              </button>
+            )}
             <footer className="commet-menu-footer">
-              <p className="commet-wallet">
-                <span>
-                  確定 <b>{confirmed.toLocaleString()}</b>
-                </span>
-                <span>
-                  仮 <b>{pending.toLocaleString()}</b>
-                </span>
-              </p>
               <button
                 type="button"
                 className="commet-settings-link"

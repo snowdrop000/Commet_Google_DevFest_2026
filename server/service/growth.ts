@@ -10,6 +10,13 @@ import {
 import { contributionKeys } from "../../shared/model";
 import { rewardsFor } from "../../shared/evaluation";
 import type { GrowthEvidence } from "../model/state";
+import { dayJst } from "./exchange-shop";
+
+export function currentStreak(pet: Pick<Profile, "streak" | "lastActiveDate">, now: number) {
+  return pet.lastActiveDate === dayJst(now) || pet.lastActiveDate === dayJst(now - 86_400_000)
+    ? pet.streak
+    : 0;
+}
 
 export function applyGrowth(pet: Profile, analysis: GrowthEvidence, now: number) {
   const rule = CATEGORY_RULES[analysis.category];
@@ -59,10 +66,9 @@ export function applyGrowth(pet: Profile, analysis: GrowthEvidence, now: number)
             : statKeys.every((key) => pet[key] >= requirement.value);
     if (eligible) pet.unlockedItems.push(id);
   }
-  const day = new Date(now).toISOString().slice(0, 10);
-  const yesterday = new Date(now - 86_400_000).toISOString().slice(0, 10);
+  const day = dayJst(now);
   if (pet.lastActiveDate !== day) {
-    pet.streak = pet.lastActiveDate === yesterday ? pet.streak + 1 : 1;
+    pet.streak = currentStreak(pet, now) + 1;
     pet.lastActiveDate = day;
   }
   pet.totalPosts++;

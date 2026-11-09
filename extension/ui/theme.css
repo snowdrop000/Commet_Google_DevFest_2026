@@ -714,6 +714,77 @@
   font-size: 11px;
   color: #a18da6;
 }
+.commet-comment-tendencies {
+  margin: 8px 0;
+  overflow: hidden;
+  border: 1px solid #e4d6e8;
+  border-radius: 10px;
+}
+.commet-comment-tendencies summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 10px;
+  color: #796786;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.commet-comment-tendencies summary::-webkit-details-marker {
+  display: none;
+}
+.commet-comment-tendencies summary::after {
+  content: "";
+  flex: 0 0 6px;
+  width: 6px;
+  height: 6px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(-45deg);
+}
+.commet-comment-tendencies[open] summary::after {
+  transform: rotate(45deg);
+}
+.commet-comment-tendencies summary:focus-visible {
+  outline: 2px solid #bf8eb0;
+  outline-offset: -3px;
+}
+.commet-tendency-chart {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  margin: 0 auto;
+}
+.commet-tendency-grid {
+  fill: none;
+  stroke: #e4d6e8;
+  stroke-width: 1;
+}
+.commet-tendency-area {
+  fill: #bf8eda40;
+  stroke: #ad7fc5;
+  stroke-width: 1.5;
+}
+.commet-tendency-point {
+  fill: #ad7fc5;
+}
+.commet-tendency-labels,
+.commet-tendency-empty {
+  fill: #796786;
+  font-size: 11px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.commet-tendency-empty {
+  font-size: 10px;
+  paint-order: stroke;
+  stroke: var(--ui-paper);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
 .commet-level-rewards {
   border-top: 1px solid #eee5ed;
   padding-top: 10px;
@@ -791,11 +862,6 @@
 .commet .commet-menu-footer {
   border-color: var(--ui-line);
   padding-top: 6px;
-}
-.commet .commet-menu .commet-wallet {
-  gap: 9px;
-  font-size: 9px;
-  color: #b09caf;
 }
 .commet .commet-menu .commet-settings-link {
   font-size: 9px;

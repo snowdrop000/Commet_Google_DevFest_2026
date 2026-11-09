@@ -17,6 +17,52 @@ const now = Date.parse("2026-11-08T00:00:00Z");
 const evidence = (change: Partial<ReturnType<typeof demoCandidate>> = {}) =>
   growthEvidence.parse(classify({ ...demoCandidate("本文です。"), ...change }, "本文です。"));
 
+describe("posting streaks", () => {
+  it("counts midnight in Japan as a new day and does not increment again at UTC midnight", () => {
+    const pet = newProfile();
+    const post = evidence();
+    applyGrowth(pet, post, Date.parse("2026-11-08T23:59:00+09:00"));
+    expect(pet).toMatchObject({ streak: 1, lastActiveDate: "2026-11-08", totalPosts: 1 });
+    applyGrowth(pet, post, Date.parse("2026-11-09T00:01:00+09:00"));
+    expect(pet).toMatchObject({ streak: 2, lastActiveDate: "2026-11-09", totalPosts: 2 });
+    applyGrowth(pet, post, Date.parse("2026-11-09T09:01:00+09:00"));
+    expect(pet).toMatchObject({ streak: 2, lastActiveDate: "2026-11-09", totalPosts: 3 });
+  });
+
+  it("starts again at one after a day without a confirmed post", () => {
+    const pet = newProfile();
+    const post = evidence();
+    applyGrowth(pet, post, Date.parse("2026-11-08T23:59:00+09:00"));
+    applyGrowth(pet, post, Date.parse("2026-11-09T00:01:00+09:00"));
+    applyGrowth(pet, post, Date.parse("2026-11-11T00:01:00+09:00"));
+    expect(pet).toMatchObject({ streak: 1, lastActiveDate: "2026-11-11", totalPosts: 3 });
+  });
+
+  it("shows an expired streak as zero without writing or resetting the saved profile", async () => {
+    const f = testApi(); // November 6, 10:00 in Japan.
+    const account = newAccount();
+    Object.assign(account.profile, {
+      streak: 2,
+      lastActiveDate: "2026-11-05",
+      totalPosts: 14,
+      confirmedCoins: 92,
+    });
+    const original = structuredClone(account);
+    f.repository.accounts.set("alice", account);
+    const read = async () => {
+      const response = await f.app.request("/v1/profile", {
+        headers: { Authorization: "Bearer alice" },
+      });
+      expect(response.status).toBe(200);
+      return response.json();
+    };
+    expect(await read()).toMatchObject({ streak: 2, totalPosts: 14, confirmedCoins: 92 });
+    f.advance(14 * 3_600_000); // November 7, 00:00 in Japan.
+    expect(await read()).toEqual({ ...original.profile, streak: 0 });
+    expect(f.repository.accounts.get("alice")).toEqual(original);
+  });
+});
+
 describe("level-only ability growth", () => {
   it("uses 98 level-ups and 1,862 XP, with steps at each decade", () => {
     expect([1, 9, 10, 19, 20, 90, 98].map(xpNeeded)).toEqual([10, 10, 12, 12, 14, 28, 28]);

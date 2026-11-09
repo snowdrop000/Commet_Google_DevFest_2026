@@ -96,6 +96,8 @@ async function flush(user: User, state: Exploration, save: () => Promise<void>, 
       state.outbox = state.outbox.filter((candidate) => candidate.sessionId !== item.sessionId);
       await save();
       if (item.sessionId === priority) settlement = result;
+      if (result.status === "settled")
+        await browser.storage.local.set({ commetProfileRevision: crypto.randomUUID() });
     } catch (error) {
       // Transport or server errors leave the same idempotent event on disk.
       if (!(error instanceof ApiError) || error.status !== 400) break;

@@ -44,6 +44,37 @@ test("YouTube checks award nothing; the posted draft determines XP and level-onl
     const panel = page.getByRole("complementary", { name: "Commet" });
     const menu = panel.getByRole("button", { name: "メニューを開く" });
     const editor = page.getByRole("textbox", { name: "コメント", exact: true });
+    const observer = await context.newPage();
+    await observer.goto("https://www.youtube.com/watch?v=demo1234568");
+    const observerPanel = observer.getByRole("complementary", { name: "Commet" });
+    const observerMenu = observerPanel.getByRole("button", { name: "メニューを開く" });
+    await observerMenu.click();
+    await observerPanel.getByRole("button", { name: "育成状況", exact: true }).click();
+    const observerStats = observerPanel.locator(".commet-stats");
+    await expect(observerStats).toContainText("0 投稿");
+    await expect(observerStats.locator("small").first()).not.toContainText("確定");
+    const tendencies = observerPanel.locator(".commet-comment-tendencies");
+    const tendencyToggle = tendencies.locator("summary");
+    const chart = tendencies.locator("svg");
+    await expect(tendencies).not.toHaveAttribute("open", "");
+    await tendencyToggle.click();
+    await expect(chart).toBeVisible();
+    await expect(chart).toContainText("まだ傾向がありません");
+    await expect(chart.locator("polygon")).toHaveCount(0);
+    await expect(tendencies.locator("p")).toHaveCount(0);
+    await tendencyToggle.press("Enter");
+    await expect(chart).toBeHidden();
+    await observer.keyboard.press("Escape");
+    await page.bringToFront();
+    const observe = async (posts: number, level: number, keepOpen = false) => {
+      await observer.bringToFront();
+      await observerMenu.click();
+      await expect(observerStats).toContainText(`${posts} 投稿`);
+      await expect(observerStats).toContainText("1 日連続");
+      await expect(observerStats).toContainText(`LV. ${level}`);
+      if (!keepOpen) await observer.keyboard.press("Escape");
+      await page.bringToFront();
+    };
     const check = async (text: string, S: number, Q: number, xp: number) => {
       await page.keyboard.press("Escape");
       await editor.fill(text);
@@ -69,21 +100,43 @@ test("YouTube checks award nothing; the posted draft determines XP and level-onl
       await editor.fill(text);
       await page.getByRole("button", { name: "コメントを投稿", exact: true }).click();
       await menu.click();
+      await panel.getByRole("button", { name: "育成状況", exact: true }).click();
+      await expect(panel.locator(".commet-stats")).toContainText(`${posts} 投稿`);
+      await panel.getByRole("button", { name: "投稿チェック", exact: true }).click();
       await expect(panel.getByText(/倍で \d+ 枚確定/)).toBeVisible();
       await options.reload();
       await expect(stats).toContainText(`${posts} 投稿`);
     };
     await post("頭が悪い。", 1);
+    await observe(1, 1, true);
     await expect(stats).toContainText("XP 0 / 10");
     await expect(
       options.getByRole("progressbar", { name: "ぬくもり", exact: true }),
     ).toHaveAttribute("value", "10");
     await post("見ました。", 2);
+    await observer.bringToFront();
+    await expect(observerStats).toContainText("2 投稿");
+    await observer.keyboard.press("Escape");
+    await page.bringToFront();
     await expect(stats).toContainText("XP 2 / 10");
     await expect(
       options.getByRole("progressbar", { name: "ぬくもり", exact: true }),
     ).toHaveAttribute("value", "10");
     await post("応援しています！", 3);
+    await observe(3, 2);
+    await observer.bringToFront();
+    await observerMenu.click();
+    await tendencyToggle.click();
+    await expect(chart).toHaveAttribute(
+      "aria-label",
+      "コメントの傾向。累積の貢献点：感謝・応援 2点、提案・議論 0点、質問・情報 0点、ユーモア 0点",
+    );
+    await expect(chart.locator("polygon")).toHaveCount(1);
+    await expect(chart.locator(".commet-tendency-point")).toHaveCount(4);
+    await expect(chart.locator(".commet-tendency-empty")).toHaveCount(0);
+    await observerPanel.locator(".commet-menu").screenshot({
+      path: test.info().outputPath("comment-tendencies.png"),
+    });
     await expect(stats).toContainText("LV. 2");
     await expect(stats).toContainText("XP 2 / 10");
     for (const [name, value] of [
