@@ -30,7 +30,7 @@ export async function api<T>(
         ...(body ? { "Content-Type": "application/json" } : {}),
       },
       ...(body ? { body: JSON.stringify(body) } : {}),
-      signal: AbortSignal.timeout(path === "/v1/analyze" ? 24_000 : 5_000),
+      signal: AbortSignal.timeout(path === "/v1/analyze" ? 28_000 : 5_000),
     });
   } catch {
     throw new ApiError("localhost のHono APIに接続できませんでした。", 0);
