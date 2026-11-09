@@ -698,11 +698,16 @@ export function Overlay({ platform }: { platform: Platform }) {
     petAnimation.action === "idle"
       ? { action: "walk" as const, direction: petAnimation.direction }
       : petAnimation;
+  // While the menu is open, the pet stands still and shows off its held item.
+  // A running check keeps its peeking pose so the user can see it is working.
+  const showingProp = menuOpen && !checking && pet.equippedItems.prop !== "prop_none";
   const displayAnimation = checking
     ? { ...petAnimation, action: "peek" as const }
-    : rule
+    : showingProp
       ? { ...petAnimation, action: "idle" as const }
-      : browsingAnimation;
+      : rule
+        ? { ...petAnimation, action: "idle" as const }
+        : browsingAnimation;
   return (
     <>
       <aside ref={panel} className="commet commet-card" aria-label="Commet">
@@ -737,7 +742,9 @@ export function Overlay({ platform }: { platform: Platform }) {
             mood={
               checking
                 ? "idle"
-                : (rule?.mood ?? (displayAnimation.action === "peek" ? "idle" : undefined))
+                : showingProp
+                  ? "proud"
+                  : (rule?.mood ?? (displayAnimation.action === "peek" ? "idle" : undefined))
             }
             animation={displayAnimation}
           />
