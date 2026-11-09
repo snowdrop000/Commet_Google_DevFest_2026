@@ -1,11 +1,53 @@
 import type { ReactNode } from "react";
 import type { StarExpression } from "./star-parts";
+import { GemFacets, gems, type Gem, type StarPose } from "./star-gems";
+import { motion, sparkle } from "./star-motion";
+// Repeats every 10 units so the water can slide by two periods and loop seamlessly.
+const wave = (y: number) => `M-40 ${y}${"q2.5-1.6 5 0t5 0".repeat(18)}`;
+const flakes: [x: number, y: number, r: number, delay: number][] = [
+  [24, 50, 1.2, 0],
+  [36, 40, 1, 2.1],
+  [45, 64, 1.1, 3.6],
+  [58, 38, 1.3, 1.2],
+  [67, 56, 1, 4.2],
+  [77, 64, 1.2, 0.6],
+  [30, 68, 1.1, 2.8],
+  [55, 70, 1, 1.7],
+  [83, 50, 1.1, 3.1],
+  [17, 62, 1, 4.6],
+  [63, 45, 0.9, 0.9],
+  [41, 34, 1.1, 3.9],
+];
+
+function Goldfish({ x, y, size, back }: { x: number; y: number; size: number; back?: boolean }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${size})`}>
+      <g {...motion(back ? "fish-back" : "fish", back ? 2 : 0)}>
+        <path
+          {...motion("tail", back ? 0.25 : 0)}
+          d="M-2.6 0-6.4-2.8Q-5.4 0-6.4 2.8Z"
+          fill="#ff9a62"
+          stroke="#c6462a"
+          strokeWidth=".45"
+          strokeLinejoin="round"
+        />
+        <ellipse rx="3.6" ry="2.4" fill="#f2603a" stroke="#c6462a" strokeWidth=".45" />
+        <path d="M-.6-2.2Q.6-3.9 1.8-2.1" fill="#ff9a62" />
+        <path d="M-.4 0q.6 1.4 2 1.1" fill="none" stroke="#ffb98f" strokeWidth=".45" />
+        <circle cx="1.9" cy="-.5" r=".55" fill="#3a2a2a" />
+      </g>
+    </g>
+  );
+}
 
 type Skin = {
   tint: readonly [number, number, number];
   ink?: string;
   wash?: readonly [color: string, opacity: number];
-  details?: ReactNode;
+  // A function receives the pose, for art that follows the body's shape.
+  details?: ReactNode | ((pose: StarPose) => ReactNode);
+  // Gem skins also cut facets into hands drawn apart from the body.
+  gem?: Gem;
 };
 
 export const starSkins: Partial<Record<string, Skin>> = {
@@ -58,12 +100,12 @@ export const starSkins: Partial<Record<string, Skin>> = {
     details: (
       <>
         <path d="M15 85Q35 70 52 80T91 75v22H15Z" fill="#c7c4e9" opacity=".5" />
-        <path d="M54 68a8 8 0 1 0 6 13 6.6 6.6 0 0 1-6-13Z" fill="#fff6ca" />
+        <path {...motion("glow")} d="M54 68a8 8 0 1 0 6 13 6.6 6.6 0 0 1-6-13Z" fill="#fff6ca" />
         <g fill="#fffdf0">
-          <path d="m30 75 1 2.6 2.8 1-2.8 1-1 2.6-1-2.6-2.8-1 2.8-1Z" />
-          <circle cx="71" cy="72" r="1.2" />
-          <circle cx="74" cy="84" r=".9" />
-          <circle cx="40" cy="86" r=".8" />
+          <path {...motion("twinkle")} d="m30 75 1 2.6 2.8 1-2.8 1-1 2.6-1-2.6-2.8-1 2.8-1Z" />
+          <circle {...motion("twinkle", 0.7)} cx="71" cy="72" r="1.2" />
+          <circle {...motion("twinkle", 1.5)} cx="74" cy="84" r=".9" />
+          <circle {...motion("twinkle", 2.1)} cx="40" cy="86" r=".8" />
         </g>
       </>
     ),
@@ -81,26 +123,48 @@ export const starSkins: Partial<Record<string, Skin>> = {
     wash: ["#662e93", 0.55],
     details: (
       <>
-        <path
-          d="M13 74C30 82 48 72 60 63S82 51 90 55"
-          fill="none"
-          stroke="#9e88e3"
-          strokeWidth="8"
-          opacity=".36"
-        />
+        <g {...motion("shimmer")} opacity=".36">
+          <path
+            d="M13 74C30 82 48 72 60 63S82 51 90 55"
+            fill="none"
+            stroke="#9e88e3"
+            strokeWidth="8"
+          />
+        </g>
         <path d="m25 70 12 6 13-7m14 13 9-7 8 4" fill="none" stroke="#cfbbfd" strokeWidth=".55" />
+        <g fill="#ffe69d">
+          <path {...motion("twinkle")} d="M25 66l1.2 3 3 1.2-3 1-1.2 3-1-3-3-1 3-1.2Z" />
+          <path {...motion("twinkle", 1.3)} d="M72 71l1 2.7 2.8 1.3-2.8 1-1 3-1-3-2.8-1 2.8-1.3Z" />
+        </g>
         <path
-          d="M25 66l1.2 3 3 1.2-3 1-1.2 3-1-3-3-1 3-1.2ZM72 71l1 2.7 2.8 1.3-2.8 1-1 3-1-3-2.8-1 2.8-1.3Z"
-          fill="#ffe69d"
+          {...motion("twinkle", 0.6)}
+          d="M51 66.5l.7 2 2 .7-2 .7-.7 2-.8-2-2-.7 2-.7Z"
+          fill="#e9dafa"
         />
-        <path d="M51 66.5l.7 2 2 .7-2 .7-.7 2-.8-2-2-.7 2-.7Z" fill="#e9dafa" />
         <g fill="#fff0ce">
-          <circle cx="37" cy="76" r="1" />
-          <circle cx="64" cy="82" r="1.2" />
-          <circle cx="81" cy="79" r="1" />
-          <circle cx="43" cy="42" r="1.1" />
-          <circle cx="56" cy="40" r=".8" />
-          <circle cx="34" cy="84" r=".9" />
+          {(
+            [
+              [37, 76, 1],
+              [64, 82, 1.2],
+              [81, 79, 1],
+              [43, 42, 1.1],
+              [56, 40, 0.8],
+              [34, 84, 0.9],
+            ] as const
+          ).map(([cx, cy, r], index) => (
+            <circle key={cx} {...motion("twinkle", index * 0.45)} cx={cx} cy={cy} r={r} />
+          ))}
+        </g>
+        {/* A shooting star crosses the crown now and then. */}
+        <g {...motion("shoot")} opacity="0">
+          <path
+            d="M22 37l7 2.4"
+            fill="none"
+            stroke="#fff4d6"
+            strokeWidth=".9"
+            strokeLinecap="round"
+          />
+          <circle cx="29" cy="39.4" r=".9" fill="#fff" />
         </g>
       </>
     ),
@@ -179,6 +243,20 @@ export const starSkins: Partial<Record<string, Skin>> = {
           strokeWidth=".85"
           strokeLinejoin="round"
         />
+        {/* A glint runs along the gold seams. With reduced motion it waits off the path. */}
+        <path
+          {...motion("glint")}
+          d="m14 64 16 3 4 10 11 4 2 11m-13-15-9 5-4 9m71-25-10-2-9 3-1 13-10 4-3 10m13-14 9 5"
+          pathLength={100}
+          fill="none"
+          stroke="#fffbe8"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeDasharray="6 194"
+          strokeDashoffset="6"
+        />
+        <path {...motion("twinkle", 1)} d={sparkle(34, 77, 2.2)} fill="#fff6cf" />
+        <path {...motion("twinkle", 2.2)} d={sparkle(72, 81, 1.8)} fill="#fff6cf" />
       </>
     ),
   },
@@ -351,16 +429,161 @@ export const starSkins: Partial<Record<string, Skin>> = {
       </>
     ),
   },
+  skin_star_diamond: {
+    tint: [0.94, 0.96, 1.03],
+    wash: ["#7f93bd", 0.42],
+    gem: gems.diamond,
+    details: (pose) => <GemFacets gem={gems.diamond} pose={pose} />,
+  },
+  skin_star_amethyst: {
+    tint: [0.8, 0.62, 1.02],
+    wash: ["#5b23b0", 0.6],
+    gem: gems.amethyst,
+    details: (pose) => <GemFacets gem={gems.amethyst} pose={pose} />,
+  },
+  skin_star_sapphire: {
+    tint: [0.6, 0.74, 1.04],
+    wash: ["#163a9e", 0.6],
+    gem: gems.sapphire,
+    details: (pose) => <GemFacets gem={gems.sapphire} pose={pose} />,
+  },
+  skin_star_ruby: {
+    tint: [0.9, 0.26, 0.36],
+    wash: ["#7a0626", 0.75],
+    gem: gems.ruby,
+    details: (pose) => <GemFacets gem={gems.ruby} pose={pose} />,
+  },
+  skin_star_peach: {
+    tint: [1.04, 0.8, 0.72],
+    wash: ["#ff8f73", 0.32],
+    details: (
+      <>
+        {/* The peach's seam runs down from the crown and fades above the eyes. */}
+        <path
+          d="M51 33Q47 40 49.5 47"
+          fill="none"
+          stroke="#e8846f"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity=".55"
+        />
+        <ellipse cx="37" cy="43" rx="5" ry="3" fill="#fff" opacity=".3" />
+        <ellipse cx="34" cy="74" rx="8" ry="5" fill="#ffd2c4" opacity=".45" />
+      </>
+    ),
+  },
+  skin_star_milktea: {
+    tint: [0.98, 0.85, 0.7],
+    wash: ["#9c6b45", 0.42],
+    details: (
+      <>
+        <path
+          d="M14 70Q30 64 46 70T86 68"
+          fill="none"
+          stroke="#fff6ea"
+          strokeWidth="1.6"
+          opacity=".55"
+        />
+        {/* Tapioca pearls settle in the feet. */}
+        {(
+          [
+            [22, 86],
+            [30, 89],
+            [38, 87],
+            [47, 90],
+            [55, 88],
+            [63, 90],
+            [71, 87],
+            [79, 86],
+            [34, 83],
+            [60, 84],
+          ] as const
+        ).map(([cx, cy]) => (
+          <g key={`${cx}-${cy}`}>
+            <circle cx={cx} cy={cy} r="2.2" fill="#4a2c22" />
+            <circle cx={cx - 0.7} cy={cy - 0.7} r=".6" fill="#fff" opacity=".7" />
+          </g>
+        ))}
+      </>
+    ),
+  },
+  skin_star_goldfish: {
+    tint: [0.86, 0.96, 1.04],
+    wash: ["#2f8fd0", 0.35],
+    details: (
+      <>
+        {/* Water fills the bowl below the mouth; two goldfish swim inside it. */}
+        <g {...motion("wave")}>
+          <path d={`${wave(67)}V100H-40Z`} fill="#4fb0e6" opacity=".4" />
+          <path d={wave(67)} fill="none" stroke="#e6fbff" strokeWidth="1" />
+        </g>
+        <g fill="none" stroke="#3f9a63" strokeWidth="2" strokeLinecap="round">
+          <path {...motion("sway")} d="M22 92q-3-5 0-9t0-9" />
+          <path {...motion("sway", 1.4)} d="M79 92q3-4 0-8t0-7" />
+        </g>
+        <g stroke="none">
+          <circle cx="30" cy="91" r="1.6" fill="#f5c78a" />
+          <circle cx="35" cy="91.5" r="1.3" fill="#c6d4e8" />
+          <circle cx="66" cy="91.5" r="1.5" fill="#f4a3b6" />
+          <circle cx="71" cy="91" r="1.2" fill="#f5c78a" />
+        </g>
+        <Goldfish x={31} y={77} size={1.3} />
+        <Goldfish x={67} y={84} size={1} back />
+        <g fill="none" stroke="#f2fdff" strokeWidth=".6">
+          <circle {...motion("bubble")} cx="42" cy="78" r=".9" />
+          <circle {...motion("bubble", 1)} cx="58" cy="82" r=".7" />
+          <circle {...motion("bubble", 2)} cx="47" cy="85" r="1" />
+        </g>
+        <g fill="none" stroke="#fff" strokeLinecap="round" opacity=".75">
+          <path d="M22 58Q21 44 32 36" strokeWidth="2.2" />
+          <path d="M71 37q4 2 6.5 6" strokeWidth="1.2" />
+        </g>
+      </>
+    ),
+  },
+  skin_star_snowdome: {
+    tint: [0.72, 0.84, 1.03],
+    wash: ["#3f6fc4", 0.5],
+    details: (
+      <>
+        {/* A tiny snowy village sits on a red stand, under drifting snow. */}
+        <path d="M0 78Q20 72 40 76T80 75 100 77V100H0Z" fill="#fdfdff" />
+        <path d="M14 81q12-3 24 0m24-1q10-3 22 0" fill="none" stroke="#d6e2f2" strokeWidth=".9" />
+        <g stroke="#50352f" strokeWidth=".6" strokeLinejoin="round" transform="translate(0 -2.5)">
+          <rect x="27.2" y="76" width="1.8" height="3" fill="#9a6a4a" />
+          <path d="M22.6 77 28.1 70.5 33.6 77Z" fill="#4fa36b" />
+          <path d="M23.8 73 28.1 67.4 32.4 73Z" fill="#5cb878" />
+          <rect x="66" y="73" width="9" height="6.5" fill="#e2545f" />
+          <path d="M64.5 73.6 70.5 68.4 76.5 73.6Z" fill="#fffaf3" />
+          <rect x="69.2" y="75.2" width="2.6" height="2.4" fill="#ffe08a" />
+        </g>
+        <path {...motion("twinkle")} d={sparkle(28.1, 64.1, 1.4)} fill="#ffe284" />
+        <path d="M0 84.5Q50 89 100 84.5V100H0Z" fill="#b8434b" />
+        <path d="M0 85.2Q50 89.7 100 85.2" fill="none" stroke="#ffd77a" strokeWidth=".9" />
+        <g fill="#fff">
+          {flakes.map(([cx, cy, r, delay]) => (
+            <circle key={`${cx}-${cy}`} {...motion("flake", delay)} cx={cx} cy={cy} r={r} />
+          ))}
+        </g>
+        <g fill="none" stroke="#fff" strokeLinecap="round" opacity=".7">
+          <path d="M21 60Q20 45 32 36" strokeWidth="2" />
+          <path d="M72 38q4 2 6 6" strokeWidth="1.2" />
+        </g>
+      </>
+    ),
+  },
 };
 
 export function StarSkinFinish({
   skin,
   maskId,
   gradientId,
+  pose,
 }: {
   skin: Skin;
   maskId: string;
   gradientId: string;
+  pose: StarPose;
 }) {
   return (
     <g data-layer="skin-finish" mask={`url(#${maskId})`}>
@@ -373,7 +596,7 @@ export function StarSkinFinish({
           <rect x="8" y="30" width="84" height="63" fill={`url(#${gradientId})`} />
         </>
       )}
-      {skin.details}
+      {typeof skin.details === "function" ? skin.details(pose) : skin.details}
     </g>
   );
 }

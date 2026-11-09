@@ -105,9 +105,10 @@ export const analyzeResponse = z.strictObject({
   videoSource: z.enum(["none", "page_metadata", "gemini_video"]),
 });
 export type AnalyzeResponse = z.infer<typeof analyzeResponse>;
-const summaryList = z.array(z.string().max(160)).max(6);
+export const videoSummaryLimits = { summary: 700, items: 6, item: 160 } as const;
+const summaryList = z.array(z.string().max(videoSummaryLimits.item)).max(videoSummaryLimits.items);
 export const videoSummary = z.strictObject({
-  summary: z.string().min(1).max(700),
+  summary: z.string().min(1).max(videoSummaryLimits.summary),
   topics: summaryList,
   keyClaims: summaryList,
   sensitiveTopics: summaryList,

@@ -13,7 +13,7 @@ cp .env.example .env
 
 コメントの安全性4項目・貢献度4項目の判定、改善案、公開YouTube動画の要約は、Vertex AI経由またはDeveloper APIキーで実行できます。Vertex AIを使う場合は`.env`に`GEMINI_PROVIDER=vertex`・実プロジェクトの`GOOGLE_CLOUD_PROJECT`・`GOOGLE_CLOUD_LOCATION=global`を設定し、`gcloud auth application-default login`で開発用認証を用意します。Developer APIを使う場合は`GEMINI_PROVIDER=developer`と`GEMINI_API_KEY`を設定します。実APIを使わず開発する場合は、`demo-commet`のEmulator構成でキーを未設定にし、`GEMINI_PROVIDER=developer`・`COMMET_DEMO_AI=true`を設定します。
 
-動画要約を取得できない場合はタイトル・説明文を使って判定します。Vertex AIで確認できた範囲と動画読み込みの制限は、[接続確認の記録](docs/CLOUD-RUN.md#このプロジェクトのvertex-ai設定)を参照してください。
+動画要約を取得できない場合はタイトル・説明文を使って判定します。Vertex AIのサービスID初期化手順と、YouTube動画を使った判定の確認結果は、[接続確認の記録](docs/CLOUD-RUN.md#このプロジェクトのvertex-ai設定)を参照してください。
 
 次のコマンドをそれぞれ別のターミナルで実行します。
 

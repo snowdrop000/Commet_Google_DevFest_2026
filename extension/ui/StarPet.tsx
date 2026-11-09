@@ -4,9 +4,11 @@ import { ITEM_CATALOG, type Profile } from "../../shared/game";
 import type { PetAnimation } from "./pet-animation";
 import { starAssets } from "./star-assets";
 import { StarHat, StarProp, starBadges } from "./star-accessories";
+import { GemHand } from "./star-gems";
 import { outline, StarEffects, StarFace, StarOrnaments, StarPattern } from "./star-parts";
 import { StarPixelBody, StarSkinFinish, starSkins } from "./star-skins";
 import "./star-reading.css";
+import "./star-motion.css";
 
 type Rect = readonly [x: number, y: number, width: number, height: number];
 type Frame = { crop: Rect; center: number; floor: number; crown: number };
@@ -134,6 +136,11 @@ export function StarPet({
   const handY = holding ? 76.5 : 78;
   // SVG props are narrower than the book, so their hands sit a little closer together.
   const handInset = holding && !holdingBook ? 2 : 0;
+  // Tops lean inward so the hands grip the sides of what they hold.
+  const hands = [
+    [33 + handInset, 18],
+    [67 - handInset, -18],
+  ];
   const hasPattern = pattern !== "pattern_none";
   const filter = slopes ? `url(#${filterId})` : undefined;
 
@@ -212,7 +219,12 @@ export function StarPet({
               <use href={`#${bodyId}`} />
             </g>
             {skinStyle && hasFinish && (
-              <StarSkinFinish skin={skinStyle} maskId={maskId} gradientId={gradientId} />
+              <StarSkinFinish
+                skin={skinStyle}
+                maskId={maskId}
+                gradientId={gradientId}
+                pose={walking ? "walk" : expression}
+              />
             )}
             {hasPattern && <StarPattern id={pattern} maskId={maskId} />}
             <StarFace
@@ -246,11 +258,7 @@ export function StarPet({
                 strokeWidth="1.03"
                 filter={filter}
               >
-                {/* Tops lean inward so the hands grip the sides of what they hold. */}
-                {[
-                  [33 + handInset, 18],
-                  [67 - handInset, -18],
-                ].map(([cx, angle]) => (
+                {hands.map(([cx, angle]) => (
                   <ellipse
                     key={cx}
                     cx={cx}
@@ -258,6 +266,22 @@ export function StarPet({
                     rx="4.7"
                     ry="6.1"
                     transform={`rotate(${angle} ${cx} ${handY})`}
+                  />
+                ))}
+              </g>
+            )}
+            {learning && skinStyle?.gem && (
+              <g data-layer="hand-facets">
+                {/* Slightly inside the outline, so the hand keeps its dark edge. */}
+                {hands.map(([cx, angle]) => (
+                  <GemHand
+                    key={cx}
+                    gem={skinStyle.gem!}
+                    cx={cx}
+                    cy={handY}
+                    rx={4.2}
+                    ry={5.6}
+                    angle={angle}
                   />
                 ))}
               </g>

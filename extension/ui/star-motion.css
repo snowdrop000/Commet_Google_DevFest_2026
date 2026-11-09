@@ -1,0 +1,265 @@
+/* UR skins and hats. Motion only plays when the user has not asked to reduce it,
+   so every animated part also has to look right standing still. */
+.commet-pet--star [class^="commet-ur-"] {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.commet-pet--star .commet-ur-tail {
+  transform-origin: 100% 50%;
+}
+.commet-pet--star .commet-ur-sway {
+  transform-origin: 50% 100%;
+}
+/* Wings hinge where they meet the head, at the lower right of their own box. */
+.commet-pet--star .commet-ur-flap {
+  transform-origin: 100% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .commet-pet--star .commet-ur-twinkle {
+    animation: commet-ur-twinkle 2.6s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-ur-glow {
+    animation: commet-ur-glow 3.2s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-ur-blink {
+    animation: commet-ur-blink 1.8s steps(1) infinite;
+  }
+  .commet-pet--star .commet-ur-shimmer {
+    animation: commet-ur-shimmer 4s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-ur-shoot {
+    animation: commet-ur-shoot 5.5s ease-in infinite;
+  }
+  .commet-pet--star .commet-ur-glint {
+    animation: commet-ur-glint 4.5s linear infinite;
+  }
+  .commet-pet--star .commet-ur-facet {
+    animation: commet-ur-facet 4s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-ur-meteor {
+    animation: commet-ur-meteor 3.4s ease-in infinite;
+  }
+  .commet-pet--star .commet-ur-flap {
+    animation: commet-ur-flap 1.8s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-ur-float {
+    animation: commet-ur-float 2.6s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-ur-wave {
+    animation: commet-ur-wave 2.4s linear infinite;
+  }
+  .commet-pet--star .commet-ur-sway {
+    animation: commet-ur-sway 3s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-ur-fish {
+    animation: commet-ur-fish 7s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-ur-fish-back {
+    animation: commet-ur-fish-back 8.5s ease-in-out infinite;
+  }
+  .commet-pet--star .commet-ur-tail {
+    animation: commet-ur-tail 0.5s ease-in-out infinite alternate;
+  }
+  .commet-pet--star .commet-ur-bubble {
+    animation: commet-ur-bubble 3s ease-in infinite;
+  }
+  .commet-pet--star .commet-ur-flake {
+    animation: commet-ur-flake 5s linear infinite;
+  }
+}
+
+@keyframes commet-ur-twinkle {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.55);
+    opacity: 0.45;
+  }
+}
+@keyframes commet-ur-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.62;
+  }
+}
+@keyframes commet-ur-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes commet-ur-shimmer {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+@keyframes commet-ur-shoot {
+  0%,
+  72% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  76% {
+    opacity: 1;
+  }
+  86%,
+  100% {
+    transform: translate(26px, 9px);
+    opacity: 0;
+  }
+}
+@keyframes commet-ur-glint {
+  /* The dash starts just before the path and ends just past it, so it hides between passes. */
+  0% {
+    stroke-dashoffset: 6;
+  }
+  60%,
+  100% {
+    stroke-dashoffset: -100;
+  }
+}
+@keyframes commet-ur-facet {
+  0%,
+  30%,
+  100% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.4;
+  }
+}
+@keyframes commet-ur-meteor {
+  0%,
+  50% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  58% {
+    opacity: 1;
+  }
+  80%,
+  100% {
+    transform: translate(2.6px, 1.7px);
+    opacity: 0;
+  }
+}
+@keyframes commet-ur-flap {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-14deg);
+  }
+}
+@keyframes commet-ur-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.3px);
+  }
+}
+@keyframes commet-ur-wave {
+  to {
+    transform: translateX(-20px);
+  }
+}
+@keyframes commet-ur-sway {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+@keyframes commet-ur-fish {
+  0% {
+    transform: translateX(0) scaleX(1);
+  }
+  44% {
+    transform: translateX(34px) scaleX(1);
+  }
+  50% {
+    transform: translateX(34px) scaleX(-1);
+  }
+  94% {
+    transform: translateX(0) scaleX(-1);
+  }
+  100% {
+    transform: translateX(0) scaleX(1);
+  }
+}
+@keyframes commet-ur-fish-back {
+  0% {
+    transform: translateX(0) scaleX(-1);
+  }
+  44% {
+    transform: translateX(-30px) scaleX(-1);
+  }
+  50% {
+    transform: translateX(-30px) scaleX(1);
+  }
+  94% {
+    transform: translateX(0) scaleX(1);
+  }
+  100% {
+    transform: translateX(0) scaleX(-1);
+  }
+}
+@keyframes commet-ur-tail {
+  from {
+    transform: rotate(-16deg);
+  }
+  to {
+    transform: rotate(16deg);
+  }
+}
+@keyframes commet-ur-bubble {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-13px);
+    opacity: 0;
+  }
+}
+@keyframes commet-ur-flake {
+  0% {
+    transform: translate(0, -15px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(1.6px, 0);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-1px, 15px);
+    opacity: 0;
+  }
+}

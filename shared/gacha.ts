@@ -75,6 +75,11 @@ export const displayRarity: Partial<Record<string, Rarity>> = {
   // Everyday set. Unlisted items (fang, border, clover) stay N.
   skin_star_choco: "SR",
   eyes_star_wink: "R",
+  skin_star_goldfish: "UR",
+  skin_star_diamond: "UR",
+  skin_star_amethyst: "UR",
+  skin_star_sapphire: "UR",
+  skin_star_ruby: "UR",
   // Halloween: unlisted items (badge, pattern) stay N.
   hat_star_witch: "UR",
   skin_star_pumpkin: "SR",
@@ -90,6 +95,7 @@ export const displayRarity: Partial<Record<string, Rarity>> = {
   eyes_star_spiral: "R",
   // Christmas: unlisted items (badge, eyes, pattern) stay N.
   hat_star_tree: "UR",
+  skin_star_snowdome: "UR",
   skin_star_ginger: "SR",
   hat_star_santa: "SR",
   head_star_antler: "R",
@@ -97,6 +103,19 @@ export const displayRarity: Partial<Record<string, Rarity>> = {
   mouth_star_cane: "R",
   prop_star_cocoa: "R",
   prop_star_gift: "R",
+  // Gap fillers: unlisted ones (leaf, butterfly, pencil, notebook, round eyes) stay N.
+  eyes_star_meteor: "UR",
+  head_star_angel: "UR",
+  prop_star_lantern: "UR",
+  mouth_star_heart: "SR",
+  prop_star_magnifier: "SR",
+  pattern_star_heart: "SR",
+  badge_star_medal: "SR",
+  badge_star_moon: "R",
+  badge_star_ribbon: "R",
+  skin_star_peach: "R",
+  skin_star_milktea: "R",
+  pattern_star_dots: "R",
 };
 
 export const duplicateShardRewards = { N: 1, R: 3, SR: 5, UR: 8 } as const;
@@ -107,6 +126,8 @@ export const gachaOnlyItems: readonly string[] = [
   "hat_star_pumpkin",
   "hat_star_witch",
   "hat_star_tree",
+  "skin_star_goldfish",
+  "skin_star_snowdome",
   "eyes_star_odd",
   "skin_star_pixel",
   "skin_star_soda",

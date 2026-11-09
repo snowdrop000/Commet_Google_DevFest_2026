@@ -266,7 +266,7 @@ function ApiConsole({ signedIn }: { signedIn: boolean }) {
   return (
     <section aria-label="開発用APIテスト">
       <h2>開発用APIテスト</h2>
-      <p>localhostのHono APIに送る内容と結果を確認できます。コメント判定にはログインが必要です。</p>
+      <p>APIに送る内容と結果を確認できます。コメント判定にはログインが必要です。</p>
       <label>
         テスト文章
         <textarea value={text} maxLength={5000} onChange={(event) => setText(event.target.value)} />

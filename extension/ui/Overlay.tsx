@@ -696,6 +696,11 @@ export function Overlay({ platform }: { platform: Platform }) {
                           <small>動画要約を考慮</small>
                         </p>
                       )}
+                      {result?.videoSource === "page_metadata" && (
+                        <p>
+                          <small>動画タイトル・説明文を考慮</small>
+                        </p>
+                      )}
                       {analysis.suggestion && (
                         <details>
                           <summary>改善案を見る</summary>

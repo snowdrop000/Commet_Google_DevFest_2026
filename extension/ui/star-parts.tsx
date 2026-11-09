@@ -1,4 +1,5 @@
 import { pixelStarEar, starEars } from "./star-accessories";
+import { heartShape, motion, sparkle } from "./star-motion";
 
 export type StarExpression = "idle" | "happy" | "cry" | "proud";
 export const outline = "#50352f";
@@ -72,6 +73,31 @@ export function StarOrnaments({
             )}
           </g>
         ),
+      )}
+      {id === "head_star_angel" && (
+        // One halo floats over the middle of the head, unlike the paired wings.
+        <g transform={`translate(${walking ? 51 : 50} -6)`}>
+          <g {...motion("float")}>
+            <ellipse
+              {...motion("glow")}
+              rx="10.5"
+              ry="3.3"
+              fill="none"
+              stroke="#fff1a8"
+              strokeWidth="3.6"
+              opacity=".55"
+            />
+            <ellipse rx="10" ry="2.8" fill="none" stroke={outline} strokeWidth="3.1" />
+            <ellipse rx="10" ry="2.8" fill="none" stroke="#ffd96b" strokeWidth="1.8" />
+            <path
+              d="M-6.5-2.15Q0-3.3 6.5-2.15"
+              fill="none"
+              stroke="#fffbe0"
+              strokeWidth=".7"
+              strokeLinecap="round"
+            />
+          </g>
+        </g>
       )}
     </g>
   );
@@ -203,6 +229,42 @@ function StarEye({
           />
         </>
       );
+    case "eyes_star_meteor":
+      // A night sky in each eye; now and then a shooting star crosses it.
+      return (
+        <>
+          <ellipse rx="3.6" ry="4.3" fill="#2b2860" />
+          <ellipse cy="2" rx="2.7" ry="1.7" fill="#6a5bd8" opacity=".7" />
+          <g fill="#fff">
+            <circle cx="1.6" cy="1.8" r=".35" />
+            <circle cx="-1.8" cy="1" r=".3" />
+            <circle cx="1.9" cy="-1.6" r=".25" />
+          </g>
+          <path
+            {...motion("twinkle", side === 1 ? 1.3 : 0)}
+            d={sparkle(-1.1, -1.6, 1.5)}
+            fill="#fff"
+          />
+          <g {...motion("meteor", side === 1 ? 1.7 : 0)} opacity="0">
+            <path
+              d="M-3.4-2.2-.7-.3"
+              fill="none"
+              stroke="#ffe08a"
+              strokeWidth=".8"
+              strokeLinecap="round"
+            />
+            <circle cx="-.5" cy="-.15" r=".75" fill="#fffbe8" />
+          </g>
+        </>
+      );
+    case "eyes_star_round":
+      return (
+        <>
+          <circle r="3" fill={ink} />
+          <circle cx="-1" cy="-1.1" r="1.1" fill="#fff" />
+          <circle cx="1.1" cy="1.1" r=".45" fill="#fff" />
+        </>
+      );
     default:
       return pixel ? (
         <path d="M-2.7-2.25h1V-3.3h3.4v1.05h1v4.5h-1V3.3h-3.4V2.25h-1Z" fill={ink} />
@@ -239,6 +301,7 @@ export function StarFace({
   const cane = !reaction && mouth === "mouth_star_cane";
   const jack = !reaction && mouth === "mouth_star_jack";
   const hoo = !reaction && mouth === "mouth_star_ghost";
+  const heart = !reaction && mouth === "mouth_star_heart";
   const distance = expression === "idle" ? 8.1 : 9.8;
   const stroke = ink ?? outline;
   return (
@@ -335,7 +398,12 @@ export function StarFace({
               <path d={caneShape} stroke="#e2545f" strokeWidth="1.5" strokeDasharray="1.1 1.2" />
             </g>
           )}
-          {hoo ? (
+          {heart ? (
+            <>
+              <path d={heartShape} transform="scale(.85)" fill="#e8577e" strokeWidth=".9" />
+              <ellipse cx="-1.2" cy="-.6" rx=".6" ry=".4" fill="#ffc0d2" stroke="none" />
+            </>
+          ) : hoo ? (
             // A small round "hoo" mouth.
             <ellipse cy=".6" rx="1.7" ry="2.2" fill="#7a4a5c" />
           ) : jack ? (
@@ -458,7 +526,37 @@ const ghostShape =
   "M0-4c2.4 0 3.6 1.8 3.6 4.2v3.8l-1.2-1-1.2 1-1.2-1-1.2 1-1.2-1-1.2 1-1.2-1V.2C-3.6-2.2-2.4-4 0-4Z";
 const snowflakeShape = "M0-2.6v5.2M-2.25-1.3l4.5 2.6M-2.25 1.3l4.5-2.6";
 
+// Polka dots below the mouth; every other row is offset by half a step.
+const polkaDots = Array.from({ length: 6 }, (_, row) =>
+  Array.from({ length: 12 }, (_, col) => [col * 8 + 6 + (row % 2) * 4, 65 + row * 6]),
+).flat();
+
 export function StarPattern({ id, maskId }: { id: string; maskId: string }) {
+  if (id === "pattern_star_heart") {
+    return (
+      <g data-layer="pattern" data-part={id} mask={`url(#${maskId})`} fill="#e8669a" opacity=".5">
+        {[
+          "translate(33 76) rotate(-12)",
+          "translate(59 72) scale(1.3) rotate(8)",
+          "translate(70 84) scale(1.1)",
+          "translate(45 86) scale(.9) rotate(-6)",
+          "translate(23 84) scale(.8) rotate(10)",
+          "translate(79 71) scale(.8) rotate(-8)",
+        ].map((transform) => (
+          <path key={transform} d={heartShape} transform={transform} />
+        ))}
+      </g>
+    );
+  }
+  if (id === "pattern_star_dots") {
+    return (
+      <g data-layer="pattern" data-part={id} mask={`url(#${maskId})`} fill="#6fb0e6" opacity=".5">
+        {polkaDots.map(([cx, cy]) => (
+          <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.7" />
+        ))}
+      </g>
+    );
+  }
   if (id === "pattern_star_ghost") {
     return (
       <g data-layer="pattern" data-part={id} mask={`url(#${maskId})`} opacity=".55">

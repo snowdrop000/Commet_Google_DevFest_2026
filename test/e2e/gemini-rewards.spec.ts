@@ -25,7 +25,7 @@ test("YouTube checks award nothing; the posted draft determines XP and level-onl
       route.fulfill({
         contentType: "text/html",
         body: `<!doctype html><meta charset="utf-8"><title>報酬の検証</title>
-        <main style="margin:80px"><ytd-comment-simplebox-renderer>
+        <main style="margin:80px"><h1 class="title">テスト用の公開動画</h1><ytd-comment-simplebox-renderer>
         <div id="contenteditable-root" contenteditable="true" role="textbox" aria-label="コメント"></div>
         <div id="submit-button"><button type="button">コメントを投稿</button></div>
         </ytd-comment-simplebox-renderer><div id="comments"></div></main>
@@ -53,6 +53,7 @@ test("YouTube checks award nothing; the posted draft determines XP and level-onl
       await expect(result).toContainText(`安全性 S ${S} / 2`);
       await expect(result).toContainText(`貢献度 Q ${Q} / 2`);
       await expect(result).toContainText(`${xp} XP`);
+      await expect(result).toContainText("動画タイトル・説明文を考慮");
     };
     await check("応援しています！", 2, 2, 10);
     await check("見ました。", 2, 0, 2);

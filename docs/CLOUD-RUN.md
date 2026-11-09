@@ -2,6 +2,8 @@
 
 対象のGoogle Cloudプロジェクトは `vital-charger-422600-u7`（番号 `561617243505`）です。この文書と設定テンプレートを追加しても、Google Cloud側の有効化や公開は行われません。
 
+2026年11月9日、APIをCloud Runの`asia-northeast1`へ公開しました。本番URLは`https://commet-api-561617243505.asia-northeast1.run.app`です。[デプロイ結果と残っているログイン設定](DEPLOYMENT-2026-11-09.md)
+
 ## 先に用意するもの
 
 | 設定                     | 確認・設定する場所                                                                                         |
@@ -39,7 +41,17 @@ gcloud auth application-default login --project=vital-charger-422600-u7
 
 ローカルのFirebase Emulatorを使う場合、`FIREBASE_PROJECT_ID=demo-commet`と両方のEmulatorホストはそのまま使えます。Vertex AIが使う実プロジェクトは`GOOGLE_CLOUD_PROJECT`で別に指定します。`/health`の`provider: "vertex"`で接続方式を確認できますが、実際のAI呼び出しの成功は判定テストで別途確認します。
 
-2026年11月8日の接続確認では、この構成で実際のコメント判定がHTTP 200で成功しました。一方、公開YouTube URLを使う動画要約は公式サンプルの動画でもHTTP 401になっており、原因は未特定です。動画要約が取得できない場合、既存の処理はタイトル・説明文を使ってコメント判定を続け、`videoSource: "page_metadata"`を返します。この場合、映像・音声を参照した判定ではありません。[公式のYouTube動画要約サンプル](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/samples/googlegenaisdk-textgen-with-youtube-video)
+2026年11月9日、YouTube動画の読み込みで発生していたHTTP 401は、Vertex AIのサービスIDを明示的に初期化して解消しました。APIの有効化だけでは、このプロジェクトにGoogle管理のサービスエージェントが作成されていませんでした。同じ認証・モデル・リクエストで、初期化後は映像・音声の読み込みと動画要約が成功し、実際の`/v1/analyze`でも`videoSource: "gemini_video"`を確認しました。[原因の切り分けと検証結果](analysis/vertex-youtube-401.md)
+
+新しいプロジェクトで同じ状況になる場合は、対象プロジェクトを操作できるアカウントで、以下の公式の初期化コマンドを実行します。このプロジェクトでは実施済みです。API起動時やリクエストごとに実行する処理ではありません。
+
+```sh
+gcloud beta services identity create --service=aiplatform.googleapis.com --project=vital-charger-422600-u7
+```
+
+サービスエージェントは、Cloud Runでアプリを実行するサービスアカウントとは別の、Google管理のアカウントです。[公式のサービスエージェント説明](https://docs.cloud.google.com/vertex-ai/docs/general/access-control#service-agents)
+
+動画要約が取得できない場合の処理は維持しています。タイトル・説明文を使って判定を続け、`videoSource: "page_metadata"`を返した場合は、映像・音声を参照した判定ではありません。公開動画でも、個々の動画の制限や一時的な取得失敗は起こり得ます。[公式のYouTube動画要約サンプル](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/samples/googlegenaisdk-textgen-with-youtube-video)
 
 従来のDeveloper APIを使う構成では`GEMINI_PROVIDER=developer`と`GEMINI_API_KEY`を設定します。キーはサーバー専用です。Vertex AIを選んだ場合、残っているDeveloper APIキーは使用しません。
 
@@ -58,7 +70,7 @@ npm run build:api
 `gcloud`を利用でき、対象プロジェクトにログインしている環境で作業します。Cloud Shellでも実行できます。以下は準備完了後に使うコマンド例です。リソース作成・課金の有効化はこのリポジトリから自動では行いません。
 
 - Cloud Run Admin、Cloud Build、Artifact Registry、Vertex AIなど、デプロイに必要なAPIを有効にします。
-- API用の実行サービスアカウント（例：`commet-api@vital-charger-422600-u7.iam.gserviceaccount.com`）を作ります。Firestore用の`roles/datastore.user`、Vertex AI用の`roles/aiplatform.user`と`roles/serviceusage.serviceUsageConsumer`を付与します。ビルド・デプロイするアカウントにも[ソースデプロイの必要権限](https://docs.cloud.google.com/run/docs/deploying-source-code)が別途必要です。
+- API用の実行サービスアカウント`commet-api@vital-charger-422600-u7.iam.gserviceaccount.com`を使用します。Firestore用の`roles/datastore.user`、Vertex AI用の`roles/aiplatform.user`と`roles/serviceusage.serviceUsageConsumer`を付与済みです。ビルド用の`commet-build@vital-charger-422600-u7.iam.gserviceaccount.com`には`roles/run.builder`を付与済みです。ビルド・デプロイするアカウントにも[ソースデプロイの必要権限](https://docs.cloud.google.com/run/docs/deploying-source-code)が別途必要です。
 - サーバーの環境変数には`FIREBASE_PROJECT_ID`と`HOST`を設定します。`PORT`はCloud Runから渡されます。`FIREBASE_AUTH_EMULATOR_HOST`・`FIRESTORE_EMULATOR_HOST`・`COMMET_DEMO_AI=true`は設定しません。
 
 PowerShellでは以下のようにデプロイします。リージョンとサービスアカウントは実際の作成内容に合わせます。
@@ -69,15 +81,23 @@ gcloud run deploy commet-api `
   --region=asia-northeast1 `
   --source=. `
   --service-account=commet-api@vital-charger-422600-u7.iam.gserviceaccount.com `
-  --set-env-vars=FIREBASE_PROJECT_ID=vital-charger-422600-u7,HOST=0.0.0.0,GEMINI_PROVIDER=vertex,GOOGLE_CLOUD_PROJECT=vital-charger-422600-u7,GOOGLE_CLOUD_LOCATION=global `
+  --build-service-account=projects/vital-charger-422600-u7/serviceAccounts/commet-build@vital-charger-422600-u7.iam.gserviceaccount.com `
+  --set-env-vars="FIREBASE_PROJECT_ID=vital-charger-422600-u7,HOST=0.0.0.0,GEMINI_PROVIDER=vertex,GOOGLE_CLOUD_PROJECT=vital-charger-422600-u7,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-3.1-flash-lite,COMMET_DEMO_AI=false,COMMET_GEMINI_QUOTA_ENABLED=true,COMMET_GEMINI_USER_DAILY=20,COMMET_GEMINI_PROJECT_DAILY=150" `
   --min=0 `
   --max=2 `
+  --cpu=1 `
+  --memory=512Mi `
+  --concurrency=20 `
+  --timeout=240 `
+  --port=8080 `
   --allow-unauthenticated
 ```
 
 Cloud RunのHTTPアクセスは公開し、APIの`/v1/*`は既存コードがFirebase IDトークンを検証します。未ログインの操作は401で拒否します。`/health`は疎通確認用です。最大インスタンス数は固定費の上限ではありません。利用量・予算の設定はCloud側で管理します。
 
 公開後に`https://実際のサービスURL/health`で`{"ok":true,"mode":"gemini","provider":"vertex"}`を確認します。起動時のプロバイダ選択を示すもので、デプロイが通ってもFirebaseログイン、Firestoreの保存、実際の判定はそれぞれ確認が必要です。
+
+動画要約は最大120秒、コメント判定は60秒、拡張の判定リクエストは210秒まで待機します。Cloud Runのタイムアウトは240秒です。長い動画の初回要約には数十秒かかる場合があります。[長時間動画のタイムアウト調査](analysis/youtube-video-timeout.md)
 
 ## 拡張の公開設定
 
@@ -94,6 +114,6 @@ Firebaseの承認済みドメインには実際の拡張IDに対応する`chrome
 npm run build:cloud
 ```
 
-WXTはcloudモードのビルド時に`.env.cloud.local`を読みます。API接続先とManifestの接続許可は同じ`WXT_API_BASE_URL`から作られます。本番プロジェクトで接続先が未設定の場合はビルドで停止します。設定後は`.output/chrome-mv3`を再読み込みします。
+WXTはcloudモードのビルド時に`.env.cloud.local`を読みます。API接続先とManifestの接続許可は同じ`WXT_API_BASE_URL`から作られます。本番プロジェクトで接続先が未設定の場合はビルドで停止します。本番用の生成物は`.output/chrome-mv3-cloud`です。Chromeにはこのフォルダを読み込みます。通常のローカル開発用ビルドは`.output/chrome-mv3`に出力されます。
 
 GitHubへのpushとCloud Runへのデプロイは別です。自動反映する場合は、後からCloud Buildなどの連携を設定します。
