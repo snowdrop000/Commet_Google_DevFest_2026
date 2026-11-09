@@ -42,6 +42,7 @@ function Goldfish({ x, y, size, back }: { x: number; y: number; size: number; ba
 
 type Skin = {
   tint: readonly [number, number, number];
+  background?: string;
   ink?: string;
   wash?: readonly [color: string, opacity: number];
   // A function receives the pose, for art that follows the body's shape.
@@ -52,6 +53,7 @@ type Skin = {
 
 export const starSkins: Partial<Record<string, Skin>> = {
   skin_level_sunrise: {
+    background: "#fff2d3",
     tint: [1.04, 0.98, 0.72],
     wash: ["#ffd57c", 0.18],
     details: (
@@ -63,6 +65,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_level_twilight: {
+    background: "#fbe1e8",
     tint: [1.03, 0.79, 0.83],
     wash: ["#e99c82", 0.2],
     details: (
@@ -78,6 +81,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_level_aurora: {
+    background: "#dff2ed",
     tint: [0.84, 1.02, 0.98],
     wash: ["#bad4f3", 0.24],
     details: (
@@ -94,6 +98,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_level_moonlight: {
+    background: "#e9e5f7",
     tint: [0.88, 0.88, 1.04],
     ink: "#716383",
     wash: ["#d5cfef", 0.2],
@@ -110,14 +115,15 @@ export const starSkins: Partial<Record<string, Skin>> = {
       </>
     ),
   },
-  skin_star_mint: { tint: [0.66, 0.98, 0.86] },
-  skin_star_night: { tint: [0.58, 0.61, 0.92] },
-  skin_star_sakura: { tint: [1, 0.77, 0.87] },
-  skin_star_lemon: { tint: [1, 1.02, 0.62] },
-  skin_star_sky: { tint: [0.68, 0.88, 1.05] },
-  skin_star_lavender: { tint: [0.86, 0.76, 1.04] },
-  skin_star_matcha: { tint: [0.77, 0.88, 0.58] },
+  skin_star_mint: { tint: [0.66, 0.98, 0.86], background: "#d9f1e7" },
+  skin_star_night: { tint: [0.58, 0.61, 0.92], background: "#e1e4f6" },
+  skin_star_sakura: { tint: [1, 0.77, 0.87], background: "#fbe1eb" },
+  skin_star_lemon: { tint: [1, 1.02, 0.62], background: "#f6f2ce" },
+  skin_star_sky: { tint: [0.68, 0.88, 1.05], background: "#dceefa" },
+  skin_star_lavender: { tint: [0.86, 0.76, 1.04], background: "#eae2f8" },
+  skin_star_matcha: { tint: [0.77, 0.88, 0.58], background: "#e8eed7" },
   skin_star_galaxy: {
+    background: "#e8e1f5",
     tint: [0.36, 0.32, 0.65],
     ink: "#fff1d4",
     wash: ["#662e93", 0.55],
@@ -170,6 +176,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_soda: {
+    background: "#d9f2f4",
     tint: [0.56, 0.93, 0.96],
     wash: ["#168bb4", 0.62],
     details: (
@@ -195,6 +202,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_strawberry: {
+    background: "#fbe4eb",
     tint: [1, 0.98, 0.94],
     wash: ["#eb5684", 0.92],
     details: (
@@ -204,6 +212,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_toast: {
+    background: "#f5e8d7",
     tint: [1, 0.96, 0.81],
     wash: ["#bd622f", 0.85],
     details: (
@@ -220,6 +229,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_kintsugi: {
+    background: "#e2eaf5",
     tint: [0.9, 0.97, 1.04],
     wash: ["#839cce", 0.6],
     details: (
@@ -261,6 +271,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_choco: {
+    background: "#efe2dc",
     tint: [1, 0.96, 0.9],
     details: (
       <>
@@ -295,6 +306,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_pumpkin: {
+    background: "#fbe6d5",
     tint: [1.02, 0.74, 0.44],
     wash: ["#d0601e", 0.42],
     details: (
@@ -306,6 +318,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_ginger: {
+    background: "#f1e2d4",
     tint: [0.88, 0.62, 0.42],
     wash: ["#8f4a24", 0.35],
     details: (
@@ -327,6 +340,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_franken: {
+    background: "#e1efdc",
     tint: [0.72, 0.92, 0.66],
     wash: ["#4f8a52", 0.35],
     details: (
@@ -345,6 +359,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_mummy: {
+    background: "#f2ebdc",
     tint: [1, 0.95, 0.84],
     wash: ["#a8936b", 0.3],
     details: (
@@ -363,6 +378,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_zombie: {
+    background: "#e3ecdf",
     tint: [0.74, 0.86, 0.72],
     wash: ["#5e7a5a", 0.42],
     details: (
@@ -410,6 +426,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_ghost: {
+    background: "#ece8f8",
     tint: [0.93, 0.96, 1.06],
     wash: ["#9d8fe0", 0.5],
     details: (
@@ -430,30 +447,35 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_diamond: {
+    background: "#e6ecf8",
     tint: [0.94, 0.96, 1.03],
     wash: ["#7f93bd", 0.42],
     gem: gems.diamond,
     details: (pose) => <GemFacets gem={gems.diamond} pose={pose} />,
   },
   skin_star_amethyst: {
+    background: "#eae0f8",
     tint: [0.8, 0.62, 1.02],
     wash: ["#5b23b0", 0.6],
     gem: gems.amethyst,
     details: (pose) => <GemFacets gem={gems.amethyst} pose={pose} />,
   },
   skin_star_sapphire: {
+    background: "#dfe9fa",
     tint: [0.6, 0.74, 1.04],
     wash: ["#163a9e", 0.6],
     gem: gems.sapphire,
     details: (pose) => <GemFacets gem={gems.sapphire} pose={pose} />,
   },
   skin_star_ruby: {
+    background: "#f8dfe6",
     tint: [0.9, 0.26, 0.36],
     wash: ["#7a0626", 0.75],
     gem: gems.ruby,
     details: (pose) => <GemFacets gem={gems.ruby} pose={pose} />,
   },
   skin_star_peach: {
+    background: "#fbe4dc",
     tint: [1.04, 0.8, 0.72],
     wash: ["#ff8f73", 0.32],
     details: (
@@ -473,6 +495,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_milktea: {
+    background: "#f2e6d8",
     tint: [0.98, 0.85, 0.7],
     wash: ["#9c6b45", 0.42],
     details: (
@@ -508,6 +531,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_goldfish: {
+    background: "#e0f0f8",
     tint: [0.86, 0.96, 1.04],
     wash: ["#2f8fd0", 0.35],
     details: (
@@ -542,6 +566,7 @@ export const starSkins: Partial<Record<string, Skin>> = {
     ),
   },
   skin_star_snowdome: {
+    background: "#e5eff9",
     tint: [0.72, 0.84, 1.03],
     wash: ["#3f6fc4", 0.5],
     details: (

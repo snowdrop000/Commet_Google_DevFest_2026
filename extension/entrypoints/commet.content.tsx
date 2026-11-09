@@ -3,6 +3,7 @@ import { defineContentScript } from "wxt/utils/define-content-script";
 import { createShadowRootUi } from "wxt/utils/content-script-ui/shadow-root";
 import { findPlatform, snsMatches } from "../sns/platforms";
 import { Overlay } from "../ui/Overlay";
+import "../ui/fonts";
 import "../ui/style.css";
 import "../ui/wardrobe.css";
 import "../ui/overlay.css";

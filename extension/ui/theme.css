@@ -1,26 +1,45 @@
+/* Geniestudio-inspired surfaces, adapted to Commet's compact interface. */
+body.commet-page {
+  margin: 0;
+  background: #ebf5ff;
+}
+
 .commet {
-  --ui-paper: #fffcfa;
-  --ui-lavender: #f1ecf8;
-  --ui-line: #eee5ee;
-  --ui-ink: #55495c;
-  --ui-muted: #aa9bad;
-  --ui-pink: #b77f9e;
+  --ui-canvas: #ebf5ff;
+  --ui-paper: #fafdff;
+  --ui-surface: #fff;
+  --ui-fog: #f6f7f8;
+  --ui-lavender: #f1e6ff;
+  --ui-mint: #d3f6e3;
+  --ui-action-fill: #ddebfa;
+  --ui-action-hover: #d0e3f7;
+  --ui-action-ink: #3d5875;
+  --ui-action-edge: #c2d5ea;
+  --ui-line: #d7e4ef;
+  --ui-ink: #0a0d12;
+  --ui-charcoal: #181d27;
+  --ui-text: #535862;
+  --ui-muted: #5d6878;
+  --ui-accent: #0069e0;
+  --ui-motion: 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ui-spring: 360ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .commet.commet-wardrobe-dialog {
   width: min(600px, calc(100vw - 24px));
   padding: 22px;
   border: 1px solid var(--ui-line);
-  border-radius: 16px;
-  background: var(--ui-paper);
+  border-radius: 32px;
+  background: var(--ui-canvas);
   color: var(--ui-ink);
-  box-shadow: 0 20px 70px #30253825;
-  font-size: 12px;
+  box-shadow: 0 20px 64px #0a34522b;
+  font-size: 14px;
   scrollbar-width: thin;
-  scrollbar-color: #dfd2e2 transparent;
+  scrollbar-color: var(--ui-line) transparent;
 }
 .commet-wardrobe-dialog::backdrop {
-  background: #201a2860;
+  background: #0a0d1250;
+  backdrop-filter: blur(5px);
 }
 .commet-wardrobe-dialog .commet-wardrobe-dialog-header {
   align-items: center;
@@ -29,15 +48,15 @@
 .commet-dialog-title > span {
   display: block;
   margin-bottom: 3px;
-  color: var(--ui-pink);
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  color: var(--ui-accent);
+  font-size: 11px;
+  letter-spacing: 0.04em;
 }
 .commet .commet-dialog-title h2 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 .commet .commet-wardrobe-dialog-header > button {
   display: inline-flex;
@@ -48,7 +67,7 @@
   border-radius: 20px;
   background: transparent;
   color: var(--ui-muted);
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
 }
 .commet-wardrobe-dialog-header > button svg {
@@ -57,19 +76,19 @@
 }
 .commet.commet-wardrobe-dialog > button {
   padding: 7px 10px;
-  border-color: #e6d9eb;
-  border-radius: 7px;
-  background: #f8f1f8;
-  color: #9e80aa;
-  font-size: 10px;
+  border-color: var(--ui-line);
+  border-radius: 12px;
+  background: var(--ui-canvas);
+  color: var(--ui-text);
+  font-size: 12px;
 }
 .commet .commet-wardrobe-notice {
   margin: 0 0 18px;
   padding: 9px 11px;
-  border-radius: 7px;
-  background: #f9f2f5;
-  color: #a28c9e;
-  font-size: 10px;
+  border-radius: 12px;
+  background: var(--ui-canvas);
+  color: var(--ui-text);
+  font-size: 12px;
   line-height: 1.7;
 }
 .commet-lab-heading {
@@ -82,17 +101,17 @@
 }
 .commet .commet-lab-heading h2 {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 .commet .commet-lab-heading p {
   margin: 0;
   color: var(--ui-muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 .commet .commet-lab-stage {
   min-height: 156px;
   margin: 10px 0 12px;
-  border-radius: 12px;
+  border-radius: 20px;
   background: var(--ui-lavender);
 }
 .commet.commet-wardrobe-dialog .commet-lab-stage .commet-pet--star {
@@ -120,16 +139,16 @@
   min-height: 38px;
   padding: 3px 8px 3px 3px;
   border-color: var(--ui-line);
-  border-radius: 6px;
+  border-radius: 12px;
   background: transparent;
-  color: #9d8aa0;
-  font-size: 10px;
+  color: var(--ui-text);
+  font-size: 12px;
   font-weight: 400;
 }
 .commet .commet-face-buttons button[aria-pressed="true"] {
-  background: #f5e9f0;
-  border-color: var(--ui-pink);
-  color: #b47097;
+  background: var(--ui-canvas);
+  border-color: var(--ui-accent);
+  color: var(--ui-accent);
   box-shadow: none;
 }
 .commet-scene-controls .commet-scene-art {
@@ -154,14 +173,14 @@
   gap: 3px;
   border: 0;
   background: transparent;
-  font-size: 9px;
-  color: #a08ba2;
+  font-size: 11px;
+  color: var(--ui-text);
   font-weight: 400;
 }
 .commet .commet-motion-buttons button[aria-pressed="true"] {
   background: var(--ui-lavender);
   box-shadow: none;
-  color: #9e668d;
+  color: var(--ui-accent);
 }
 .commet-motion-buttons svg {
   width: 15px;
@@ -188,11 +207,11 @@
 }
 .commet-wardrobe-title h3 {
   margin: 0;
-  font-size: 13px;
+  font-size: 15px;
 }
 .commet-wardrobe-title > span {
   color: var(--ui-muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 .commet .commet-wardrobe-categories {
   gap: 3px;
@@ -205,17 +224,17 @@
   min-height: 32px;
   padding: 5px 8px;
   border: 0;
-  border-radius: 7px;
-  color: #a18da2;
-  font-size: 11px;
+  border-radius: 12px;
+  color: var(--ui-text);
+  font-size: 13px;
   font-weight: 400;
 }
 .commet .commet-wardrobe-categories button[aria-pressed="true"] {
-  background: #f4e7ee;
-  color: #b16f96;
+  background: var(--ui-canvas);
+  color: var(--ui-accent);
 }
 .commet .commet-wardrobe-categories button:hover {
-  background: #f5eef5;
+  background: var(--ui-canvas);
 }
 .commet-wardrobe-categories svg {
   flex: none;
@@ -230,28 +249,28 @@
   border: 0;
 }
 .commet-wardrobe-heading h3 {
-  font-size: 12px;
+  font-size: 14px;
 }
 .commet .commet-wardrobe-items {
   padding: 0 4px 10px;
 }
 .commet .commet-wardrobe-tier {
-  --tier-art: #f2edf8;
-  --tier-border: #e9e1ee;
-  --tier-ink: #9e8bad;
+  --tier-art: var(--ui-lavender);
+  --tier-border: var(--ui-line);
+  --tier-ink: var(--ui-text);
 }
 .commet .commet-wardrobe-tier[data-rarity="UR"] {
-  --tier-art: #faf2e8;
-  --tier-border: #eddfcc;
-  --tier-ink: #b3966b;
+  --tier-art: #fff1d8;
+  --tier-border: #e9d7b2;
+  --tier-ink: #8a5a19;
 }
 .commet .commet-wardrobe-tier h4 {
   display: table;
   margin-bottom: 9px;
   padding: 3px 7px;
-  border-radius: 16px;
+  border-radius: 24px;
   background: var(--tier-art);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 400;
 }
 .commet .commet-wardrobe-tier h4 b {
@@ -267,19 +286,19 @@
 }
 .commet .commet-wardrobe-item {
   padding: 5px 5px 18px;
-  border-radius: 9px;
-  border-color: #e6ddea;
-  background: #fff;
+  border-radius: 12px;
+  border-color: var(--ui-line);
+  background: var(--ui-surface);
   color: var(--ui-ink);
   text-align: left;
 }
 .commet .commet-wardrobe-item:hover {
-  background: #fffbfd;
-  border-color: #d6aec9;
+  background: var(--ui-paper);
+  border-color: var(--ui-accent);
 }
 .commet .commet-wardrobe-item[aria-pressed="true"] {
-  border-color: var(--ui-pink);
-  background: #fff;
+  border-color: var(--ui-accent);
+  background: var(--ui-surface);
   box-shadow: none;
 }
 .commet .commet-wardrobe-art {
@@ -288,7 +307,7 @@
 }
 .commet .commet-wardrobe-name {
   padding: 7px 1px 0;
-  font-size: 10px;
+  font-size: 12px;
 }
 .commet .commet-wardrobe-tick {
   top: auto;
@@ -297,48 +316,48 @@
   width: 14px;
   height: 14px;
   line-height: 14px;
-  border: 1px solid #d09ab9;
-  color: #b27699;
+  border: 1px solid var(--ui-accent);
+  color: var(--ui-accent);
   background: transparent;
-  font-size: 9px;
+  font-size: 11px;
 }
 .commet .commet-wardrobe-selection {
   grid-column: 1 / -1;
   padding: 9px 11px;
   margin-top: 4px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 12px;
   background: var(--ui-lavender);
-  color: #7f6a91;
-  font-size: 10px;
+  color: var(--ui-text);
+  font-size: 12px;
   font-weight: 500;
 }
 .commet-wardrobe-selection span {
-  color: #b19ebd;
-  font-size: 9px;
+  color: var(--ui-muted);
+  font-size: 11px;
 }
 .commet .commet-wardrobe-profile {
-  font-size: 11px;
+  font-size: 13px;
   gap: 6px;
 }
 .commet .commet-wardrobe-profile input {
   padding: 7px 9px;
-  border: 1px solid #e0d6e6;
-  border-radius: 7px;
-  background: #fffcfa;
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  background: var(--ui-paper);
   color: var(--ui-ink);
 }
 .commet-wardrobe-profile small {
-  color: #a994af;
-  font-size: 9px;
+  color: var(--ui-text);
+  font-size: 11px;
 }
 .commet .commet-wardrobe-save button.primary {
   padding: 8px 16px;
-  border-color: #dcc6db;
-  border-radius: 7px;
-  background: #f3e7ef;
-  color: #a16b8e;
-  font-size: 11px;
+  border-color: var(--ui-charcoal);
+  border-radius: 999px;
+  background: var(--ui-charcoal);
+  color: #fff;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -350,8 +369,8 @@
   align-items: center;
   justify-content: space-between;
   margin: 0 0 12px;
-  color: #a491a9;
-  font-size: 11px;
+  color: var(--ui-muted);
+  font-size: 13px;
 }
 .commet-gacha-wallet > span {
   display: inline-flex;
@@ -361,25 +380,25 @@
 .commet-gacha-wallet svg {
   width: 16px;
   height: 16px;
-  color: #c5a065;
+  color: #8a5a19;
 }
 .commet-gacha-wallet b {
-  color: #62526e;
-  font-size: 21px;
-  font-weight: 700;
+  color: var(--ui-ink);
+  font-size: 24px;
+  font-weight: 500;
 }
 .commet-gacha-price {
   padding: 4px 8px;
   border-radius: 14px;
-  background: #f5e9f1;
-  color: #b4789e;
-  font-size: 10px;
+  background: var(--ui-canvas);
+  color: var(--ui-accent);
+  font-size: 12px;
 }
 .commet .commet-gacha-idle,
 .commet .commet-gacha-sky {
   height: 210px;
   margin: 12px 0;
-  border-radius: 12px;
+  border-radius: 20px;
   background: radial-gradient(ellipse at center, #494466 0%, #1c1e38 78%);
 }
 .commet .commet-gacha-item .commet-pet {
@@ -391,8 +410,8 @@
   height: 154px;
 }
 .commet .commet-gacha-reveal .commet-gacha-result > b {
-  color: #5e4e69;
-  font-size: 17px;
+  color: var(--ui-ink);
+  font-size: 19px;
 }
 .commet-result-rarity {
   display: inline-block;
@@ -400,8 +419,8 @@
   padding: 4px 7px;
   border-radius: 15px;
   background: var(--ui-lavender);
-  color: #9b84b4;
-  font-size: 9px;
+  color: var(--ui-text);
+  font-size: 11px;
   font-weight: 500;
 }
 .commet .commet-gacha-result {
@@ -410,8 +429,8 @@
 }
 .commet .commet-gacha-result p {
   margin: 10px 0;
-  color: #bd82a4;
-  font-size: 11px;
+  color: var(--ui-text);
+  font-size: 13px;
 }
 .commet .commet-reward-actions {
   margin: 10px 0 18px;
@@ -421,30 +440,30 @@
   max-width: 100%;
   min-height: 39px;
   border: 0;
-  border-radius: 8px;
-  background: #f0e7f1;
-  color: #a77fa7;
-  font-size: 11px;
+  border-radius: 999px;
+  background: var(--ui-charcoal);
+  color: #fff;
+  font-size: 13px;
   font-weight: 500;
 }
 .commet .commet-reward-actions button.primary:disabled {
-  color: #b5aab9;
-  background: #eee9ef;
+  color: var(--ui-muted);
+  background: var(--ui-fog);
   opacity: 1;
   cursor: not-allowed;
 }
 .commet .commet-reward-actions button.primary:hover:enabled {
-  background: #ead8e8;
+  background: #303845;
 }
 .commet .commet-gacha-guide {
   display: block;
   padding: 11px 13px;
   margin: 16px 0;
-  border-radius: 12px;
-  background: #f9f3f6;
-  color: #a493ad;
+  border-radius: 20px;
+  background: var(--ui-canvas);
+  color: var(--ui-text);
   text-align: left;
-  font-size: 9px;
+  font-size: 11px;
   line-height: 2;
 }
 .commet .commet-shard-exchange {
@@ -458,30 +477,35 @@
 }
 .commet .commet-shard-exchange h3 {
   color: var(--ui-ink);
-  font-size: 14px;
+  font-size: 16px;
 }
 .commet .commet-exchange-heading {
   gap: 6px;
 }
 .commet-exchange-heading p,
 .commet .commet-exchange-date {
-  font-size: 10px;
-  color: #a38eac;
+  font-size: 12px;
+  color: var(--ui-muted);
 }
 .commet .commet-exchange-date small {
-  font-size: 8px;
+  font-size: 10px;
 }
 .commet .commet-shard-balance {
   padding: 10px 13px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--ui-lavender);
-  color: #a18db7;
-  font-size: 10px;
+  color: var(--ui-text);
+  font-size: 12px;
+}
+.commet .commet-shard-balance > span:first-child {
+  color: var(--ui-ink);
+  font-size: 15px;
+  font-weight: 500;
 }
 .commet .commet-shard-balance b {
-  font-size: 22px;
-  color: #8f7aaa;
+  font-size: 24px;
+  color: var(--ui-text);
 }
 .commet .commet-exchange-items {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -490,14 +514,14 @@
 .commet .commet-exchange-item {
   padding: 8px;
   gap: 6px;
-  border-color: #ece3ed;
-  border-radius: 11px;
-  background: #fff;
+  border-color: var(--ui-line);
+  border-radius: 12px;
+  background: var(--ui-surface);
 }
 .commet .commet-exchange-art {
   height: 120px;
-  border-radius: 7px;
-  background: linear-gradient(#fbf4f5, #f5f0f8);
+  border-radius: 12px;
+  background: linear-gradient(var(--ui-canvas), var(--ui-lavender));
 }
 .commet .commet-exchange-art .commet-pet {
   width: 118px;
@@ -505,40 +529,40 @@
 }
 .commet .commet-exchange-item-title {
   gap: 5px;
-  color: #b0a1b8;
-  font-size: 9px;
+  color: var(--ui-muted);
+  font-size: 11px;
 }
 .commet .commet-exchange-rarity {
   padding: 3px 6px;
-  border-radius: 16px;
-  background: #f2edf8;
-  color: #9f8cb8;
-  font-size: 9px;
+  border-radius: 24px;
+  background: var(--ui-lavender);
+  color: var(--ui-text);
+  font-size: 11px;
 }
 .commet .commet-exchange-item h4 {
-  font-size: 11px;
-  color: #605167;
+  font-size: 13px;
+  color: var(--ui-ink);
 }
 .commet .commet-exchange-cost {
-  font-size: 9px;
-  color: #ac95b8;
+  font-size: 11px;
+  color: var(--ui-text);
 }
 .commet .commet-exchange-item button {
   padding: 6px 2px;
   border: 0;
-  border-radius: 6px;
-  background: #f1e7f0;
-  color: #a17197;
-  font-size: 10px;
+  border-radius: 12px;
+  background: var(--ui-canvas);
+  color: var(--ui-accent);
+  font-size: 12px;
 }
 .commet .commet-exchange-item button:disabled {
   opacity: 1;
-  color: #b7aeba;
-  background: #eee9ef;
+  color: var(--ui-muted);
+  background: var(--ui-fog);
 }
 .commet .commet-shard-exchange > small {
-  font-size: 10px;
-  color: #ad9cb6;
+  font-size: 12px;
+  color: var(--ui-text);
 }
 
 .commet .commet-xp-progress {
@@ -546,48 +570,52 @@
   width: 100%;
   height: 4px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 12px;
   overflow: hidden;
-  accent-color: #bd8fa9;
+  accent-color: var(--ui-accent);
 }
 .commet .commet-xp-progress::-webkit-progress-bar {
-  background: #eee6ef;
+  background: var(--ui-line);
 }
 .commet .commet-xp-progress::-webkit-progress-value {
-  background: #bd8fa9;
+  background: var(--ui-accent);
 }
 .commet .commet-xp-progress::-moz-progress-bar {
-  background: #bd8fa9;
+  background: var(--ui-accent);
 }
 .commet .commet-menu {
   z-index: 2;
-  width: 280px;
-  padding: 12px 14px 9px;
-  border-radius: 17px;
-  background: var(--ui-paper);
-  box-shadow: 0 12px 40px #49313d18;
+  width: 336px;
+  padding: 16px 16px 12px;
+  border: 1px solid #ffffffd9;
+  border-radius: 28px;
+  background: var(--ui-canvas);
+  box-shadow: 0 16px 48px #0a345229;
+  transform-origin: bottom center;
+  animation: commet-menu-unfold var(--ui-spring) both;
   color: var(--ui-ink);
 }
 .commet .commet-menu-header {
-  margin: 0 0 8px;
-  gap: 6px;
+  margin: 0 0 12px;
+  gap: 8px;
 }
 .commet .commet-menu-eyebrow {
   margin: 0;
-  font-size: 8px;
-  color: #a38ea7;
+  font-size: 10px;
+  color: var(--ui-muted);
   font-weight: 400;
   letter-spacing: 0.05em;
 }
 .commet .commet-menu-dismiss {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
-  padding: 3px;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
   border: 0;
-  background: transparent;
-  color: #a28fa5;
+  border-radius: 50%;
+  background: #ffffffb3;
+  color: var(--ui-muted);
 }
 .commet-menu-dismiss svg {
   width: 13px;
@@ -595,21 +623,26 @@
 }
 .commet-menu-profile {
   display: grid;
-  grid-template-columns: 66px minmax(0, 1fr) auto;
+  grid-template-columns: 80px minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
   padding: 9px 10px;
-  margin-bottom: 14px;
-  border-radius: 12px;
+  margin-bottom: 12px;
+  border-radius: 24px;
   background: var(--ui-lavender);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: background-color var(--ui-motion);
 }
 .commet-menu-avatar {
-  width: 66px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
+  animation: commet-avatar-float 4s ease-in-out infinite;
 }
 .commet .commet-menu-avatar .commet-pet {
-  width: 70px;
-  height: 70px;
+  width: 84px;
+  height: 84px;
 }
 .commet-menu-identity {
   min-width: 0;
@@ -619,9 +652,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #60516c;
-  font-size: 20px;
-  font-weight: 700;
+  color: var(--ui-ink);
+  font-size: 22px;
+  font-weight: 500;
 }
 .commet-menu-identity p {
   display: flex;
@@ -629,15 +662,21 @@
   align-items: center;
   gap: 5px;
   margin: 0;
-  font-size: 9px;
-  color: #9f8fb0;
+  width: fit-content;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #ffffffc7;
+  font-size: 12px;
+  color: var(--ui-muted);
 }
 .commet-menu-identity p svg {
   width: 13px;
   height: 13px;
+  color: #b98c40;
+  fill: #fff0c8;
 }
 .commet-menu-identity p span:first-of-type {
-  color: #776184;
+  color: var(--ui-text);
 }
 .commet-menu-profile .commet-level {
   align-self: start;
@@ -645,27 +684,31 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #9989aa;
-  font-size: 8px;
+  color: var(--ui-muted);
+  font-size: 10px;
   font-weight: 400;
 }
 .commet .commet-menu-nav {
-  gap: 5px;
+  gap: 8px;
 }
 .commet .commet-menu .commet-menu-nav button {
-  min-height: 58px;
+  min-height: 62px;
+  padding-inline: 0;
   gap: 6px;
-  border: 1px solid var(--ui-line);
-  border-radius: 8px;
-  background: transparent;
-  color: #a291a4;
-  font-size: 9px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: #e4edf8;
+  color: var(--ui-action-ink);
+  font-size: 11px;
   font-weight: 400;
+  white-space: normal;
+  line-height: 1.4;
 }
 .commet .commet-menu .commet-menu-nav button[aria-pressed="true"] {
-  background: #f5e7ef;
-  border-color: #e8c9dd;
-  color: #b36e96;
+  background: #c9def4;
+  border-color: transparent;
+  color: var(--ui-action-ink);
+  box-shadow: 0 3px 10px #3d58750a;
 }
 .commet-menu-nav svg {
   width: 17px;
@@ -673,21 +716,22 @@
 }
 .commet .commet-menu-content {
   padding: 16px 0 14px;
+  scrollbar-gutter: auto;
 }
 .commet .commet-menu-content h3 {
   margin-bottom: 13px;
-  font-size: 11px;
+  font-size: 13px;
 }
 .commet .commet-menu .commet-stats {
   gap: 10px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .commet .commet-menu .commet-stats > b {
   display: flex;
   justify-content: space-between;
   gap: 6px;
-  color: #b580a0;
-  font-size: 9px;
+  color: var(--ui-accent);
+  font-size: 11px;
   font-weight: 400;
 }
 .commet .commet-menu .commet-stats .commet-xp-progress {
@@ -697,28 +741,30 @@
 }
 .commet .commet-menu .commet-stats label {
   display: grid;
-  grid-template-columns: 55px minmax(0, 1fr) 20px;
+  grid-template-columns: 58px minmax(0, 1fr) 26px;
   gap: 8px;
-  color: #a08ca4;
-  font-size: 9px;
+  min-height: 26px;
+  color: var(--ui-text);
+  font-size: 12px;
 }
 .commet .commet-menu .commet-stats label progress {
   width: 100%;
-  height: 5px;
+  height: 7px;
 }
 .commet .commet-menu .commet-stats small {
-  font-size: 8px;
-  color: #b0a0b3;
+  font-size: 10px;
+  color: var(--ui-muted);
 }
 .commet .commet-menu-message {
-  font-size: 11px;
-  color: #a18da6;
+  font-size: 13px;
+  color: var(--ui-text);
 }
 .commet-comment-tendencies {
   margin: 8px 0;
   overflow: hidden;
-  border: 1px solid #e4d6e8;
-  border-radius: 10px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--ui-surface);
 }
 .commet-comment-tendencies summary {
   display: flex;
@@ -726,9 +772,9 @@
   justify-content: space-between;
   gap: 8px;
   padding: 9px 10px;
-  color: #796786;
-  font-size: 11px;
-  font-weight: 600;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   list-style: none;
 }
@@ -748,7 +794,7 @@
   transform: rotate(45deg);
 }
 .commet-comment-tendencies summary:focus-visible {
-  outline: 2px solid #bf8eb0;
+  outline: 2px solid var(--ui-accent);
   outline-offset: -3px;
 }
 .commet-tendency-chart {
@@ -760,80 +806,80 @@
 }
 .commet-tendency-grid {
   fill: none;
-  stroke: #e4d6e8;
+  stroke: var(--ui-line);
   stroke-width: 1;
 }
 .commet-tendency-area {
-  fill: #bf8eda40;
-  stroke: #ad7fc5;
+  fill: #0069e025;
+  stroke: var(--ui-accent);
   stroke-width: 1.5;
 }
 .commet-tendency-point {
-  fill: #ad7fc5;
+  fill: var(--ui-accent);
 }
 .commet-tendency-labels,
 .commet-tendency-empty {
-  fill: #796786;
-  font-size: 11px;
+  fill: var(--ui-text);
+  font-size: 13px;
   text-anchor: middle;
   dominant-baseline: middle;
 }
 .commet-tendency-empty {
-  font-size: 10px;
+  font-size: 12px;
   paint-order: stroke;
   stroke: var(--ui-paper);
   stroke-width: 4px;
   stroke-linejoin: round;
 }
 .commet-level-rewards {
-  border-top: 1px solid #eee5ed;
+  border-top: 1px solid var(--ui-line);
   padding-top: 10px;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.6;
 }
 .commet-earned-title {
   margin: 0 0 8px;
-  color: #796786;
+  color: var(--ui-text);
 }
 .commet-earned-title > span,
 .commet-item-level {
   border-radius: 5px;
   padding: 2px 5px;
-  background: #eee8f7;
-  color: #8c739e;
-  font-size: 9px;
+  background: var(--ui-lavender);
+  color: var(--ui-text);
+  font-size: 11px;
 }
 .commet-next-unlock {
   display: grid;
   gap: 3px;
   padding: 9px 10px;
-  border-radius: 9px;
-  background: #f1ecf8;
-  color: #796786;
+  border-radius: 12px;
+  background: var(--ui-lavender);
+  color: var(--ui-text);
 }
 .commet-next-unlock b {
-  font-size: 11px;
+  font-size: 13px;
 }
 .commet-next-unlock > span {
-  color: #ad809d;
-  font-size: 10px;
+  color: var(--ui-accent);
+  font-size: 12px;
 }
 .commet-level-rewards details {
   margin-top: 8px;
 }
 .commet-level-rewards summary {
   cursor: pointer;
-  color: #8c739e;
+  color: var(--ui-text);
   padding: 4px 0;
 }
 .commet-level-rewards summary:focus-visible {
-  outline: 2px solid #bf8eb0;
+  outline: 2px solid var(--ui-accent);
   outline-offset: 2px;
 }
 .commet-level-guide {
   margin: 5px 0;
-  color: #a18da6;
-  font-size: 10px;
+  color: var(--ui-text);
+  font-size: 12px;
 }
 .commet-level-roadmap {
   margin: 0;
@@ -846,15 +892,15 @@
   align-items: center;
   gap: 5px;
   padding: 8px 0;
-  border-bottom: 1px solid #eee5ed;
-  font-size: 10px;
+  border-bottom: 1px solid var(--ui-line);
+  font-size: 12px;
 }
 .commet-level-roadmap li > div {
   display: grid;
   overflow-wrap: anywhere;
 }
 .commet-level-roadmap li[data-unlocked="true"] {
-  color: #ab7596;
+  color: var(--ui-accent);
 }
 .commet-level-roadmap li > small {
   white-space: nowrap;
@@ -864,20 +910,586 @@
   padding-top: 6px;
 }
 .commet .commet-menu .commet-settings-link {
-  font-size: 9px;
-  color: #a490a9;
+  font-size: 11px;
+  color: var(--ui-muted);
 }
 .commet.commet-page-settings {
   width: min(420px, calc(100vw - 24px));
   max-height: min(600px, calc(100dvh - 32px));
   padding: 16px;
 }
+
+.commet h1,
+.commet h2,
+.commet h3,
+.commet h4 {
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.commet button,
+.commet input,
+.commet select,
+.commet textarea,
+.commet summary {
+  transition:
+    background-color var(--ui-motion),
+    border-color var(--ui-motion),
+    color var(--ui-motion),
+    box-shadow var(--ui-motion),
+    transform var(--ui-spring);
+}
+.commet button:enabled:hover {
+  border-color: var(--ui-accent);
+}
+.commet button.primary:enabled:hover {
+  background: #303845;
+  color: #fff;
+}
+.commet :is(button, input, textarea, select, summary):focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+}
+.commet :is(input:not([type="checkbox"]), textarea, select) {
+  max-width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  color: var(--ui-ink);
+}
+.commet input[type="checkbox"] {
+  accent-color: var(--ui-accent);
+}
+.commet [role="alert"] {
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff0e8;
+  color: #923e27;
+  overflow-wrap: anywhere;
+}
+.commet button.commet-check-action {
+  min-height: 48px;
+  border-color: var(--ui-action-edge);
+  border-radius: 999px;
+  background: var(--ui-action-fill);
+  color: var(--ui-action-ink);
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow:
+    0 2px 0 var(--ui-action-edge),
+    0 5px 10px #3d58750a;
+}
+.commet button.commet-check-action:enabled:hover {
+  border-color: var(--ui-action-edge);
+  background: var(--ui-action-hover);
+  color: var(--ui-action-ink);
+  box-shadow:
+    0 2px 0 var(--ui-action-edge),
+    0 7px 12px #3d587512;
+}
+.commet button.commet-check-action:enabled:active {
+  box-shadow: 0 1px 0 var(--ui-action-edge);
+}
+.commet-check-action > svg {
+  display: block;
+  flex: none;
+}
+.commet .commet-menu :is(button, [role="button"], summary, [tabindex]):focus {
+  outline: none;
+}
+.commet .commet-menu .commet-menu-nav button:focus-visible,
+.commet .commet-menu :is(button, [role="button"], summary, [tabindex]):focus-visible {
+  box-shadow: 0 0 0 3px #3d587530;
+}
+.commet .commet-speech {
+  border-color: var(--ui-line);
+  color: var(--ui-text);
+  animation: commet-bubble-pop 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.commet.commet-wardrobe-dialog {
+  animation: commet-dialog-in var(--ui-spring) both;
+}
+.commet details[open] > :not(summary) {
+  animation: commet-surface-in 160ms ease-out;
+}
+@keyframes commet-surface-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.commet .commet-menu-content,
+.commet.commet-wardrobe-dialog {
+  scrollbar-color: #b4cadf transparent;
+}
+.commet .commet-menu-profile {
+  padding: 12px;
+  border-radius: 24px;
+}
+.commet .commet-menu-profile .commet-level {
+  margin-top: 4px;
+  padding: 4px 7px;
+  background: #ffffffc7;
+  border-radius: 999px;
+  color: var(--ui-ink);
+  animation: commet-level-pop 500ms ease-out both;
+}
+.commet .commet-menu-identity h2 {
+  font-size: 22px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.commet .commet-dialog-title {
+  min-width: 0;
+}
+.commet-profile-summary {
+  align-items: flex-start;
+}
+.commet .commet-comment-tendencies summary:hover {
+  background: var(--ui-canvas);
+}
+.commet .commet-tendency-labels,
+.commet .commet-tendency-empty {
+  font-size: 12px;
+}
+.commet .commet-gacha-wallet {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.commet .commet-gacha-wallet > span {
+  flex-wrap: wrap;
+}
+.commet .commet-display-settings label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-block: 12px;
+}
+.commet .commet-display-settings input {
+  flex: none;
+  margin-top: 5px;
+}
+.commet .commet-display-settings h2 {
+  font-size: 16px;
+}
+.commet .commet-display-settings {
+  background: var(--ui-paper);
+}
+.commet .commet-account-intro,
+.commet .commet-account-name {
+  color: var(--ui-text);
+}
+.commet.commet-page-settings button.primary {
+  border-color: var(--ui-charcoal);
+  background: var(--ui-charcoal);
+  color: #fff;
+}
+.commet-shell {
+  min-width: 0;
+  border-radius: 24px;
+  overflow-wrap: anywhere;
+}
+.commet-shell h1 {
+  margin: 0 0 20px;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+.commet-shell > section > h2 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+.commet-shell .controls button {
+  min-height: 40px;
+}
+.commet-shell--options {
+  margin-block: 24px;
+  padding: 28px;
+}
+.commet-page-settings .commet-shell--embedded {
+  padding: 0;
+  background: transparent;
+}
+.commet .commet-gacha-price,
+.commet .commet-result-rarity,
+.commet .commet-earned-title > span {
+  border-radius: 999px;
+}
+
+.commet .commet-menu-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.commet .commet-menu-eyebrow .commet-wordmark {
+  color: var(--ui-ink);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.commet-wordmark > span {
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--ui-accent);
+  transition: transform var(--ui-spring);
+}
+.commet-menu-eyebrow:hover .commet-wordmark > span {
+  transform: rotate(90deg) scale(1.2);
+}
+.commet .commet-menu-eyebrow .commet-platform {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #ffffffa6;
+  font-size: 10px;
+  letter-spacing: 0;
+}
+.commet-menu-profile::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -18px;
+  bottom: -20px;
+  width: 140px;
+  height: 70px;
+  border-radius: 999px;
+  background: #ffffff70;
+  box-shadow: -32px -16px 0 -10px #ffffff70;
+  transform: rotate(-14deg);
+}
+.commet-menu-profile::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -8px;
+  right: 62px;
+  width: 50px;
+  height: 50px;
+  background: #ffffffa6;
+  clip-path: polygon(50% 0, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0 50%, 37% 37%);
+  transform: rotate(18deg);
+}
+.commet-menu-identity b {
+  display: inline-block;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  animation: commet-level-pop 450ms ease-out both;
+}
+.commet .commet-menu-dismiss:hover {
+  background: #fff;
+}
+.commet-menu-dismiss svg {
+  transition: transform var(--ui-spring);
+}
+.commet-menu-dismiss:hover svg {
+  transform: rotate(90deg);
+}
+.commet .commet-menu .commet-menu-nav button:hover {
+  transform: translateY(-3px);
+  border-color: transparent;
+  background: #d7e5f6;
+  color: var(--ui-action-ink);
+}
+.commet .commet-menu .commet-menu-nav button[aria-pressed="true"]:hover {
+  background: #bfd6ef;
+  color: var(--ui-action-ink);
+}
+.commet .commet-menu .commet-menu-nav button:active {
+  transform: translateY(0) scale(0.96);
+}
+.commet-menu-nav button > svg {
+  width: 20px;
+  height: 20px;
+  transition: transform var(--ui-spring);
+}
+.commet-menu-nav button:hover > svg {
+  transform: rotate(-8deg) scale(1.12);
+}
+.commet .commet-menu-message {
+  padding: 16px;
+  margin: 0;
+  border-radius: 22px;
+  background: var(--ui-surface);
+  color: var(--ui-ink);
+  line-height: 1.8;
+}
+.commet .commet-menu-content > h3 {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.commet .commet-menu-content > * {
+  animation: commet-content-in 320ms ease-out both;
+}
+.commet .commet-menu-content > :nth-child(2) {
+  animation-delay: 40ms;
+}
+.commet .commet-menu .commet-stats {
+  gap: 6px;
+  padding: 12px;
+  border-radius: 22px;
+  background: var(--ui-surface);
+}
+.commet-menu[data-view="status"] .commet-menu-profile {
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  padding-block: 10px;
+}
+.commet .commet-menu[data-view="status"] .commet-menu-avatar,
+.commet .commet-menu[data-view="status"] .commet-menu-avatar .commet-pet {
+  width: 56px;
+  height: 56px;
+}
+.commet .commet-menu[data-view="status"] .commet-menu-identity h2 {
+  margin-bottom: 4px;
+  font-size: 20px;
+  line-height: 1.3;
+}
+.commet-menu[data-view="status"] .commet-menu-identity p {
+  padding-block: 3px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.commet .commet-stats label {
+  --stat-color: #d79472;
+  --stat-wash: #ffefe5;
+  --stat-ink: #8b4c2e;
+}
+.commet .commet-stats label[data-stat="criticalThinking"] {
+  --stat-color: #6d99e2;
+  --stat-wash: #e5efff;
+  --stat-ink: #315997;
+}
+.commet .commet-stats label[data-stat="resilience"] {
+  --stat-color: #a388d2;
+  --stat-wash: #efe6ff;
+  --stat-ink: #7254a1;
+}
+.commet .commet-stats label progress {
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  accent-color: var(--stat-color);
+}
+.commet .commet-stats label progress::-webkit-progress-bar {
+  border-radius: 999px;
+  background: var(--stat-wash);
+}
+.commet .commet-stats label progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: var(--stat-color);
+  transition: width 600ms ease-out;
+}
+.commet .commet-stats label progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--stat-color);
+}
+.commet .commet-stat-value {
+  min-width: 26px;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--stat-wash);
+  color: var(--stat-ink);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.commet .commet-wardrobe-save .primary:enabled:hover,
+.commet .commet-reward-actions .primary:enabled:hover {
+  box-shadow:
+    0 6px 0 #090d16,
+    0 14px 20px #181d2720;
+}
+.commet .commet-wardrobe-save .primary:enabled:active,
+.commet .commet-reward-actions .primary:enabled:active {
+  box-shadow: 0 1px 0 #090d16;
+}
+.commet-check-action > svg {
+  transition: transform var(--ui-spring);
+}
+.commet .commet-check-action:disabled {
+  box-shadow: none;
+}
+.commet .commet-check-action[aria-busy="true"] > svg {
+  animation: commet-pencil-write 800ms ease-in-out infinite;
+}
+.commet .commet-suggestion {
+  border: 1px solid var(--ui-line);
+  border-radius: 20px;
+  background: #f3f7fd;
+}
+.commet .commet-suggestion summary {
+  padding: 13px 14px;
+  background: transparent;
+}
+.commet .commet-suggestion summary:hover {
+  background: transparent;
+}
+.commet-menu .commet-result {
+  padding: 16px;
+  border: 1px solid var(--ui-line);
+  border-radius: 22px;
+  background: #f3f7fd;
+}
+.commet .commet-tendency-chart {
+  padding: 4px;
+}
+.commet-comment-tendencies[open] .commet-tendency-area {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: commet-chart-grow 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.commet-comment-tendencies[open] .commet-tendency-point {
+  animation: commet-surface-in 400ms 180ms both;
+}
+.commet .commet-wardrobe-item {
+  border: 1px solid transparent;
+  border-radius: 18px;
+}
+.commet .commet-wardrobe-art {
+  border-radius: 13px;
+}
+.commet .commet-wardrobe-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px #0a345214;
+}
+.commet .commet-wardrobe-item[aria-pressed="true"] {
+  border-color: var(--ui-accent);
+  box-shadow: 0 0 0 1px var(--ui-accent);
+}
+.commet .commet-gacha-idle > span {
+  animation: commet-avatar-float 3s ease-in-out infinite;
+}
+@keyframes commet-menu-unfold {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes commet-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes commet-bubble-pop {
+  0% {
+    opacity: 0;
+    scale: 0.88;
+  }
+  65% {
+    opacity: 1;
+    scale: 1.025;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes commet-content-in {
+  from {
+    opacity: 0;
+    translate: 0 7px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes commet-avatar-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -4px;
+  }
+}
+@keyframes commet-level-pop {
+  0% {
+    scale: 0.88;
+  }
+  60% {
+    scale: 1.08;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes commet-pencil-write {
+  0%,
+  100% {
+    transform: rotate(-12deg) translateY(0);
+  }
+  50% {
+    transform: rotate(6deg) translateY(-3px);
+  }
+}
+@keyframes commet-chart-grow {
+  from {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .commet :is(button, input, select, textarea, summary) {
+    transition: none;
+  }
+  .commet.commet-wardrobe-dialog,
+  .commet .commet-menu,
+  .commet .commet-speech,
+  .commet .commet-menu-content > *,
+  .commet .commet-menu-avatar,
+  .commet .commet-menu-profile .commet-level,
+  .commet .commet-menu-identity b,
+  .commet .commet-comment-tendencies[open] .commet-tendency-area,
+  .commet .commet-comment-tendencies[open] .commet-tendency-point,
+  .commet .commet-check-action > svg,
+  .commet .commet-gacha-idle > span,
+  .commet details[open] > :not(summary) {
+    animation: none;
+  }
+  .commet .commet-menu .commet-menu-nav button:hover,
+  .commet .commet-menu .commet-menu-nav button:active,
+  .commet .commet-menu-nav button:hover > svg,
+  .commet .commet-menu-dismiss:hover svg,
+  .commet .commet-menu-eyebrow:hover .commet-wordmark > span,
+  .commet .commet-wardrobe-item:hover,
+  .commet .commet-check-action:enabled:hover,
+  .commet .commet-check-action:enabled:active,
+  .commet .commet-check-action:enabled:hover > svg,
+  .commet .commet-wardrobe-save .primary:enabled:hover,
+  .commet .commet-wardrobe-save .primary:enabled:active,
+  .commet .commet-reward-actions .primary:enabled:hover,
+  .commet .commet-reward-actions .primary:enabled:active {
+    transform: none;
+  }
+  .commet .commet-stats label progress::-webkit-progress-value,
+  .commet .commet-menu-profile,
+  .commet .commet-menu-nav button > svg,
+  .commet .commet-menu-dismiss svg,
+  .commet .commet-check-action > svg,
+  .commet .commet-wordmark > span {
+    transition: none;
+  }
+}
 @media (max-width: 420px) {
   .commet.commet-wardrobe-dialog {
     padding: 16px;
   }
   .commet .commet-dialog-title h2 {
-    font-size: 16px;
+    font-size: 18px;
   }
   .commet .commet-wardrobe {
     grid-template-columns: 82px minmax(0, 1fr);
@@ -885,7 +1497,7 @@
   }
   .commet .commet-wardrobe-categories button {
     padding-inline: 6px;
-    font-size: 10px;
+    font-size: 12px;
     gap: 5px;
   }
   .commet .commet-exchange-items {
@@ -896,6 +1508,33 @@
   }
   .commet .commet-face-buttons button {
     padding-right: 5px;
-    font-size: 9px;
+    font-size: 11px;
+  }
+  .commet-shell,
+  .commet-shell--options {
+    padding: 16px;
+  }
+  .commet-shell section {
+    padding: 16px;
+  }
+}
+@media (max-width: 360px) {
+  .commet .commet-menu-nav {
+    gap: 4px;
+  }
+  .commet .commet-menu .commet-menu-nav button {
+    font-size: 10px;
+  }
+  .commet .commet-menu-profile {
+    grid-template-columns: 66px minmax(0, 1fr) auto;
+    gap: 6px;
+  }
+  .commet .commet-menu-avatar,
+  .commet .commet-menu-avatar .commet-pet {
+    width: 66px;
+    height: 66px;
+  }
+  .commet .commet-menu-identity h2 {
+    font-size: 20px;
   }
 }

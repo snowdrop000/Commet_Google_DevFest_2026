@@ -142,8 +142,8 @@ test("YouTube checks award nothing; the posted draft determines XP and level-onl
     await expect(stats).toContainText("XP 2 / 10");
     for (const [name, value] of [
       ["ぬくもり", "15"],
-      ["知恵", "12"],
-      ["愛嬌", "12"],
+      ["ひらめき", "12"],
+      ["おちゃめ", "12"],
     ]) {
       const bar = options.getByRole("progressbar", { name, exact: true });
       await expect(bar).toHaveAttribute("value", value);

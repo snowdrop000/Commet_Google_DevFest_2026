@@ -1,7 +1,9 @@
 .commet {
-  color: #192026;
+  color: var(--ui-ink);
   font:
-    14px/1.5 system-ui,
+    14px/1.65 "Commet Zen Maru Gothic",
+    "Hiragino Maru Gothic ProN",
+    system-ui,
     sans-serif;
   box-sizing: border-box;
 }
@@ -17,11 +19,11 @@
   font: inherit;
 }
 .commet button {
-  border: 1px solid #192026;
-  border-radius: 7px;
-  background: #fff;
-  color: #192026;
-  padding: 0.35em 0.7em;
+  border: 1px solid var(--ui-line);
+  border-radius: 999px;
+  background: var(--ui-surface);
+  color: var(--ui-ink);
+  padding: 8px 16px;
   cursor: pointer;
 }
 .commet button:disabled {
@@ -29,12 +31,15 @@
   cursor: wait;
 }
 .commet button.primary {
-  background: #b7ef58;
-  font-weight: 700;
+  border-color: var(--ui-charcoal);
+  background: var(--ui-charcoal);
+  color: #fff;
+  font-weight: 500;
 }
 .commet button[aria-pressed="true"] {
-  background: #e7fac8;
-  font-weight: 700;
+  background: var(--ui-canvas);
+  color: var(--ui-accent);
+  font-weight: 500;
 }
 .commet label {
   display: block;
@@ -131,19 +136,20 @@
 }
 .commet-stats progress {
   width: 42%;
-  accent-color: #6653e8;
+  accent-color: var(--ui-accent);
 }
 .commet-shell {
   max-width: 700px;
-  margin: 12px auto;
-  padding: 12px;
-  background: #fffdf7;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--ui-canvas);
 }
 .commet-shell section {
-  margin: 12px 0;
-  padding: 8px;
-  border: 1px solid #e2ddcf;
-  border-radius: 7px;
+  margin: 16px 0;
+  padding: 20px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--ui-paper);
 }
 .commet-shell textarea {
   width: 100%;
@@ -152,12 +158,13 @@
 .commet-shell pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  background: #eff3f2;
-  padding: 8px;
+  background: var(--ui-fog);
+  border-radius: 12px;
+  padding: 12px;
 }
 .commet-shell .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
 }

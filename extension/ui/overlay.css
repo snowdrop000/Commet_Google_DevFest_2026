@@ -1,7 +1,7 @@
 .commet-card {
-  --companion-ink: #54434b;
-  --companion-muted: #8d7d85;
-  --companion-border: #e8dce0;
+  --companion-ink: var(--ui-ink);
+  --companion-muted: var(--ui-muted);
+  --companion-border: var(--ui-line);
   position: fixed;
   right: 22px;
   bottom: 22px;
@@ -40,7 +40,7 @@
 }
 
 .commet-companion:focus-visible {
-  outline: 2px solid #a45f83;
+  outline: 2px solid var(--ui-accent);
   outline-offset: -6px;
   border-radius: 20px;
 }
@@ -69,12 +69,12 @@
   width: 224px;
   max-width: calc(100vw - 24px);
   padding: 13px 16px;
-  border: 1px solid #e4cfdc;
+  border: 1px solid var(--ui-line);
   border-radius: 22px;
-  background: #fffcf9;
-  box-shadow: 0 5px 18px #49313d14;
-  color: #796786;
-  font-size: 12px;
+  background: var(--ui-paper);
+  box-shadow: 0 5px 18px #0a345214;
+  color: var(--ui-text);
+  font-size: 13px;
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
@@ -91,9 +91,9 @@
   left: -6px;
   width: 11px;
   height: 11px;
-  border-left: 1px solid #e4cfdc;
-  border-bottom: 1px solid #e4cfdc;
-  background: #fffcf9;
+  border-left: 1px solid var(--ui-line);
+  border-bottom: 1px solid var(--ui-line);
+  background: var(--ui-paper);
   transform: rotate(45deg);
 }
 
@@ -115,12 +115,12 @@
   max-width: 100%;
   height: 34px;
   margin-inline: auto;
-  border: 1px solid #d6c5cc;
+  border: 1px solid var(--ui-line);
   border-radius: 10px;
-  background: #fffaf7;
+  background: var(--ui-paper);
   box-shadow:
-    0 2px 0 #e9dde2,
-    0 7px 20px #49313d12;
+    0 2px 0 #dce8f2,
+    0 7px 20px #0a345212;
   pointer-events: auto;
 }
 
@@ -132,7 +132,7 @@
   min-width: 0;
   padding: 0 6px;
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
 }
@@ -182,7 +182,7 @@
   border: 0;
   border-left: 1px solid var(--companion-border);
   border-radius: 0 9px 9px 0;
-  background: #f4ebee;
+  background: var(--ui-canvas);
   color: var(--companion-ink);
   transition: background 0.18s;
 }
@@ -194,7 +194,7 @@
 
 .commet button.commet-menu-toggle:hover,
 .commet button.commet-menu-toggle[aria-expanded="true"] {
-  background: #eadce3;
+  background: #cce7ff;
 }
 
 .commet-menu-toggle[data-notice="true"]::after {
@@ -204,13 +204,13 @@
   right: -3px;
   width: 8px;
   height: 8px;
-  border: 2px solid #fffaf7;
+  border: 2px solid var(--ui-paper);
   border-radius: 50%;
-  background: #b57b98;
+  background: var(--ui-accent);
 }
 
 .commet-card button:focus-visible {
-  outline: 2px solid #a45f83;
+  outline: 2px solid var(--ui-accent);
   outline-offset: 3px;
 }
 
@@ -226,12 +226,12 @@
   padding: 18px 16px 10px;
   border: 1px solid var(--companion-border);
   border-radius: 20px;
-  background: #fffcf9;
+  background: var(--ui-paper);
   box-shadow:
-    0 12px 40px #49313d1f,
-    0 2px 6px #49313d08;
+    0 12px 40px #0a34521f,
+    0 2px 6px #0a345208;
   pointer-events: auto;
-  animation: commet-menu-in 0.16s ease-out;
+  animation: commet-menu-in 180ms ease-out;
   scrollbar-width: thin;
   cursor: grab;
 }
@@ -246,7 +246,7 @@
 }
 
 .commet-menu-eyebrow[role="button"]:focus-visible {
-  outline: 2px solid #a45f83;
+  outline: 2px solid var(--ui-accent);
   outline-offset: 4px;
 }
 
@@ -258,7 +258,7 @@
 @keyframes commet-menu-in {
   from {
     opacity: 0;
-    translate: 0 6px;
+    translate: 0 2px;
   }
   to {
     opacity: 1;
@@ -276,9 +276,9 @@
 
 .commet .commet-menu-eyebrow {
   margin: 0 0 4px;
-  color: #aa7e91;
+  color: var(--ui-muted);
   font-size: 9px;
-  font-weight: 750;
+  font-weight: 500;
   letter-spacing: 0.14em;
 }
 
@@ -291,19 +291,19 @@
 .commet-menu-header h2 {
   margin: 0;
   font-size: 19px;
-  font-weight: 750;
+  font-weight: 500;
   overflow-wrap: anywhere;
 }
 
 .commet-level {
   flex-shrink: 0;
   padding: 4px 9px;
-  border: 1px solid #eadde4;
+  border: 1px solid var(--ui-line);
   border-radius: 8px;
-  background: #f8f0f4;
-  color: #977087;
+  background: var(--ui-canvas);
+  color: var(--ui-accent);
   font-size: 11px;
-  font-weight: 650;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -324,8 +324,8 @@
   padding: 8px 1px;
   border: 1px solid transparent;
   border-radius: 11px;
-  background: #f6f1ef;
-  color: #8a777e;
+  background: var(--ui-fog);
+  color: var(--ui-text);
   font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
@@ -340,14 +340,14 @@
 }
 
 .commet .commet-menu-nav button:hover {
-  background: #efe5e9;
-  color: #7c4661;
+  background: var(--ui-canvas);
+  color: var(--ui-accent);
 }
 
 .commet .commet-menu-nav button[aria-pressed="true"] {
-  border-color: #ead1dc;
-  background: #f6e8ef;
-  color: #965b79;
+  border-color: var(--ui-accent);
+  background: var(--ui-canvas);
+  color: var(--ui-accent);
 }
 
 .commet-menu-content {
@@ -384,14 +384,14 @@
 
 .commet-menu-content h3 {
   margin: 0 0 12px;
-  font-size: 12px;
-  font-weight: 650;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .commet .commet-menu-message {
   margin: 0 0 12px;
   color: var(--companion-muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
 }
 
@@ -403,12 +403,12 @@
   width: 100%;
   min-height: 40px;
   padding: 9px;
-  border: 1px solid #826376;
+  border: 1px solid var(--ui-charcoal);
   border-radius: 10px;
-  background: #826376;
-  color: #fffafc;
-  font-size: 12px;
-  font-weight: 650;
+  background: var(--ui-charcoal);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .commet-check-action svg {
@@ -417,9 +417,9 @@
 }
 
 .commet .commet-check-action:disabled {
-  border-color: #e5dce0;
-  background: #eee6ea;
-  color: #9d8d95;
+  border-color: var(--ui-line);
+  background: var(--ui-fog);
+  color: var(--ui-muted);
   cursor: not-allowed;
   opacity: 1;
 }
@@ -427,16 +427,16 @@
 .commet-menu .commet-result {
   margin-bottom: 12px;
   padding: 12px;
-  border: 1px solid #e8e6e0;
+  border: 1px solid #b5daca;
   border-radius: 10px;
-  background: #f4f5ef;
-  font-size: 12px;
+  background: var(--ui-mint);
+  font-size: 13px;
   line-height: 1.8;
 }
 
 .commet-menu .commet-result[data-tone="abusive"] {
-  border-color: #efdadb;
-  background: #fff2f1;
+  border-color: #e5c5b6;
+  background: #fff0e8;
 }
 
 .commet-menu .commet-result small {
@@ -445,10 +445,10 @@
 
 .commet-suggestion {
   margin-bottom: 12px;
-  border: 1px solid #e4cfdc;
+  border: 1px solid var(--ui-line);
   border-radius: 10px;
-  background: #fbf6f8;
-  font-size: 12px;
+  background: var(--ui-canvas);
+  font-size: 13px;
   line-height: 1.8;
 }
 
@@ -474,7 +474,7 @@
 
 .commet-suggestion summary::after {
   content: "▼";
-  color: #a45f83;
+  color: var(--ui-accent);
   font-size: 10px;
 }
 
@@ -483,7 +483,7 @@
 }
 
 .commet-suggestion summary:focus-visible {
-  outline: 2px solid #a45f83;
+  outline: 2px solid var(--ui-accent);
   outline-offset: -3px;
   border-radius: 9px;
 }
@@ -496,27 +496,27 @@
 .commet-menu .commet-suggestion button {
   width: 100%;
   margin-top: 7px;
-  border-color: #dfd0d7;
-  background: #fffcf9;
-  color: #7c5266;
+  border-color: var(--ui-line);
+  background: var(--ui-paper);
+  color: var(--ui-accent);
   font-size: 11px;
 }
 
 .commet-menu .commet-stats {
   display: grid;
   gap: 11px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .commet-menu .commet-stats > b {
-  color: #96637e;
+  color: var(--ui-accent);
   font-size: 11px;
   font-weight: 600;
 }
 
 .commet-menu .commet-stats label {
   gap: 9px;
-  color: #78666f;
+  color: var(--ui-text);
 }
 
 .commet-menu .commet-stats progress {
@@ -525,19 +525,19 @@
   border: 0;
   border-radius: 6px;
   overflow: hidden;
-  accent-color: #be8ca6;
+  accent-color: var(--ui-accent);
 }
 
 .commet-menu progress::-webkit-progress-bar {
-  background: #eee6e9;
+  background: var(--ui-line);
 }
 .commet-menu progress::-webkit-progress-value {
   border-radius: 6px;
-  background: #be8ca6;
+  background: var(--ui-accent);
 }
 .commet-menu progress::-moz-progress-bar {
   border-radius: 6px;
-  background: #be8ca6;
+  background: var(--ui-accent);
 }
 
 .commet-menu .commet-stats small {
@@ -552,7 +552,7 @@
   flex-wrap: wrap;
   gap: 6px;
   padding-top: 8px;
-  border-top: 1px solid #eee5e8;
+  border-top: 1px solid var(--ui-line);
 }
 
 .commet .commet-settings-link {
@@ -563,7 +563,7 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: #927987;
+  color: var(--ui-muted);
   font-size: 10px;
 }
 
