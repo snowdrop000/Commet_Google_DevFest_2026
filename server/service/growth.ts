@@ -10,7 +10,7 @@ import {
 import { contributionKeys } from "../../shared/model";
 import { rewardsFor } from "../../shared/evaluation";
 import type { GrowthEvidence } from "../model/state";
-import { dayJst } from "./exchange-shop";
+import { dayJst } from "../../shared/day";
 
 export function currentStreak(pet: Pick<Profile, "streak" | "lastActiveDate">, now: number) {
   return pet.lastActiveDate === dayJst(now) || pet.lastActiveDate === dayJst(now - 86_400_000)

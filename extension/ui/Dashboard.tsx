@@ -21,6 +21,9 @@ export function Dashboard({
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [settings, setSettings] = useState(defaults);
+  const loggedIn = state?.webDemo
+    ? state.webDemo.googleSignedIn || state.webDemo.demoSignedIn
+    : state?.signedIn;
   const updateState = (value: State) => {
     setState(value);
     setSettings(value.settings);
@@ -63,11 +66,17 @@ export function Dashboard({
     setBusy(true);
     setMessage("");
     try {
-      const next = await send({ type: state?.signedIn ? "logout" : "login" });
+      const next = await send({ type: loggedIn ? "logout" : "login" });
       updateState(next);
       if (embedded && (!next.signedIn || next.profile))
         setMessage(
-          next.signedIn ? "ログインしました。このページで続けて使えます。" : "ログアウトしました。",
+          next.webDemo
+            ? next.webDemo.googleSignedIn || next.webDemo.demoSignedIn
+              ? "ログインしました。Gemini判定を使えます。"
+              : "サンプル判定で続けて使えます。"
+            : next.signedIn
+              ? "ログインしました。このページで続けて使えます。"
+              : "ログアウトしました。",
         );
     } catch (error) {
       showError(error);
@@ -96,7 +105,11 @@ export function Dashboard({
     >
       {!embedded && <h1>Commet</h1>}
       {embedded && (
-        <p className="commet-account-intro">ほしもちとの記録を保存して、このページで使えます。</p>
+        <p className="commet-account-intro">
+          {state?.webDemo
+            ? "体験データはこのブラウザに保存します。外部のSNSには投稿しません。"
+            : "ほしもちとの記録を保存して、このページで使えます。"}
+        </p>
       )}
       <div className="controls">
         <button
@@ -107,14 +120,16 @@ export function Dashboard({
           {loading
             ? "接続を確認中…"
             : busy
-              ? state?.signedIn
+              ? loggedIn
                 ? "ログアウト中…"
                 : "ログイン中…"
-              : state?.signedIn
+              : loggedIn
                 ? "ログアウト"
                 : state?.emulator
                   ? "開発用ログイン"
-                  : "Googleでログイン"}
+                  : state?.webDemo
+                    ? "ログイン"
+                    : "Googleでログイン"}
         </button>
         {!loading && (!state || (state.signedIn && !state.profile)) && (
           <button disabled={busy} onClick={() => void loadState()}>

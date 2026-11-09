@@ -15,19 +15,8 @@ import {
   type GachaResult,
 } from "../../shared/gacha";
 
-export const preferences = z.object({
-  position: z
-    .object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) })
-    .nullable()
-    .default(null),
-  followComposer: z.boolean().default(true),
-  explore: z.boolean().default(true),
-  useContext: z.boolean().default(true),
-  summarizeVideos: z.boolean().default(true),
-  analyzeOnPost: z.boolean().default(true),
-});
-export type Preferences = z.infer<typeof preferences>;
-export const defaults = preferences.parse({});
+import { preferences, type Preferences } from "../../shared/preferences";
+export { preferences, defaults, type Preferences } from "../../shared/preferences";
 const pageId = z.uuid();
 const postId = z.uuid();
 export const message = z.discriminatedUnion("type", [
@@ -65,9 +54,10 @@ export type State = {
   emulator: boolean;
   settings: Preferences;
   profile: Profile | null;
+  webDemo?: { googleSignedIn: boolean; demoSignedIn?: boolean; aiMode: "sample" | "gemini" };
 };
 
-type Results = {
+export type Results = {
   state: State;
   login: State;
   logout: State;

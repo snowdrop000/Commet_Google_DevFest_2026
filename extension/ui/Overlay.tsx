@@ -15,6 +15,7 @@ import { GachaDialog } from "./Gacha";
 import { OverlayIcon } from "./OverlayIcon";
 import { PageSettingsDialog } from "./PageSettingsDialog";
 import { starSkins } from "./star-skins";
+import { placeOverlay } from "./overlay-placement";
 
 const initial: State = { signedIn: false, emulator: false, settings: defaults, profile: null };
 const guestPet: Profile = { ...newProfile(), characterType: starCharacter, name: "ほしもち" };
@@ -137,72 +138,38 @@ export function Overlay({ platform }: { platform: Platform }) {
       const menuMaxHeight = 520;
       const clamp = (value: number, min: number, max: number) =>
         Math.max(min, Math.min(Math.max(min, max), value));
-      if (bubble) {
-        bubble.style.maxWidth = `${Math.max(1, innerWidth - root.offsetWidth - gap * 2 - 4)}px`;
-        bubble.style.left = `${root.offsetWidth + 4}px`;
-        bubble.style.top = `${Math.max(8, (dragHandle.current?.offsetHeight ?? 140) * 0.55 - bubble.offsetHeight / 2)}px`;
-      }
-      const bubbleBottom = bubble ? bubble.offsetTop + bubble.offsetHeight : 0;
-      const height = Math.max(root.offsetHeight, bubbleBottom);
-      const width = root.offsetWidth + (bubble ? bubble.offsetWidth + 4 : 0);
-      const maxTop = Math.max(gap, innerHeight - height - gap);
-      const minTop = popup ? Math.min(maxTop, menuMaxHeight + gap * 2) : gap;
-      const minLeft = popup
-        ? Math.min((popup.offsetWidth - root.offsetWidth) / 2 + gap, innerWidth - width - gap)
-        : gap;
-      const left = clamp(
-        parseFloat(root.style.left) || 0,
-        Math.max(gap, minLeft),
-        innerWidth - width - gap,
-      );
-      const top = clamp(parseFloat(root.style.top) || 0, minTop, maxTop);
-      if (parseFloat(root.style.left) !== left) root.style.left = `${left}px`;
-      if (parseFloat(root.style.top) !== top) root.style.top = `${top}px`;
       const rect = root.getBoundingClientRect();
+      if (bubble) {
+        const right = innerWidth - rect.right - gap,
+          left = rect.left - gap;
+        const onRight = right >= left;
+        bubble.dataset.side = onRight ? "right" : "left";
+        bubble.style.maxWidth = `${Math.max(1, Math.max(left, right) - 4)}px`;
+        bubble.style.left = `${onRight ? root.offsetWidth + 4 : -bubble.offsetWidth - 4}px`;
+        bubble.style.top = `${clamp((dragHandle.current?.offsetHeight ?? 140) * 0.55 - bubble.offsetHeight / 2, gap - rect.top, innerHeight - rect.top - bubble.offsetHeight - gap)}px`;
+      }
       if (!popup) return;
       const speechRect = bubble?.getBoundingClientRect();
       const group = {
-        left: rect.left,
-        top: rect.top,
+        left: Math.min(rect.left, speechRect?.left ?? rect.left),
+        top: Math.min(rect.top, speechRect?.top ?? rect.top),
         right: Math.max(rect.right, speechRect?.right ?? rect.right),
         bottom: Math.max(rect.bottom, speechRect?.bottom ?? rect.bottom),
       };
-      const available = Math.max(0, Math.min(menuMaxHeight, rect.top - gap * 2));
-      popup.dataset.compact = String(available < 360);
-      popup.style.maxHeight = `${available}px`;
-      const w = popup.offsetWidth,
-        h = popup.offsetHeight;
-      const maxX = innerWidth - w - gap,
-        maxY = innerHeight - h - gap;
-      const wanted = {
-        x: clamp(menuPosition.current?.x ?? rect.left + (rect.width - w) / 2, gap, maxX),
-        y: clamp(menuPosition.current?.y ?? rect.top - h - gap, gap, maxY),
-      };
-      const candidates = [
-        wanted,
-        { x: group.left - w - gap, y: wanted.y },
-        { x: group.right + gap, y: wanted.y },
-        { x: wanted.x, y: group.top - h - gap },
-        { x: wanted.x, y: group.bottom + gap },
-      ].filter(
-        ({ x, y }) =>
-          x >= gap &&
-          x <= maxX &&
-          y >= gap &&
-          y <= maxY &&
-          (x + w + gap <= group.left ||
-            x >= group.right + gap ||
-            y + h + gap <= group.top ||
-            y >= group.bottom + gap),
+      popup.dataset.compact = "false";
+      popup.style.maxHeight = `${menuMaxHeight}px`;
+      const desiredHeight = Math.min(menuMaxHeight, popup.offsetHeight);
+      const position = placeOverlay(
+        { width: innerWidth, height: innerHeight },
+        group,
+        { width: popup.offsetWidth, height: desiredHeight },
+        menuPosition.current,
       );
-      const position = candidates.sort(
-        (a, b) =>
-          Math.hypot(a.x - wanted.x, a.y - wanted.y) - Math.hypot(b.x - wanted.x, b.y - wanted.y),
-      )[0];
-      if (position) {
-        popup.style.left = `${position.x}px`;
-        popup.style.top = `${position.y}px`;
-      }
+      popup.dataset.compact = String(position.maxHeight < 360);
+      popup.dataset.placement = position.direction;
+      popup.style.maxHeight = `${position.maxHeight}px`;
+      popup.style.left = `${position.x}px`;
+      popup.style.top = `${position.y + (position.direction === "above" ? position.maxHeight - popup.offsetHeight : 0)}px`;
     }
     positionOverlays.current = positionMenu;
     positionMenu();
@@ -214,7 +181,6 @@ export function Overlay({ platform }: { platform: Platform }) {
     if (panel.current)
       movement.observe(panel.current, { attributes: true, attributeFilter: ["style"] });
     addEventListener("resize", positionMenu);
-    if (menuOpen) popup?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
     return () => {
       observer.disconnect();
       movement.disconnect();
@@ -222,6 +188,11 @@ export function Overlay({ platform }: { platform: Platform }) {
       removeEventListener("resize", positionMenu);
     };
   }, [menuOpen, result, checking, wardrobeOpen, gachaOpen, settingsOpen]);
+
+  useEffect(() => {
+    if (menuOpen)
+      menu.current?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!menuOpen || wardrobeOpen || gachaOpen || settingsOpen) return;
@@ -239,6 +210,9 @@ export function Overlay({ platform }: { platform: Platform }) {
           !(event.target instanceof Element) ||
           event.target.closest("button, a, input, textarea, select, summary, .commet-suggestion p")
         )
+          return;
+        // Leave the scrolling surface available on short screens; drag by the header.
+        if (popup.dataset.compact === "true" && !event.target.closest(".commet-menu-header"))
           return;
         popup.getAnimations().forEach((animation) => animation.finish());
         const rect = popup.getBoundingClientRect();
@@ -704,7 +678,7 @@ export function Overlay({ platform }: { platform: Platform }) {
       : petAnimation;
   // While the menu is open, the pet stands still and shows off its held item.
   // A running check keeps its peeking pose so the user can see it is working.
-  const showingProp = menuOpen && !checking && pet.equippedItems.prop !== "prop_none";
+  const showingProp = menuOpen && !checking && !rule && pet.equippedItems.prop !== "prop_none";
   const displayAnimation = checking
     ? { ...petAnimation, action: "peek" as const }
     : showingProp

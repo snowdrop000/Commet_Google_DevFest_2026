@@ -29,7 +29,14 @@ export function createApp(
   let minute = Math.floor(Date.now() / 60_000);
   app.use("*", async (c, next) => {
     await next();
-    c.header("Cache-Control", "no-store");
+    c.header(
+      "Cache-Control",
+      c.req.path.startsWith("/web/") && c.res.status === 200
+        ? c.req.path.startsWith("/web/assets/")
+          ? "public, max-age=31536000, immutable"
+          : "public, max-age=3600"
+        : "no-store",
+    );
   });
   app.get("/health", (c) => c.json({ ok: true, mode, ...(provider && { provider }) }));
   app.use("/v1/*", async (c, next) => {

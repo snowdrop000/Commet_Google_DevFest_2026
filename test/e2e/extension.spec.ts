@@ -394,7 +394,7 @@ test("ログイン後にShadow DOMで判定・改善案を表示し、投稿を�
     expect(await petName.evaluate((input: HTMLInputElement) => input.validity.valid)).toBe(false);
     await petName.fill("こむぎ");
     const youtubePreview = test.info().outputPath("youtube-wardrobe.png");
-    await youtubeWardrobe.screenshot({ path: youtubePreview });
+    await youtubeWardrobe.screenshot({ path: youtubePreview, animations: "disabled" });
     await test.info().attach("YouTubeでほしもちを着せ替え", {
       path: youtubePreview,
       contentType: "image/png",

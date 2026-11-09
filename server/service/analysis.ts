@@ -1,15 +1,9 @@
 import { createHash } from "node:crypto";
 import type { z } from "zod";
-import { evaluate } from "../../shared/evaluation";
+import { classify } from "../../shared/classification";
+export { classify } from "../../shared/classification";
 import { demoCandidate } from "../../shared/demo";
-import {
-  analyzeRequest,
-  analysisResult,
-  type Analysis,
-  type AnalyzeResponse,
-  type Axes,
-  type VideoSummary,
-} from "../../shared/model";
+import { analyzeRequest, type AnalyzeResponse, type VideoSummary } from "../../shared/model";
 import { ServiceError } from "../model/state";
 import type { AiRepository } from "../repository/gemini";
 import { RequestCache } from "./cache";
@@ -99,38 +93,4 @@ export class AnalysisService {
       videoSource,
     };
   }
-}
-
-export function classify(
-  candidate: Axes,
-  text: string,
-  missingReply = false,
-  isReply = false,
-): Analysis {
-  const axes = missingReply
-    ? {
-        ...candidate,
-        contextSufficient: false,
-        reason: "返信元が取得できないため、追加確認が必要です。",
-      }
-    : candidate;
-  const reward = evaluate(axes, text);
-  const category =
-    reward.decision === "harmful"
-      ? "abusive"
-      : reward.needsSecondaryCheck
-        ? "context_required"
-        : axes.appreciation > 0 &&
-            axes.appreciation >= Math.max(axes.constructiveness, axes.information, axes.humor)
-          ? "supportive"
-          : axes.constructiveness > 0 || axes.information > 0
-            ? "constructive_criticism"
-            : "neutral";
-  return analysisResult.parse({
-    ...axes,
-    ...reward,
-    category,
-    isReply,
-    suggestion: missingReply || reward.decision === "safe" ? "" : axes.suggestion,
-  });
 }

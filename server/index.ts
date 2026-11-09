@@ -9,6 +9,8 @@ import { GeminiRepository } from "./repository/gemini";
 import { VertexGeminiRepository } from "./repository/vertex";
 import { AnalysisService } from "./service/analysis";
 import { GameService } from "./service/game";
+import { webRoutes } from "./web";
+import { webDemoRoutes } from "./web-demo";
 
 const config = z
   .object({
@@ -22,8 +24,9 @@ const config = z
     GEMINI_MODEL: z
       .string()
       .regex(/^gemini-[a-zA-Z0-9.-]+$/)
-      .default("gemini-3.1-flash-lite"),
+      .default("gemini-3.5-flash-lite"),
     COMMET_DEMO_AI: z.enum(["true", "false"]).default("false"),
+    COMMET_WEB_DEMO_UID: z.string().min(1).optional(),
     COMMET_GEMINI_QUOTA_ENABLED: z.enum(["true", "false"]).default("true"),
     COMMET_GEMINI_USER_DAILY: z.coerce.number().int().min(1).default(20),
     COMMET_GEMINI_PROJECT_DAILY: z.coerce.number().int().min(1).default(150),
@@ -77,9 +80,10 @@ const ai =
       ? new GeminiRepository(config.GEMINI_API_KEY, config.GEMINI_MODEL)
       : null;
 const mode = ai ? "gemini" : demo ? "emulator-demo" : "unconfigured";
+const analysis = new AnalysisService(ai, quota, game, demo);
 const app = createApp(
   game,
-  new AnalysisService(ai, quota, game, demo),
+  analysis,
   async (token) => {
     const claims = await getAuth(firebase).verifyIdToken(token);
     if (!emulator && claims.firebase.sign_in_provider !== "google.com")
@@ -89,6 +93,31 @@ const app = createApp(
   mode,
   ai ? config.GEMINI_PROVIDER : undefined,
 );
+const webDemoAnalysis = new AnalysisService(
+  ai,
+  new FirestoreGeminiQuota(
+    database,
+    Math.min(20, config.COMMET_GEMINI_USER_DAILY),
+    Math.min(150, config.COMMET_GEMINI_PROJECT_DAILY),
+  ),
+  game,
+  false,
+);
+app.route(
+  "/web-demo",
+  webDemoRoutes(webDemoAnalysis, async (token) => {
+    if (!config.COMMET_WEB_DEMO_UID) throw new Error("Web review account is not configured");
+    const claims = await getAuth(firebase).verifyIdToken(token);
+    if (
+      claims.uid !== config.COMMET_WEB_DEMO_UID ||
+      claims.commetWebDemo !== true ||
+      claims.firebase.sign_in_provider !== "password"
+    )
+      throw new Error("Web review account required");
+    return claims.uid;
+  }),
+);
+app.route("/", webRoutes());
 serve({ fetch: app.fetch, hostname: config.HOST, port: config.PORT }, (info) => {
   console.log(
     `Commet API http://${config.HOST}:${info.port} (${mode}${ai ? `/${config.GEMINI_PROVIDER}` : ""})`,

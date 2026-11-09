@@ -181,7 +181,7 @@ describe("Gemini connections", () => {
     const repository = new VertexGeminiRepository(
       "real-project",
       "global",
-      "gemini-3.1-flash-lite",
+      "gemini-3.5-flash-lite",
       { getAccessToken },
     );
     expect(await repository.comment({ draft: "ありがとうございます。" })).toEqual(candidate);
@@ -190,7 +190,7 @@ describe("Gemini connections", () => {
     for (const [index, token] of ["first-token", "refreshed-token"].entries()) {
       const [url, init] = fetch.mock.calls[index];
       expect(url).toBe(
-        "https://aiplatform.googleapis.com/v1/projects/real-project/locations/global/publishers/google/models/gemini-3.1-flash-lite:generateContent",
+        "https://aiplatform.googleapis.com/v1/projects/real-project/locations/global/publishers/google/models/gemini-3.5-flash-lite:generateContent",
       );
       expect(init.headers).toMatchObject({
         Authorization: `Bearer ${token}`,

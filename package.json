@@ -7,6 +7,10 @@
     "node": ">=22.13"
   },
   "scripts": {
+    "build:web": "node web/build.mjs",
+    "typecheck:web": "tsc --project tsconfig.web.json",
+    "preview:web": "node --import tsx web/preview.ts",
+    "test:web": "npm run build:web && playwright test --config web/playwright.config.ts",
     "start": "node dist/server.js",
     "build:api": "esbuild ./server/index.ts --bundle --platform=node --format=esm --packages=external --target=node22 --tsconfig=tsconfig.api.json --outfile=dist/server.js",
     "dev:api": "node --env-file-if-exists=.env --import tsx server/index.ts",
@@ -15,7 +19,7 @@
     "build:cloud": "wxt build -b chrome --mode cloud",
     "typecheck": "wxt prepare && tsc --noEmit",
     "typecheck:api": "tsc --project tsconfig.api.json",
-    "lint": "eslint server shared extension test *.config.ts",
+    "lint": "eslint server shared extension web test *.config.ts",
     "format": "prettier --write server shared extension test *.config.ts",
     "test": "vitest run",
     "test:e2e": "WXT_FIREBASE_PROJECT_ID=demo-commet WXT_FIREBASE_AUTH_EMULATOR=http://127.0.0.1:9099 npm run build && playwright test",

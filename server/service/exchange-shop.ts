@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { ITEM_CATALOG } from "../../shared/game";
 import { exchangePool, type ExchangeShop } from "../../shared/gacha";
-
-export const dayJst = (now: number) => new Date(now + 9 * 3_600_000).toISOString().slice(0, 10);
+import { dayJst } from "../../shared/day";
+export { dayJst } from "../../shared/day";
 
 /** Daily order stays stable; select up to six rewards from this owner's unowned pool. */
 export function dailyExchangeShop(now: number, ownedItems: readonly string[] = []): ExchangeShop {

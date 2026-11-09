@@ -117,6 +117,7 @@ export function testApi(
   );
   return {
     app,
+    analysis,
     repository,
     game,
     advance: (ms: number) => {
