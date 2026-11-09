@@ -5,7 +5,8 @@ import type { PetAnimation } from "./pet-animation";
 import { starAssets } from "./star-assets";
 import { StarBadge, StarHat, StarProp } from "./star-accessories";
 import { GemHand } from "./star-gems";
-import { outline, StarEffects, StarFace, StarOrnaments, StarPattern } from "./star-parts";
+import { outline, StarEffects, StarFace, StarOrnaments } from "./star-parts";
+import { StarPattern } from "./star-patterns";
 import { StarPixelBody, StarSkinFinish, starSkins } from "./star-skins";
 import "./star-reading.css";
 import "./star-motion.css";
@@ -184,7 +185,7 @@ export function StarPet({
               />
             )}
           </g>
-          {(hasPattern || hasFinish) && (
+          {hasFinish && (
             <mask
               id={maskId}
               x="0"
@@ -231,7 +232,16 @@ export function StarPet({
                 pose={walking ? "walk" : expression}
               />
             )}
-            {hasPattern && <StarPattern id={pattern} maskId={maskId} />}
+            {hasPattern && (
+              <StarPattern
+                id={pattern}
+                bodyId={bodyId}
+                uid={id}
+                pose={walking ? "walk" : expression}
+                crown={crown}
+                face={[faceX, faceY]}
+              />
+            )}
             <StarFace
               expression={expression}
               x={faceX}

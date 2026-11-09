@@ -6,7 +6,7 @@ import type { StarExpression } from "./star-parts";
 // from the body art, so each pose has its own layout.
 export type StarPose = StarExpression | "walk";
 // Angle tilts the dome clockwise, like SVG rotate().
-type Dome = {
+export type Dome = {
   cx: number;
   cy: number;
   rx: number;
@@ -15,7 +15,7 @@ type Dome = {
   lats: number;
   angle?: number;
 };
-type Layout = { body: Dome; feet: Dome[]; arms: Dome[]; face: [number, number] };
+export type Layout = { body: Dome; feet: Dome[]; arms: Dome[]; face: [number, number] };
 
 const small = (cx: number, cy: number, rx: number, ry: number, angle = 0): Dome => ({
   cx,
@@ -46,7 +46,7 @@ const standing = (arms: Dome[]): Layout => ({
   arms,
   face: [50, 55],
 });
-const layouts: Record<StarPose, Layout> = {
+export const layouts: Record<StarPose, Layout> = {
   idle: standing(pair(27, 67, 5.4, 7.3, -35)),
   happy: standing(pair(28, 67.5, 5.6, 7.6, -45)),
   cry: standing(pair(31, 72, 6.4, 5.4, 20)),
@@ -68,7 +68,7 @@ const layouts: Record<StarPose, Layout> = {
   },
 };
 
-const tilt = (20 * Math.PI) / 180;
+export const tilt = (20 * Math.PI) / 180;
 // Upper left and toward the viewer.
 const light = [-0.45, 0.55, 0.7];
 const noise = (a: number, b: number) => {
@@ -78,7 +78,7 @@ const noise = (a: number, b: number) => {
 
 type Facet = { d: string; shade: number; roll: number; glint: number };
 
-function inside(dome: Dome, x: number, y: number, margin = 1) {
+export function inside(dome: Dome, x: number, y: number, margin = 1) {
   const a = ((dome.angle ?? 0) * Math.PI) / 180;
   const dx = x - dome.cx;
   const dy = y - dome.cy;
